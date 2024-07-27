@@ -59,41 +59,40 @@ const Confetti = ({ active, difficulty }) => {
   );
 };
 
-const ProgressBar = ({ wins, total, color }) => (
-  <div style={{ 
-    width: '100%', 
-    backgroundColor: '#e0e0e0', 
-    borderRadius: '4px', 
-    overflow: 'hidden',
-    height: '20px'
-  }}>
-    <div style={{
-      width: `${(wins / total) * 100}%`,
-      backgroundColor: color,
-      height: '100%',
-      transition: 'width 0.3s ease-in-out'
-    }} />
-  </div>
-);
+const ProgressBar = ({ difficulty, scores, difficultyLevels }) => {
+  const { wins, flips } = scores[difficulty];
+  const { label, color } = difficultyLevels[difficulty];
+  const progress = flips > 0 ? (wins / flips) * 100 : 0;
 
-const DifficultyTally = ({ difficulty, scores, difficultyLevels }) => (
-  <div style={{ 
-    marginBottom: '8px', 
-    padding: '8px', 
-    backgroundColor: difficultyLevels[difficulty].color,
-    borderRadius: '4px'
-  }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-      <div>{difficultyLevels[difficulty].label}:</div>
-      <div>{scores[difficulty].wins}/{scores[difficulty].flips}</div>
+  return (
+    <div style={{ 
+      marginBottom: '8px', 
+      padding: '8px', 
+      backgroundColor: '#e0e0e0',
+      borderRadius: '4px',
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '360px',
+      height: '40px',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      <div style={{ 
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: `${progress}%`, 
+        height: '100%',
+        backgroundColor: color, 
+        transition: 'width 0.3s ease-in-out',
+        zIndex: 1,
+      }} />
+      <div style={{ zIndex: 2, color: 'black' }}>{label}:</div>
+      <div style={{ zIndex: 2, color: 'black' }}>{wins}/{flips}</div>
     </div>
-    <ProgressBar 
-      wins={scores[difficulty].wins} 
-      total={scores[difficulty].flips} 
-      color={difficultyLevels[difficulty].color} 
-    />
-  </div>
-);
+  );
+};
 
 const CoinFlipMMORPG = () => {
   const difficultyLevels = {
@@ -190,14 +189,11 @@ const CoinFlipMMORPG = () => {
       </div>
       
       <div>
-        {Object.keys(difficultyLevels).map(diff => (
-          <DifficultyTally 
-            key={diff} 
-            difficulty={diff} 
-            scores={scores} 
-            difficultyLevels={difficultyLevels} 
-          />
-        ))}
+        <ProgressBar
+          difficulty={difficulty} 
+          scores={scores} 
+          difficultyLevels={difficultyLevels} 
+        />
       </div>
       
       {message && (
