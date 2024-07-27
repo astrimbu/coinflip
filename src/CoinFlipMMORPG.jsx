@@ -4,10 +4,10 @@ const Confetti = ({ active, difficulty }) => {
   if (!active) return null;
 
   const confettiCount = {
-    easy: 50,
-    medium: 100,
-    hard: 200,
-    impossible: 500
+    easy: 10,
+    medium: 50,
+    hard: 100,
+    impossible: 200,
   }[difficulty];
 
   const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
@@ -94,6 +94,28 @@ const ProgressBar = ({ difficulty, scores, difficultyLevels }) => {
   );
 };
 
+const Inventory = ({ items }) => {
+  return (
+    <div style={{
+      maxwidth: '400px',
+      margin: '0 auto',
+      padding: '20px',
+      backgroundColor: '#f0f0f0',
+      borderRadius: '8px',
+    }}>
+      <h2>Inventory</h2>
+      {Object.entries(items).map(([itemName, itemDetails]) => (
+        <div key={itemName} style={{ marginBottom: '10px' }}>
+          <h3>{itemName}</h3>
+          {Object.entries(itemDetails).map(([rarity, count]) => (
+            <p key={rarity}>{rarity}: {count}</p>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const CoinFlipMMORPG = () => {
   const difficultyLevels = {
     easy: { label: 'Easy', rate: 1/2, color: '#4CAF50' },
@@ -113,6 +135,50 @@ const CoinFlipMMORPG = () => {
   const [message, setMessage] = useState('Good luck!');
   const [showConfetti, setShowConfetti] = useState(false);
 
+  const [view, setView] = useState('game'); // 'game' or 'inventory'
+  const [inventory, setInventory] = useState({
+    Gold: { Common: 0, Magic: 0, Rare: 0, Unique: 0 },
+    Sword: { Common: 0, Magic: 0, Rare: 0, Unique: 0 },
+    Hat: { Common: 0, Magic: 0, Rare: 0, Unique: 0 },
+    Potion: { Common: 0, Magic: 0, Rare: 0, Unique: 0 },
+  });
+
+  const difficultyModifiers = {
+    easy: 1,
+    medium: 2,
+    hard: 3,
+    impossible: 5,
+  };
+
+  const rarityByDifficulty = {
+    easy: 'Common',
+    medium: 'Magic',
+    hard: 'Rare',
+    impossible: 'Unique',
+  }
+
+  const checkForItem = () => {
+    const baseChance = 0.1;
+    const modifier = difficultyModifiers[difficulty];
+    const itemChance = baseChance * modifier;
+    
+    if (Math.random() < itemChance) {
+      const items = ['Gold', 'Sword', 'Hat', 'Potion'];
+      const randomItem = items[Math.floor(Math.random() * items.length)];
+      const rarity = rarityByDifficulty[difficulty];
+
+      setInventory(prevInventory => ({
+        ...prevInventory,
+        [randomItem]: {
+          ...prevInevntory[randomItem],
+          [rarity]: prevInventory[randomItem][rarity] + 1
+        }
+      }));
+
+      setMessage(`You found a ${rarity} ${randomItem}!`);
+    }
+  };
+
   const flipCoin = () => {
     setIsFlipping(true);
     setTimeout(() => {
@@ -128,6 +194,7 @@ const CoinFlipMMORPG = () => {
         setMessage('You won! The RNG gods smile upon you.');
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
+        checkForItem();
       } else {
         setMessage('You lost. Maybe buy our "Luck Boost" DLC?');
       }
@@ -149,63 +216,75 @@ const CoinFlipMMORPG = () => {
   const targetRate = (difficultyLevels[difficulty].rate * 100).toFixed(2);
 
   return (
-    <div style={{ 
-      maxWidth: '400px', 
-      margin: '0 auto', 
-      padding: '20px', 
-      backgroundColor: '#f0f0f0', 
-      borderRadius: '8px',
-    }}>
-      <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>CoinFlip Legends: The Flippening</h1>
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+        <button onClick={() => setView('game')} style={{ marginRight: '10px' }}>Game</button>
+        <button onClick={() => setView('inventory')}>Inventory</button>
+      </div>
       
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
-        {Object.entries(difficultyLevels).map(([key, { label, color }]) => (
-          <button
-            key={key}
-            onClick={() => setDifficulty(key)}
-            variant={difficulty === key ? "default" : "outline"}
-            style={{
-              backgroundColor: difficulty === key ? color : 'transparent',
-              color: difficulty === key ? 'white' : 'black',
-              border: `1px solid ${color}`,
-            }}
+      {view === 'game' ? (
+        <div style={{ 
+          maxWidth: '400px', 
+          margin: '0 auto', 
+          padding: '20px', 
+          backgroundColor: '#f0f0f0', 
+          borderRadius: '8px',
+        }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>CoinFlip Legends: The Flippening</h1>
+          
+          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
+            {Object.entries(difficultyLevels).map(([key, { label, color }]) => (
+              <button
+                key={key}
+                onClick={() => setDifficulty(key)}
+                variant={difficulty === key ? "default" : "outline"}
+                style={{
+                  backgroundColor: difficulty === key ? color : 'transparent',
+                  color: difficulty === key ? 'white' : 'black',
+                  border: `1px solid ${color}`,
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          
+          <button 
+            onClick={flipCoin} 
+            disabled={isFlipping}
+            style={{ width: '100%', marginBottom: '16px' }}
           >
-            {label}
+            {isFlipping ? 'Flipping...' : 'Flip Coin'}
           </button>
-        ))}
-      </div>
-      
-      <button 
-        onClick={flipCoin} 
-        disabled={isFlipping}
-        style={{ width: '100%', marginBottom: '16px' }}
-      >
-        {isFlipping ? 'Flipping...' : 'Flip Coin'}
-      </button>
-      
-      <div style={{ marginBottom: '16px' }}>
-        <p>Current Win Rate: {winRate}%</p>
-        <p>Target Win Rate: {targetRate}%</p>
-      </div>
-      
-      <div>
-        <ProgressBar
-          difficulty={difficulty} 
-          scores={scores} 
-          difficultyLevels={difficultyLevels} 
-        />
-      </div>
-      
-      {message && (
-        <div style={{ marginTop: '16px', padding: '8px', backgroundColor: '#FFF3CD', border: '1px solid #FFEEBA' }}>
-          <p>{message}</p>
+          
+          <div style={{ marginBottom: '16px' }}>
+            <p>Current Win Rate: {winRate}%</p>
+            <p>Target Win Rate: {targetRate}%</p>
+          </div>
+          
+          <div>
+            <ProgressBar
+              difficulty={difficulty} 
+              scores={scores} 
+              difficultyLevels={difficultyLevels} 
+            />
+          </div>
+          
+          {message && (
+            <div style={{ marginTop: '16px', padding: '8px', backgroundColor: '#FFF3CD', border: '1px solid #FFEEBA' }}>
+              <p>{message}</p>
+            </div>
+          )}
+          
+          <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
+            <p>Notice: Any resemblance to actual games is purely coincidental.</p>
+            <p>Remember: It's not gambling if you always lose!</p>
+          </div>
+
         </div>
+      ) : (
+        <Inventory items={inventory} />
       )}
-      
-      <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
-        <p>Notice: Any resemblance to actual games is purely coincidental.</p>
-        <p>Remember: It's not gambling if you always lose!</p>
-      </div>
 
       <Confetti active={showConfetti} difficulty={difficulty} />
     </div>
