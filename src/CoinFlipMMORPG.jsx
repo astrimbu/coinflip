@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
-const Confetti = ({ active }) => {
+const Confetti = ({ active, difficulty }) => {
   if (!active) return null;
 
-  const confettiCount = 150;
+  const confettiCount = {
+    easy: 50,
+    medium: 100,
+    hard: 200,
+    impossible: 500
+  }[difficulty];
+
   const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
 
   return (
@@ -19,7 +25,6 @@ const Confetti = ({ active }) => {
       {[...Array(confettiCount)].map((_, i) => {
         const left = `${Math.random() * 100}%`;
         const animationDuration = 3 + Math.random() * 2;
-        const horizontalSpeed = 1 + Math.random() * 2;
         const color = colors[Math.floor(Math.random() * colors.length)];
 
         return (
@@ -41,9 +46,11 @@ const Confetti = ({ active }) => {
           @keyframes confetti-${i} {
             0% {
               transform: translate3d(0, 0, 0) rotate(0deg);
+              opacity: 1;
             }
             100% {
               transform: translate3d(${(Math.random() - 0.5) * 500}px, ${window.innerHeight + 20}px, 0) rotate(${Math.random() * 720}deg);
+              opacity: 0;
             }
           }
         `).join('')}
@@ -52,15 +59,51 @@ const Confetti = ({ active }) => {
   );
 };
 
+const ProgressBar = ({ wins, total, color }) => (
+  <div style={{ 
+    width: '100%', 
+    backgroundColor: '#e0e0e0', 
+    borderRadius: '4px', 
+    overflow: 'hidden',
+    height: '20px'
+  }}>
+    <div style={{
+      width: `${(wins / total) * 100}%`,
+      backgroundColor: color,
+      height: '100%',
+      transition: 'width 0.3s ease-in-out'
+    }} />
+  </div>
+);
+
+const DifficultyTally = ({ difficulty, scores, difficultyLevels }) => (
+  <div style={{ 
+    marginBottom: '8px', 
+    padding: '8px', 
+    backgroundColor: difficultyLevels[difficulty].color,
+    borderRadius: '4px'
+  }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+      <div>{difficultyLevels[difficulty].label}:</div>
+      <div>{scores[difficulty].wins}/{scores[difficulty].flips}</div>
+    </div>
+    <ProgressBar 
+      wins={scores[difficulty].wins} 
+      total={scores[difficulty].flips} 
+      color={difficultyLevels[difficulty].color} 
+    />
+  </div>
+);
+
 const CoinFlipMMORPG = () => {
   const difficultyLevels = {
-    easy: { label: 'Easy', rate: 1/2, color: '#e6ffe6' },
-    medium: { label: 'Medium', rate: 1/5, color: '#fff0e6' },
-    hard: { label: 'Hard', rate: 1/20, color: '#ffe6e6' },
-    impossible: { label: 'Impossible', rate: 1/100, color: '#e6e6ff' }
+    easy: { label: 'Easy', rate: 1/2, color: '#4CAF50' },
+    medium: { label: 'Medium', rate: 1/3, color: '#FFA500' },
+    hard: { label: 'Hard', rate: 1/5, color: '#F44336' },
+    impossible: { label: 'Impossible', rate: 1/50, color: '#9C27B0' }
   };
 
-  const [difficulty, setDifficulty] = useState('medium');
+  const [difficulty, setDifficulty] = useState('easy');
   const [scores, setScores] = useState({
     easy: { flips: 0, wins: 0 },
     medium: { flips: 0, wins: 0 },
@@ -68,7 +111,7 @@ const CoinFlipMMORPG = () => {
     impossible: { flips: 0, wins: 0 }
   });
   const [isFlipping, setIsFlipping] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState('Good luck!');
   const [showConfetti, setShowConfetti] = useState(false);
 
   const flipCoin = () => {
@@ -96,7 +139,7 @@ const CoinFlipMMORPG = () => {
   useEffect(() => {
     const currentScore = scores[difficulty];
     if (currentScore.wins === 1) {
-      setMessage('First win! Only 999 more for the "Devoted Flipper" achievement!');
+      setMessage('Only 999 more wins until "Devoted Flipper"!');
     } else if (currentScore.flips % 100 === 0 && currentScore.flips > 0) {
       setMessage(`Wow! You've flipped ${currentScore.flips} times on ${difficultyLevels[difficulty].label}! Your life must be so fulfilling.`);
     }
@@ -111,37 +154,50 @@ const CoinFlipMMORPG = () => {
       maxWidth: '400px', 
       margin: '0 auto', 
       padding: '20px', 
-      backgroundColor: difficultyLevels[difficulty].color, 
+      backgroundColor: '#f0f0f0', 
       borderRadius: '8px',
-      transition: 'background-color 0.3s ease'
     }}>
       <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>CoinFlip Legends: The Flippening</h1>
       
-      <div style={{ marginBottom: '16px' }}>
-        <label>Select difficulty level:</label>
-        <select
-          value={difficulty}
-          onChange={(e) => setDifficulty(e.target.value)}
-          style={{ width: '100%', padding: '8px', marginTop: '8px' }}
-        >
-          {Object.entries(difficultyLevels).map(([key, { label }]) => (
-            <option key={key} value={key}>{label}</option>
-          ))}
-        </select>
+      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
+        {Object.entries(difficultyLevels).map(([key, { label, color }]) => (
+          <button
+            key={key}
+            onClick={() => setDifficulty(key)}
+            variant={difficulty === key ? "default" : "outline"}
+            style={{
+              backgroundColor: difficulty === key ? color : 'transparent',
+              color: difficulty === key ? 'white' : 'black',
+              border: `1px solid ${color}`,
+            }}
+          >
+            {label}
+          </button>
+        ))}
       </div>
       
       <button 
         onClick={flipCoin} 
         disabled={isFlipping}
-        style={{ width: '100%', padding: '8px', backgroundColor: isFlipping ? '#ccc' : '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+        style={{ width: '100%', marginBottom: '16px' }}
       >
         {isFlipping ? 'Flipping...' : 'Flip Coin'}
       </button>
       
-      <div style={{ marginTop: '16px' }}>
-        <p>Flips: {currentScore.flips} | Wins: {currentScore.wins}</p>
+      <div style={{ marginBottom: '16px' }}>
         <p>Current Win Rate: {winRate}%</p>
         <p>Target Win Rate: {targetRate}%</p>
+      </div>
+      
+      <div>
+        {Object.keys(difficultyLevels).map(diff => (
+          <DifficultyTally 
+            key={diff} 
+            difficulty={diff} 
+            scores={scores} 
+            difficultyLevels={difficultyLevels} 
+          />
+        ))}
       </div>
       
       {message && (
@@ -151,11 +207,11 @@ const CoinFlipMMORPG = () => {
       )}
       
       <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
-        <p>Notice: Any resemblance to actual games is purely coincidental and definitely not a scathing commentary on the industry.</p>
+        <p>Notice: Any resemblance to actual games is purely coincidental.</p>
         <p>Remember: It's not gambling if you always lose!</p>
       </div>
 
-      <Confetti active={showConfetti} />
+      <Confetti active={showConfetti} difficulty={difficulty} />
     </div>
   );
 };
