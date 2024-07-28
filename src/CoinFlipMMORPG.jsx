@@ -94,27 +94,176 @@ const ProgressBar = ({ difficulty, scores, difficultyLevels }) => {
   );
 };
 
-const Inventory = ({ items }) => {
+const InventoryGrid = ({ items, onEquip }) => {
+  const [hoveredItem, setHoveredItem] = useState(null);
+
+  const itemImages = {
+    Sword: {
+      Common: '/api/placeholder/50/50?text=CS',
+      Magic: '/api/placeholder/50/50?text=MS',
+      Rare: '/api/placeholder/50/50?text=RS',
+      Unique: '/api/placeholder/50/50?text=US',
+    },
+    Hat: {
+      Common: '/api/placeholder/50/50?text=CH',
+      Magic: '/api/placeholder/50/50?text=MH',
+      Rare: '/api/placeholder/50/50?text=RH',
+      Unique: '/api/placeholder/50/50?text=UH',
+    },
+  }; 
+
+  const flattenedItems = Object.entries(items).flatMap(([itemName, rarities]) =>
+    Object.entries(rarities).map(([rarity, count]) =>
+      Array (count).fill({ name: itemName, rarity })
+    )
+  ).flat().slice(0, 16);
+
   return (
     <div style={{
-      maxwidth: '400px',
+      width: '360px',
       margin: '0 auto',
+    }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginBottom: '10px',
+      }}>
+       
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(4, 50px)',
+        gridGap: '10px',
+      }}>
+        {[...Array(16)].map((_, index) => (
+        <div
+          key={index}
+          style={{
+            width: '50px',
+            height: '50px',
+            border: '1px solid #ccc',
+            position: 'relative'
+          }}
+          onClick={() => flattenedItems[index] && onEquip(flattenedItems[index])}
+        >
+          {flattenedItems[index] && (
+            <>
+              <img
+                src={itemImages[flattenedItems[index].name][flattenedItems[index].rarity] || '/api/placeholder/50/50?text=?'}
+                alt={flattenedItems[index].rarity + ' ' + flattenedItems[index].name}
+                style={{ width: '100%', height: '100%' }}
+                onMouseEnter={() => setHoveredItem(flattenedItems[index])}
+                onMouseLeave={() => setHoveredItem(null)}
+              />
+              {hoveredItem === flattenedItems[index] && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '100%',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  backgroundColor: 'rgba(0,0,0,0.8)',
+                  color: 'white',
+                  padding: '5px',
+                  borderRadius: '3px',
+                  whiteSpace: 'nowrap'
+                }}>
+                  {`${flattenedItems[index].name} (${flattenedItems[index].rarity})`}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      ))}
+      </div>
+    </div>
+    </div>
+  )
+}
+
+const WornEquipment = ({ equipment, onUnequip, potions, gold }) => {
+  return (
+    <div style={{
+      width: '360px',
+      margin: '0 auto',
+      display: 'grid',
+      gridTemplateRows: 'auto auto',
+      gap: '20px',
       padding: '20px',
       backgroundColor: '#f0f0f0',
       borderRadius: '8px',
     }}>
-      <h2>Inventory</h2>
-      {Object.entries(items).map(([itemName, itemDetails]) => (
-        <div key={itemName} style={{ marginBottom: '10px' }}>
-          <h3>{itemName}</h3>
-          {Object.entries(itemDetails).map(([rarity, count]) => (
-            <p key={rarity}>{rarity}: {count}</p>
-          ))}
+      <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+        <div>
+          <p>Hat</p>
+          <div
+            style={{
+              width: '50px',
+              height: '50px',
+              border: '1px solid #ccc',
+              position: 'relative'
+            }}
+            onClick={() => equipment.hat && onUnequip('hat')}
+          >
+            {equipment.hat && (
+              <img
+                src={`/api/placeholder/50/50?text=${equipment.hat.rarity[0]}H`}
+                alt="Hat"
+                style={{ width: '100%', height: '100%' }}
+              />
+            )}
+          </div>
         </div>
-      ))}
-    </div>
-  );
-};
+        <div>
+          <p>Sword</p>
+          <div
+            style={{
+              width: '50px',
+              height: '50px',
+              border: '1px solid #ccc',
+              position: 'relative'
+            }}
+            onClick={() => equipment.sword && onUnequip('sword')}
+          >
+            {equipment.sword && (
+              <img
+                src={`/api/placeholder/50/50?text=${equipment.sword.rarity[0]}S`}
+                alt="Sword"
+                style={{ width: '100%', height: '100%' }}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+        <div>
+          <p>Gold</p>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '1px solid #ccc',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+            {equipment.gold || 0}
+          </div>
+        </div>
+        <div>
+          <p>Potion</p>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '1px solid #ccc',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+            {equipment.potions || 0}
+          </div>
+        </div>
+      </div>
+     </div> 
+  )
+}
 
 const CoinFlipMMORPG = () => {
   const difficultyLevels = {
@@ -131,17 +280,32 @@ const CoinFlipMMORPG = () => {
     hard: { flips: 0, wins: 0 },
     impossible: { flips: 0, wins: 0 }
   });
+
   const [isFlipping, setIsFlipping] = useState(false);
   const [message, setMessage] = useState('Good luck!');
   const [showConfetti, setShowConfetti] = useState(false);
 
   const [view, setView] = useState('game'); // 'game' or 'inventory'
+
+  const [wornEquipment, setWornEquipment] = useState({
+    hat: null,
+    sword: null,
+    gold: 0,
+    potions: 0,
+  });
+
   const [inventory, setInventory] = useState({
-    Gold: { Common: 0, Magic: 0, Rare: 0, Unique: 0 },
     Sword: { Common: 0, Magic: 0, Rare: 0, Unique: 0 },
     Hat: { Common: 0, Magic: 0, Rare: 0, Unique: 0 },
-    Potion: { Common: 0, Magic: 0, Rare: 0, Unique: 0 },
   });
+
+  const [lastObtainedItem, setLastObtainedItem] = useState(null);
+
+  const [recentItems, setRecentItems] = useState([]);
+
+  const currentScore = scores[difficulty];
+  const winRate = currentScore.flips > 0 ? (currentScore.wins / currentScore.flips * 100).toFixed(2) : 0;
+  const targetRate = (difficultyLevels[difficulty].rate * 100).toFixed(2);
 
   const difficultyModifiers = {
     easy: 1,
@@ -157,6 +321,51 @@ const CoinFlipMMORPG = () => {
     impossible: 'Unique',
   }
 
+  const equipItem = (item) => {
+    if (item.name === 'Hat' || item.name === 'Sword') {
+      setWornEquipment(prev => {
+        const slot = item.name.toLowerCase();
+        const prevItem = prev[slot];
+        
+        // Remove item from inventory
+        setInventory(prevInv => ({
+          ...prevInv,
+          [item.name]: {
+            ...prevInv[item.name],
+            [item.rarity]: prevInv[item.name][item.rarity] - 1
+          }
+        }));
+
+        // If there was a previous item, add it back to inventory
+        if (prevItem) {
+          setInventory(prevInv => ({
+            ...prevInv,
+            [prevItem.name]: {
+              ...prevInv[prevItem.name],
+              [prevItem.rarity]: prevInv[prevItem.name][prevItem.rarity] + 1
+            }
+          }));
+        }
+
+        return { ...prev, [slot]: item };
+      });
+    }
+  };
+
+  const unequipItem = (slot) => {
+    const item = wornEquipment[slot];
+    if (item) {
+      setWornEquipment(prev => ({ ...prev, [slot]: null}));
+      setInventory(prevInv => ({
+        ...prevInv,
+        [item.name]: {
+          ...prevInv[item.name],
+          [item.rarity]: prevInv[item.name][item.rarity] + 1
+        }
+      }));
+    }
+  };
+
   const checkForItem = () => {
     const baseChance = 0.1;
     const modifier = difficultyModifiers[difficulty];
@@ -167,15 +376,29 @@ const CoinFlipMMORPG = () => {
       const randomItem = items[Math.floor(Math.random() * items.length)];
       const rarity = rarityByDifficulty[difficulty];
 
-      setInventory(prevInventory => ({
-        ...prevInventory,
-        [randomItem]: {
-          ...prevInevntory[randomItem],
-          [rarity]: prevInventory[randomItem][rarity] + 1
-        }
-      }));
+      const newItem = { name: randomItem, rarity };
 
+      if (randomItem === 'Gold') {
+        setWornEquipment(prev => ({ ...prev, gold: (prev.gold || 0) + 1 }));
+      } else if (randomItem === 'Potion') {
+        setWornEquipment(prev => ({ ...prev, potions: (prev.potions || 0) + 1}));
+      } else {
+        setInventory(prevInventory => ({
+          ...prevInventory,
+          [randomItem]: {
+            ...prevInventory[randomItem],
+            [rarity]: prevInventory[randomItem][rarity] + 1
+          }
+        }));
+      }
+    
+
+      setLastObtainedItem(newItem);
       setMessage(`You found a ${rarity} ${randomItem}!`);
+
+      setRecentItems(prev => [newItem, ...prev.slice(0, 4)]);
+    } else {
+      setLastObtainedItem(null);
     }
   };
 
@@ -202,27 +425,15 @@ const CoinFlipMMORPG = () => {
     }, 1000);
   };
 
-  useEffect(() => {
-    const currentScore = scores[difficulty];
-    if (currentScore.wins === 1) {
-      setMessage('Only 999 more wins until "Devoted Flipper"!');
-    } else if (currentScore.flips % 100 === 0 && currentScore.flips > 0) {
-      setMessage(`Wow! You've flipped ${currentScore.flips} times on ${difficultyLevels[difficulty].label}! Your life must be so fulfilling.`);
-    }
-  }, [scores, difficulty]);
-
-  const currentScore = scores[difficulty];
-  const winRate = currentScore.flips > 0 ? (currentScore.wins / currentScore.flips * 100).toFixed(2) : 0;
-  const targetRate = (difficultyLevels[difficulty].rate * 100).toFixed(2);
-
   return (
-    <div>
+    <div style={{ width: '420px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
         <button onClick={() => setView('game')} style={{ marginRight: '10px' }}>Game</button>
-        <button onClick={() => setView('inventory')}>Inventory</button>
+        <button onClick={() => setView('inventory')} style={{ marginRight: '10px' }}>Inventory</button>
+        <button onClick={() => setView('equipment')}>Equipment</button>
       </div>
       
-      {view === 'game' ? (
+      {view === 'game' && (
         <div style={{ 
           maxWidth: '400px', 
           margin: '0 auto', 
@@ -256,11 +467,19 @@ const CoinFlipMMORPG = () => {
           >
             {isFlipping ? 'Flipping...' : 'Flip Coin'}
           </button>
-          
+
           <div style={{ marginBottom: '16px' }}>
-            <p>Current Win Rate: {winRate}%</p>
-            <p>Target Win Rate: {targetRate}%</p>
-          </div>
+            <h3>Recently Obtained Items:</h3>
+            {recentItems.length > 0 ? (
+              <ul>
+                {recentItems.map((item, index) => (
+                  <li key={index}>{`${item.rarity} ${item.name}`}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>No items obtained yet.</p>
+            )}
+          </div> 
           
           <div>
             <ProgressBar
@@ -282,8 +501,23 @@ const CoinFlipMMORPG = () => {
           </div>
 
         </div>
-      ) : (
-        <Inventory items={inventory} />
+      )}
+
+      {view === 'inventory' && (
+        <div style={{
+          padding: '20px',
+          backgroundColor: '#f0f0f0',
+          borderRadius: '8px',
+        }}>
+          <InventoryGrid items={inventory} onEquip={equipItem} />
+        </div>
+      )}
+
+      {view === 'equipment' && (
+        <WornEquipment 
+          equipment={wornEquipment}
+          onUnequip={unequipItem}
+        />
       )}
 
       <Confetti active={showConfetti} difficulty={difficulty} />
