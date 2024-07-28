@@ -122,13 +122,9 @@ const InventoryGrid = ({ items, onEquip }) => {
     <div style={{
       width: '360px',
       margin: '0 auto',
+      display: 'flex',
+      justifyContent: 'center',
     }}>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginBottom: '10px',
-      }}>
-       
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 50px)',
@@ -174,7 +170,6 @@ const InventoryGrid = ({ items, onEquip }) => {
         </div>
       ))}
       </div>
-    </div>
     </div>
   )
 }
@@ -376,12 +371,22 @@ const CoinFlipMMORPG = () => {
       const randomItem = items[Math.floor(Math.random() * items.length)];
       const rarity = rarityByDifficulty[difficulty];
 
-      const newItem = { name: randomItem, rarity };
+      let newItem;
 
-      if (randomItem === 'Gold') {
-        setWornEquipment(prev => ({ ...prev, gold: (prev.gold || 0) + 1 }));
-      } else if (randomItem === 'Potion') {
-        setWornEquipment(prev => ({ ...prev, potions: (prev.potions || 0) + 1}));
+      if (randomItem === 'Gold' || randomItem === 'Potion') {
+        const potionCount = {
+          easy: 1,
+          medium: 2,
+          hard: 3,
+          impossible: 4
+        }[difficulty];
+
+        setWornEquipment(prev => ({
+          ...prev,
+          [randomItem.toLowerCase()]: (prev[randomItem.toLowerCase()] || 0) + (randomItem === 'Potion' ? potionCount : 1)
+        }));
+
+        newItem = { name: randomItem, count: randomItem === 'Potion' ? potionCount : 1 };
       } else {
         setInventory(prevInventory => ({
           ...prevInventory,
@@ -390,17 +395,18 @@ const CoinFlipMMORPG = () => {
             [rarity]: prevInventory[randomItem][rarity] + 1
           }
         }));
+
+        newItem = { name: randomItem, rarity };
       }
-    
 
       setLastObtainedItem(newItem);
-      setMessage(`You found a ${rarity} ${randomItem}!`);
+      setMessage(`You found ${newItem.count ? newItem.count : 'a'} ${newItem.rarity ? `${newItem.rarity} ` : ''}${newItem.name}${newItem.count > 1 ? 's' : ''}!`);
 
       setRecentItems(prev => [newItem, ...prev.slice(0, 4)]);
     } else {
       setLastObtainedItem(null);
     }
-  };
+  }; 
 
   const flipCoin = () => {
     setIsFlipping(true);
@@ -473,8 +479,13 @@ const CoinFlipMMORPG = () => {
             {recentItems.length > 0 ? (
               <ul>
                 {recentItems.map((item, index) => (
-                  <li key={index}>{`${item.rarity} ${item.name}`}</li>
-                ))}
+                  <li key={index}>
+                    {item.count ? `${item.count} ` : ''}
+                    {item.rarity ? `${item.rarity} ` : ''}
+                    {item.name}
+                    {item.count > 1 ? 's' : ''}
+                  </li>
+                ))} 
               </ul>
             ) : (
               <p>No items obtained yet.</p>
