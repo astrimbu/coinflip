@@ -191,21 +191,17 @@ const WornEquipment = ({ equipment, onUnequip }) => {
       margin: '0 auto',
       display: 'grid',
       gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '20px',
-      padding: '20px',
+      gap: '10px',
+      padding: '50px 20px 20px 20px',
       backgroundColor: '#f0f0f0',
       borderRadius: '8px',
     }}>
       <div style={{ gridColumn: '2' }}>{renderSlot('hat')}</div>
-
       <div style={{ gridColumn: '1' }}>{renderSlot('cape')}</div>
       <div style={{ gridColumn: '2' }}>{renderSlot('amulet')}</div>
-
       <div style={{ gridColumn: '1' }}>{renderSlot('weapon')}</div>
       <div style={{ gridColumn: '2' }}>{renderSlot('body')}</div>
-
       <div style={{ gridColumn: '2' }}>{renderSlot('pants')}</div>
-      
       <div style={{ gridColumn: '1' }}>{renderSlot('gloves')}</div>
       <div style={{ gridColumn: '2' }}>{renderSlot('boots')}</div>
       <div style={{ gridColumn: '3' }}>{renderSlot('ring')}</div>
@@ -226,7 +222,6 @@ const WornEquipment = ({ equipment, onUnequip }) => {
   function renderSlot(slot) {
     return (
       <div>
-        <p>{slot.charAt(0).toUpperCase() + slot.slice(1)}</p>
         <div
           style={{
             width: '50px',
@@ -236,6 +231,7 @@ const WornEquipment = ({ equipment, onUnequip }) => {
             margin: '0 auto',
           }}
           onClick={() => equipment[slot] && onUnequip(slot)}
+          title={slot.charAt(0).toUpperCase() + slot.slice(1)}
         >
           {equipment[slot] && (
             <img
@@ -280,10 +276,21 @@ const CoinFlipMMORPG = () => {
   const difficultyLevels = {
     easy: { label: 'Easy', rate: 1/2, color: '#4CAF50' },
     medium: { label: 'Medium', rate: 1/3, color: '#FFA500' },
-    hard: { label: 'Hard', rate: 1/5, color: '#F44336' },
-    impossible: { label: 'Impossible', rate: 1/50, color: '#9C27B0' }
+    hard: { label: 'Hard', rate: 1/10, color: '#F44336' },
+    impossible: { label: 'Impossible', rate: 1/100, color: '#9C27B0' }
   };
-
+  const difficultyModifiers = {
+    easy: 2,
+    medium: 3,
+    hard: 4,
+    impossible: 5,
+  };
+  const rarityByDifficulty = {
+    easy: 'Common',
+    medium: 'Magic',
+    hard: 'Rare',
+    impossible: 'Unique',
+  }
   const [difficulty, setDifficulty] = useState('easy');
   const [scores, setScores] = useState({
     easy: { flips: 0, wins: 0 },
@@ -291,14 +298,11 @@ const CoinFlipMMORPG = () => {
     hard: { flips: 0, wins: 0 },
     impossible: { flips: 0, wins: 0 }
   });
-
   const [isFlipping, setIsFlipping] = useState(false);
   const [message, setMessage] = useState('Good luck!');
   const [showConfetti, setShowConfetti] = useState(false);
-
   const [view, setView] = useState('game'); // 'game' or 'inventory'
   const [crystalTimer, setCrystalTimer] = useState(0);
-
   const [wornEquipment, setWornEquipment] = useState({
     hat: null,
     weapon: null,
@@ -312,7 +316,6 @@ const CoinFlipMMORPG = () => {
     gold: 0,
     potion: 0,
   });
-
   const [inventory, setInventory] = useState({
     Weapon: [],
     Hat: [],
@@ -325,30 +328,10 @@ const CoinFlipMMORPG = () => {
     Amulet: [],
     Crystal: [],
   });
-
   const [lastObtainedItem, setLastObtainedItem] = useState(null);
-
   const [recentItems, setRecentItems] = useState([]);
-
-  const currentScore = scores[difficulty];
-  const winRate = currentScore.flips > 0 ? (currentScore.wins / currentScore.flips * 100).toFixed(2) : 0;
-  const targetRate = (difficultyLevels[difficulty].rate * 100).toFixed(2);
-
-  const difficultyModifiers = {
-    easy: 1,
-    medium: 2,
-    hard: 3,
-    impossible: 5,
-  };
-
-  const rarityByDifficulty = {
-    easy: 'Common',
-    medium: 'Magic',
-    hard: 'Rare',
-    impossible: 'Unique',
-  }
-
   const [purchaseNotification, setPurchaseNotification] = useState(false);
+  const currentScore = scores[difficulty];
 
   const equipItem = (item) => {
     const slot = item.name === 'Sword' || item.name === 'Energy Sword' ? 'weapon' : item.name.toLowerCase();
@@ -382,26 +365,22 @@ const CoinFlipMMORPG = () => {
   const unequipItem = (slot) => {
     const item = wornEquipment[slot];
     if (item) {
+      if (slot === 'gold') {
+        return;
+      } 
+      if (slot === 'potion') {
+        return;
+      }
       setWornEquipment(prev => ({ ...prev, [slot]: null }));
       setInventory(prevInv => {
         const category = item.name === 'Sword' || item.name === 'Energy Sword' ? 'Weapon' : item.name;
         return {
           ...prevInv,
-          [category]: [...prevInv[category], item]
+          [category]: [...prevInv[category] || [], item]
         };
       });
     }
   };
-
-  useEffect(() => {
-    let interval;
-    if (crystalTimer > 0) {
-      interval = setInterval(() => {
-        setCrystalTimer(prevTimer => prevTimer - 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [crystalTimer]);
 
   const checkForItem = () => {
     const baseChance = 0.1;
@@ -446,7 +425,9 @@ const CoinFlipMMORPG = () => {
       }
 
       setLastObtainedItem(newItem);
-      setMessage(`You found ${newItem.count ? newItem.count : 'a'} ${newItem.rarity ? `${newItem.rarity} ` : ''}${newItem.name}${newItem.count > 1 ? 's' : ''}!${newItem.stat ? ` Stat: ${newItem.stat}` : ''}`);
+      setMessage(`You found ${newItem.count ? newItem.count : 'a'} ${newItem.rarity ? `${newItem.rarity} ` : ''}
+        ${newItem.name}${newItem.count > 1 && newItem.name !== 'Gold' ? 's' : ''}`
+      );
 
       setRecentItems(prev => [newItem, ...prev.slice(0, 4)]);
     } else {
@@ -496,7 +477,7 @@ const CoinFlipMMORPG = () => {
     setIsFlipping(true);
     setTimeout(() => {
       const totalStats = calculateTotalStats();
-      const statBonus = Math.floor(totalStats / 5);
+      const statBonus = Math.floor(totalStats / 6);
       const baseRate = difficultyLevels[difficulty].rate;
       const adjustedRate = Math.min(baseRate * Math.pow(2, statBonus), 1);
       const result = Math.random() < adjustedRate;
@@ -518,6 +499,16 @@ const CoinFlipMMORPG = () => {
       setIsFlipping(false);
     }, 1000);
   };
+
+  useEffect(() => {
+    let interval;
+    if (crystalTimer > 0) {
+      interval = setInterval(() => {
+        setCrystalTimer(prevTimer => prevTimer - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [crystalTimer]);
 
   return (
     <div style={{ width: '420px', margin: '0 auto' }}>
