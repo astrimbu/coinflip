@@ -143,7 +143,7 @@ const InventoryGrid = ({ items, onEquip }) => {
           {flattenedItems[index] && (
             <>
               <img
-                src={itemImages[flattenedItems[index].name][flattenedItems[index].rarity] || '/api/placeholder/50/50?text=?'}
+                src={itemImages[flattenedItems[index].name] || '/api/placeholder/50/50?text=?'}
                 alt={flattenedItems[index].rarity + ' ' + flattenedItems[index].name}
                 style={{ width: '100%', height: '100%' }}
                 onMouseEnter={() => setHoveredItem(flattenedItems[index])}
@@ -174,20 +174,31 @@ const InventoryGrid = ({ items, onEquip }) => {
 }
 
 const WornEquipment = ({ equipment, onUnequip }) => {
+  const slots = ['hat', 'weapon', 'cape', 'body', 'pants', 'gloves', 'boots', 'ring', 'amulet'];
+  
+  const calculateTotalStats = () => {
+    return slots.reduce((total, slot) => {
+      if (equipment[slot] && equipment[slot].stat) {
+        return total + equipment[slot].stat;
+      }
+      return total;
+    }, 0);
+  };
+
   return (
     <div style={{
       width: '360px',
       margin: '0 auto',
       display: 'grid',
-      gridTemplateRows: 'auto auto',
+      gridTemplateColumns: 'repeat(3, 1fr)',
       gap: '20px',
       padding: '20px',
       backgroundColor: '#f0f0f0',
       borderRadius: '8px',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-        <div>
-          <p>Hat</p>
+      {slots.map(slot => (
+        <div key={slot}>
+          <p>{slot.charAt(0).toUpperCase() + slot.slice(1)}</p>
           <div
             style={{
               width: '50px',
@@ -195,69 +206,53 @@ const WornEquipment = ({ equipment, onUnequip }) => {
               border: '1px solid #ccc',
               position: 'relative'
             }}
-            onClick={() => equipment.hat && onUnequip('hat')}
+            onClick={() => equipment[slot] && onUnequip(slot)}
           >
-            {equipment.hat && (
+            {equipment[slot] && (
               <img
-                src={`/api/placeholder/50/50?text=${equipment.hat.rarity[0]}H`}
-                alt={equipment.hat.rarity[0] + " Hat"}
+                src={`/api/placeholder/50/50?text=${equipment[slot].rarity[0]}${slot[0].toUpperCase()}`}
+                alt={`${equipment[slot].rarity} ${equipment[slot].name}`}
                 style={{ width: '100%', height: '100%' }}
               />
             )}
           </div>
         </div>
-        <div>
-          <p>Sword</p>
-          <div
-            style={{
-              width: '50px',
-              height: '50px',
-              border: '1px solid #ccc',
-              position: 'relative'
-            }}
-            onClick={() => equipment.sword && onUnequip('sword')}
-          >
-            {equipment.sword && (
-              <img
-                src={`/api/placeholder/50/50?text=${equipment.sword.rarity[0]}S`}
-                alt={equipment.sword.rarity[0] + " Hat"}
-                style={{ width: '100%', height: '100%' }}
-              />
-            )}
-          </div>
+      ))}
+      <div>
+        <p>Gold</p>
+        <div style={{
+          width: '50px',
+          height: '50px',
+          border: '1px solid #ccc',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+          {equipment.gold}
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-        <div>
-          <p>Gold</p>
-          <div style={{
-            width: '50px',
-            height: '50px',
-            border: '1px solid #ccc',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-            {equipment.gold}
-          </div>
-        </div>
-        <div>
-          <p>Potion</p>
-          <div style={{
-            width: '50px',
-            height: '50px',
-            border: '1px solid #ccc',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-            {equipment.potion}
-          </div>
+      <div>
+        <p>Potion</p>
+        <div style={{
+          width: '50px',
+          height: '50px',
+          border: '1px solid #ccc',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+          {equipment.potion}
         </div>
       </div>
-     </div> 
-  )
-}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <h3>Total Stats: {calculateTotalStats()}</h3>
+        {slots.map(slot => equipment[slot] && (
+          <p key={slot}>{equipment[slot].name}: {equipment[slot].stat}</p>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const Shop = ({ gold, onPurchase }) => {
   return (
@@ -310,14 +305,28 @@ const CoinFlipMMORPG = () => {
 
   const [wornEquipment, setWornEquipment] = useState({
     hat: null,
-    sword: null,
+    weapon: null,
+    cape: null,
+    body: null,
+    pants: null,
+    gloves: null,
+    boots: null,
+    ring: null,
+    amulet: null,
     gold: 0,
     potion: 0,
   });
 
   const [inventory, setInventory] = useState({
-    Sword: [],
+    Weapon: [],
     Hat: [],
+    Cape: [],
+    Body: [],
+    Pants: [],
+    Gloves: [],
+    Boots: [],
+    Ring: [],
+    Amulet: [],
     Crystal: [],
   });
 
@@ -346,28 +355,32 @@ const CoinFlipMMORPG = () => {
   const [purchaseNotification, setPurchaseNotification] = useState(false);
 
   const equipItem = (item) => {
-    if (item.name === 'Hat' || item.name === 'Sword') {
-      setWornEquipment(prev => {
-        const slot = item.name.toLowerCase();
-        const prevItem = prev[slot];
-        
-        // Remove item from inventory
-        setInventory(prevInv => ({
+    const slot = item.name === 'Sword' || item.name === 'Energy Sword' ? 'weapon' : item.name.toLowerCase();
+    setWornEquipment(prev => {
+      const prevItem = prev[slot];
+      
+      // Remove item from inventory
+      setInventory(prevInv => {
+        const category = item.name === 'Sword' || item.name === 'Energy Sword' ? 'Weapon' : item.name;
+        return {
           ...prevInv,
-          [item.name]: prevInv[item.name].filter((_, index) => index !== prevInv[item.name].findIndex(i => i.rarity === item.rarity))
-        })); 
-
-        // If there was a previous item, add it back to inventory
-        if (prevItem) {
-          setInventory(prevInv => ({
-            ...prevInv,
-            [prevItem.name]: [...prevInv[prevItem.name], prevItem]
-          }));
-        } 
-
-        return { ...prev, [slot]: item };
+          [category]: prevInv[category].filter(i => i !== item)
+        };
       });
-    }
+
+      // If there was a previous item, add it back to inventory
+      if (prevItem) {
+        setInventory(prevInv => {
+          const category = prevItem.name === 'Sword' || prevItem.name === 'Energy Sword' ? 'Weapon' : prevItem.name;
+          return {
+            ...prevInv,
+            [category]: [...prevInv[category], prevItem]
+          };
+        });
+      } 
+
+      return { ...prev, [slot]: item };
+    });
   };
 
   const unequipItem = (slot) => {
@@ -397,7 +410,7 @@ const CoinFlipMMORPG = () => {
     const itemChance = baseChance * modifier * (crystalTimer > 0 ? 2 : 1);
     
     if (Math.random() < itemChance) {
-      const items = ['Gold', 'Sword', 'Hat', 'Potion'];
+      const items = ['Gold', 'Weapon', 'Hat', 'Cape', 'Body', 'Pants', 'Gloves', 'Boots', 'Ring', 'Amulet', 'Potion'];
       const randomItem = items[Math.floor(Math.random() * items.length)];
       const rarity = rarityByDifficulty[difficulty];
 
@@ -415,21 +428,31 @@ const CoinFlipMMORPG = () => {
           [randomItem.toLowerCase()]: (prev[randomItem.toLowerCase()] || 0) + (randomItem ? extraItems : 1)
         }));
         newItem = { name: randomItem, count: randomItem ? extraItems : 1 };
-      } else {
+      } else if (randomItem === 'Weapon') {
+        const weapons = ['Sword', 'Energy Sword'];
+        const randomWeapon = weapons[Math.floor(Math.random() * weapons.length)];
+        const stat = Math.floor(Math.random() * 10) + 1;
+        newItem = { name: randomWeapon, rarity, stat };
         setInventory(prevInventory => ({
           ...prevInventory,
-          [randomItem]: [...prevInventory[randomItem], { rarity, name: randomItem }]
+          Weapon: [...prevInventory.Weapon, newItem]
         }));
-        newItem = { name: randomItem, rarity };
+      } else {
+        const stat = Math.floor(Math.random() * 10) + 1;
+        newItem = { name: randomItem, rarity, stat };
+        setInventory(prevInventory => ({
+          ...prevInventory,
+          [randomItem]: [...prevInventory[randomItem], newItem]
+        }));
       }
 
       setLastObtainedItem(newItem);
-      setMessage(`You found ${newItem.count ? newItem.count : 'a'} ${newItem.rarity ? `${newItem.rarity} ` : ''}${newItem.name}${newItem.count > 1 ? 's' : ''}!`);
+      setMessage(`You found ${newItem.count ? newItem.count : 'a'} ${newItem.rarity ? `${newItem.rarity} ` : ''}${newItem.name}${newItem.count > 1 ? 's' : ''}!${newItem.stat ? ` Stat: ${newItem.stat}` : ''}`);
 
       setRecentItems(prev => [newItem, ...prev.slice(0, 4)]);
     } else {
       setLastObtainedItem(null);
-    }
+    } 
   }; 
 
   const purchaseItem = (item) => {
