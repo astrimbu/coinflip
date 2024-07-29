@@ -174,7 +174,7 @@ const InventoryGrid = ({ items, onEquip }) => {
 }
 
 const WornEquipment = ({ equipment, onUnequip }) => {
-  const slots = ['hat', 'weapon', 'cape', 'body', 'pants', 'gloves', 'boots', 'ring', 'amulet'];
+  const slots = ['hat', 'cape', 'amulet', 'weapon', 'body', 'pants', 'gloves', 'boots', 'ring'];
   
   const calculateTotalStats = () => {
     return slots.reduce((total, slot) => {
@@ -196,55 +196,25 @@ const WornEquipment = ({ equipment, onUnequip }) => {
       backgroundColor: '#f0f0f0',
       borderRadius: '8px',
     }}>
-      {slots.map(slot => (
-        <div key={slot}>
-          <p>{slot.charAt(0).toUpperCase() + slot.slice(1)}</p>
-          <div
-            style={{
-              width: '50px',
-              height: '50px',
-              border: '1px solid #ccc',
-              position: 'relative'
-            }}
-            onClick={() => equipment[slot] && onUnequip(slot)}
-          >
-            {equipment[slot] && (
-              <img
-                src={`/api/placeholder/50/50?text=${equipment[slot].rarity[0]}${slot[0].toUpperCase()}`}
-                alt={`${equipment[slot].rarity} ${equipment[slot].name}`}
-                style={{ width: '100%', height: '100%' }}
-              />
-            )}
-          </div>
-        </div>
-      ))}
-      <div>
-        <p>Gold</p>
-        <div style={{
-          width: '50px',
-          height: '50px',
-          border: '1px solid #ccc',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-          {equipment.gold}
-        </div>
+      <div style={{ gridColumn: '2' }}>{renderSlot('hat')}</div>
+
+      <div style={{ gridColumn: '1' }}>{renderSlot('cape')}</div>
+      <div style={{ gridColumn: '2' }}>{renderSlot('amulet')}</div>
+
+      <div style={{ gridColumn: '1' }}>{renderSlot('weapon')}</div>
+      <div style={{ gridColumn: '2' }}>{renderSlot('body')}</div>
+
+      <div style={{ gridColumn: '2' }}>{renderSlot('pants')}</div>
+      
+      <div style={{ gridColumn: '1' }}>{renderSlot('gloves')}</div>
+      <div style={{ gridColumn: '2' }}>{renderSlot('boots')}</div>
+      <div style={{ gridColumn: '3' }}>{renderSlot('ring')}</div>
+
+      <div style={{ gridColumn: '1 / span 3', display: 'flex', justifyContent: 'center', gap: '20px' }}>
+        {renderSlot('gold')}
+        {renderSlot('potion')}
       </div>
-      <div>
-        <p>Potion</p>
-        <div style={{
-          width: '50px',
-          height: '50px',
-          border: '1px solid #ccc',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
-          {equipment.potion}
-        </div>
-      </div>
-      <div style={{ gridColumn: '1 / -1' }}>
+      <div style={{ gridColumn: '1 / span 3' }}>
         <h3>Total Stats: {calculateTotalStats()}</h3>
         {slots.map(slot => equipment[slot] && (
           <p key={slot}>{equipment[slot].name}: {equipment[slot].stat}</p>
@@ -252,6 +222,32 @@ const WornEquipment = ({ equipment, onUnequip }) => {
       </div>
     </div>
   );
+
+  function renderSlot(slot) {
+    return (
+      <div>
+        <p>{slot.charAt(0).toUpperCase() + slot.slice(1)}</p>
+        <div
+          style={{
+            width: '50px',
+            height: '50px',
+            border: '1px solid #ccc',
+            position: 'relative',
+            margin: '0 auto',
+          }}
+          onClick={() => equipment[slot] && onUnequip(slot)}
+        >
+          {equipment[slot] && (
+            <img
+              src={`/api/placeholder/50/50?text=${slot[0].toUpperCase()}`}
+              alt={`${equipment[slot].rarity} ${equipment[slot].name}`}
+              style={{ width: '100%', height: '100%' }}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
 };
 
 const Shop = ({ gold, onPurchase }) => {
@@ -387,10 +383,13 @@ const CoinFlipMMORPG = () => {
     const item = wornEquipment[slot];
     if (item) {
       setWornEquipment(prev => ({ ...prev, [slot]: null }));
-      setInventory(prevInv => ({
-        ...prevInv,
-        [item.name]: [...prevInv[item.name], item]
-      }));
+      setInventory(prevInv => {
+        const category = item.name === 'Sword' || item.name === 'Energy Sword' ? 'Weapon' : item.name;
+        return {
+          ...prevInv,
+          [category]: [...prevInv[category], item]
+        };
+      });
     }
   };
 
@@ -425,20 +424,20 @@ const CoinFlipMMORPG = () => {
       if (randomItem === 'Gold' || randomItem === 'Potion') {
         setWornEquipment(prev => ({
           ...prev,
-          [randomItem.toLowerCase()]: (prev[randomItem.toLowerCase()] || 0) + (randomItem ? extraItems : 1)
+          [randomItem.toLowerCase()]: (prev[randomItem.toLowerCase()] || 0) + ((randomItem === 'Gold' || randomItem === 'Potion') ? extraItems : 1)
         }));
-        newItem = { name: randomItem, count: randomItem ? extraItems : 1 };
+        newItem = { name: randomItem, count: (randomItem === 'Gold' || randomItem === 'Potion') ? extraItems : 1 };
       } else if (randomItem === 'Weapon') {
         const weapons = ['Sword', 'Energy Sword'];
         const randomWeapon = weapons[Math.floor(Math.random() * weapons.length)];
-        const stat = Math.floor(Math.random() * 10) + 1;
+        const stat = getRarityStat(rarity);
         newItem = { name: randomWeapon, rarity, stat };
         setInventory(prevInventory => ({
           ...prevInventory,
           Weapon: [...prevInventory.Weapon, newItem]
         }));
       } else {
-        const stat = Math.floor(Math.random() * 10) + 1;
+        const stat = getRarityStat(rarity);
         newItem = { name: randomItem, rarity, stat };
         setInventory(prevInventory => ({
           ...prevInventory,
@@ -454,6 +453,22 @@ const CoinFlipMMORPG = () => {
       setLastObtainedItem(null);
     } 
   }; 
+
+  const getRarityStat = (rarity) => {
+    switch (rarity) {
+      case 'Common': return 1;
+      case 'Magic': return 2;
+      case 'Rare': return 3;
+      case 'Unique': return 5;
+      default: return 0;
+    }
+  };
+
+  const calculateTotalStats = () => {
+    return Object.values(wornEquipment).reduce((total, item) => {
+      return total + (item && item.stat ? item.stat : 0);
+    }, 0);
+  };
 
   const purchaseItem = (item) => {
     if (item === 'Crystal' && wornEquipment.gold >= 1) {
@@ -480,7 +495,11 @@ const CoinFlipMMORPG = () => {
   const flipCoin = () => {
     setIsFlipping(true);
     setTimeout(() => {
-      const result = Math.random() < difficultyLevels[difficulty].rate;
+      const totalStats = calculateTotalStats();
+      const statBonus = Math.floor(totalStats / 5);
+      const baseRate = difficultyLevels[difficulty].rate;
+      const adjustedRate = Math.min(baseRate * Math.pow(2, statBonus), 1);
+      const result = Math.random() < adjustedRate;
       setScores(prevScores => ({
         ...prevScores,
         [difficulty]: {
