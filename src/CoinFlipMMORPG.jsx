@@ -94,7 +94,7 @@ const ProgressBar = ({ difficulty, scores, difficultyLevels }) => {
   );
 };
 
-const InventoryGrid = ({ items, onEquip }) => {
+const InventoryGrid = ({ items, onEquip, inventorySlots }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
   const itemImages = {
@@ -113,17 +113,36 @@ const InventoryGrid = ({ items, onEquip }) => {
     Crystal: '/api/placeholder/50/50?text=CR',
   }; 
 
-  const flattenedItems = Object.entries(items).flatMap(([itemName, itemArray]) =>
-    Array.isArray(itemArray) ? itemArray : Array(itemArray).fill({ name: itemName, rarity: 'Crystal' })
-  ).slice(0, 16);
+  const flattenedItems = [
+    { name: 'Gold', count: items.Gold },
+    { name: 'Potion', count: items.Potion },
+    ...Object.entries(items).flatMap(([itemName, itemArray]) =>
+      Array.isArray(itemArray) ? itemArray : []
+    )
+  ].slice(0, inventorySlots);
 
   return (
     <div style={{
       width: '360px',
       margin: '0 auto',
       display: 'flex',
-      justifyContent: 'center',
+      flexDirection: 'column',
+      alignItems: 'center',
     }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        width: '100%',
+        marginBottom: '10px',
+      }}>
+        <div style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>
+          Gold: {(equipment.gold)}
+        </div>
+        <div style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>
+          Potions: {(equipment.gold)}
+        </div>
+      </div>
+      <hr style={{ width: '100%', margin: '10px 0' }} />
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 50px)',
@@ -171,7 +190,7 @@ const InventoryGrid = ({ items, onEquip }) => {
       </div>
     </div>
   )
-}
+};
 
 const WornEquipment = ({ equipment, onUnequip }) => {
   const slots = ['hat', 'cape', 'amulet', 'weapon', 'body', 'pants', 'gloves', 'boots', 'ring'];
@@ -246,7 +265,7 @@ const WornEquipment = ({ equipment, onUnequip }) => {
   }
 };
 
-const Shop = ({ gold, onPurchase }) => {
+const Shop = ({ gold, inventorySlots, onPurchase }) => {
   return (
     <div style={{
       padding: '20px',
@@ -268,6 +287,118 @@ const Shop = ({ gold, onPurchase }) => {
           Buy
         </button>
       </div>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: '20px',
+      }}>
+        <div>
+          <img src="/api/placeholder/50/50?text=Potion" alt="Potion" />
+          <p>Potion (1 Gold)</p>
+        </div>
+        <button onClick={() => onPurchase('Potion')} disabled={gold < 1}>
+          Buy
+        </button>
+      </div>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: '20px',
+      }}>
+        <div>
+          <img src="/api/placeholder/50/50?text=Slots" alt="Inventory Slots" />
+          <p>4 Inventory Slots (4 Gold)</p>
+        </div>
+        <button onClick={() => onPurchase('InventorySlots')} disabled={gold < 4}>
+          Buy
+        </button>
+      </div>
+    </div>
+  );
+}; 
+
+const Recycler = ({ inventory, onRecycle, onExchange }) => {
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [scrap, setScrap] = useState({ Common: 0, Magic: 0, Rare: 0, Unique: 0 });
+  const [exchangeRarity, setExchangeRarity] = useState('Common');
+  const [exchangeItem, setExchangeItem] = useState('');
+
+  const handleRecycle = () => {
+    const recycledScrap = selectedItems.reduce((acc, item) => {
+      acc[item.rarity] = (acc[item.rarity] || 0) + 1;
+      return acc;
+    }, {});
+    setScrap(prevScrap => {
+      const newScrap = { ...prevScrap };
+      Object.keys(recycledScrap).forEach(rarity => {
+        newScrap[rarity] = (newScrap[rarity] || 0) + recycledScrap[rarity];
+      });
+      return newScrap;
+    });
+    onRecycle(selectedItems);
+    setSelectedItems([]);
+  };
+
+  const handleExchange = () => {
+    if (scrap[exchangeRarity] >= 2 && exchangeItem) {
+      setScrap(prevScrap => ({ ...prevScrap, [exchangeRarity]: prevScrap[exchangeRarity] - 2 }));
+      onExchange(exchangeRarity, exchangeItem);
+      setExchangeItem('');
+    }
+  };
+
+  const recyclableItems = Object.entries(inventory).flatMap(([category, items]) =>
+    items.filter(item => item.rarity && item.rarity !== 'Crystal')
+  );
+
+  return (
+    <div style={{ padding: '20px', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
+      <h2>Recycler</h2>
+      <div>
+        <h3>Select items to recycle:</h3>
+        {recyclableItems.map((item, index) => (
+          <label key={index}>
+            <input
+              type="checkbox"
+              checked={selectedItems.includes(item)}
+              onChange={() => {
+                if (selectedItems.includes(item)) {
+                  setSelectedItems(selectedItems.filter(i => i !== item));
+                } else {
+                  setSelectedItems([...selectedItems, item]);
+                }
+              }}
+            />
+            {item.rarity} {item.name}
+          </label>
+        ))}
+        <button onClick={handleRecycle} disabled={selectedItems.length === 0}>Recycle</button>
+      </div>
+      <div>
+        <h3>Scrap:</h3>
+        {Object.entries(scrap).map(([rarity, count]) => (
+          <p key={rarity}>{rarity}: {count}</p>
+        ))}
+      </div>
+      <div>
+        <h3>Exchange Scrap:</h3>
+        <select value={exchangeRarity} onChange={(e) => setExchangeRarity(e.target.value)}>
+          {Object.keys(scrap).map(rarity => (
+            <option key={rarity} value={rarity}>{rarity}</option>
+          ))}
+        </select>
+        <input
+          type="text"
+          value={exchangeItem}
+          onChange={(e) => setExchangeItem(e.target.value)}
+          placeholder="Enter item name"
+        />
+        <button onClick={handleExchange} disabled={scrap[exchangeRarity] < 2 || !exchangeItem}>
+          Exchange
+        </button>
+      </div>
     </div>
   );
 };
@@ -279,18 +410,13 @@ const CoinFlipMMORPG = () => {
     hard: { label: 'Hard', rate: 1/10, color: '#F44336' },
     impossible: { label: 'Impossible', rate: 1/100, color: '#9C27B0' }
   };
-  const difficultyModifiers = {
-    easy: 2,
-    medium: 3,
-    hard: 4,
-    impossible: 5,
+  const difficultyModifiers = { easy: 2, medium: 3, hard: 4, impossible: 5 };
+  const rarityByDifficulty = { 
+    easy: 'Common', 
+    medium: 'Magic', 
+    hard: 'Rare', 
+    impossible: 'Unique', 
   };
-  const rarityByDifficulty = {
-    easy: 'Common',
-    medium: 'Magic',
-    hard: 'Rare',
-    impossible: 'Unique',
-  }
   const [difficulty, setDifficulty] = useState('easy');
   const [scores, setScores] = useState({
     easy: { flips: 0, wins: 0 },
@@ -313,8 +439,6 @@ const CoinFlipMMORPG = () => {
     boots: null,
     ring: null,
     amulet: null,
-    gold: 0,
-    potion: 0,
   });
   const [inventory, setInventory] = useState({
     Weapon: [],
@@ -327,11 +451,16 @@ const CoinFlipMMORPG = () => {
     Ring: [],
     Amulet: [],
     Crystal: [],
+    Gold: 0,
+    Potion: 0,
   });
   const [lastObtainedItem, setLastObtainedItem] = useState(null);
   const [recentItems, setRecentItems] = useState([]);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const currentScore = scores[difficulty];
+  const [inventorySlots, setInventorySlots] = useState(16);
+  const [potionTimer, setPotionTimer] = useState(0);
+  const [scrap, setScrap] = useState({ Common: 0, Magic: 0, Rare: 0, Unique: 0 });
 
   const equipItem = (item) => {
     const slot = item.name === 'Sword' || item.name === 'Energy Sword' ? 'weapon' : item.name.toLowerCase();
@@ -401,11 +530,11 @@ const CoinFlipMMORPG = () => {
       }[difficulty];
 
       if (randomItem === 'Gold' || randomItem === 'Potion') {
-        setWornEquipment(prev => ({
+        setInventory(prev => ({
           ...prev,
-          [randomItem.toLowerCase()]: (prev[randomItem.toLowerCase()] || 0) + ((randomItem === 'Gold' || randomItem === 'Potion') ? extraItems : 1)
+          [randomItem]: prev[randomItem] + extraItems
         }));
-        newItem = { name: randomItem, count: (randomItem === 'Gold' || randomItem === 'Potion') ? extraItems : 1 };
+        newItem = { name: randomItem, count: extraItems };
       } else if (randomItem === 'Weapon') {
         const weapons = ['Sword', 'Energy Sword'];
         const randomWeapon = weapons[Math.floor(Math.random() * weapons.length)];
@@ -452,12 +581,29 @@ const CoinFlipMMORPG = () => {
   };
 
   const purchaseItem = (item) => {
-    if (item === 'Crystal' && wornEquipment.gold >= 1) {
-      setWornEquipment(prev => ({...prev, gold: prev.gold - 1}));
+    if (item === 'Crystal' && inventory.Gold >= 1) {
       setInventory(prev => ({
         ...prev,
+        Gold: prev.Gold - 1,
         Crystal: [...prev.Crystal, { name: 'Crystal', rarity: 'Crystal' }]
       }));
+      setPurchaseNotification(true);
+      setTimeout(() => setPurchaseNotification(false), 2000);
+    } else if (item === 'Potion' && inventory.Gold >= 1) {
+      setInventory(prev => ({
+        ...prev,
+        Gold: prev.Gold - 1,
+        Potion: prev.Potion + 1
+      }));
+      setPurchaseNotification(true);
+      setTimeout(() => setPurchaseNotification(false), 2000);
+    } else if (item === 'InventorySlots' && inventory.Gold >= 3 * Math.pow(2, (inventorySlots - 16)/4)) {
+      const cost = 4 * Math.pow(2, (inventorySlots - 16)/4);
+      setInventory(prev => ({
+        ...prev,
+        Gold: prev.Gold - cost
+      }));
+      setInventorySlots(prev => prev + 4);
       setPurchaseNotification(true);
       setTimeout(() => setPurchaseNotification(false), 2000);
     }
@@ -469,8 +615,21 @@ const CoinFlipMMORPG = () => {
         ...prev,
         Crystal: prev.Crystal.slice(1)
       }));
-      setCrystalTimer(300); // 300 seconds = 5 minutes
+      setCrystalTimer(300);
+    } else if (item.name === 'Potion') {
+      setInventory(prev => ({
+        ...prev,
+        Potion: prev.Potion - 1
+      }));
+      setPotionTimer(300);
     }
+  };
+
+  const calculateWinRate = () => {
+    const totalStats = calculateTotalStats();
+    const statBonus = Math.floor(totalStats / 6) + totalStats * 0.1;
+    const baseRate = difficultyLevels[difficulty].rate;
+    return Math.min(baseRate * Math.pow(2, statBonus), 1);
   };
 
   const flipCoin = () => {
@@ -497,18 +656,40 @@ const CoinFlipMMORPG = () => {
         setMessage('You lost. Maybe buy our "Luck Boost" DLC?');
       }
       setIsFlipping(false);
-    }, 1000);
+    }, potionTimer > 0 ? 10 : 1000);
+  };
+
+  const handleRecycle = (items) => {
+    items.forEach(item => {
+      setInventory(prev => ({
+        ...prev,
+        [item.name]: [...prev[item.name].filter(i => i !== item) || '']
+      }));
+    });
+  };
+
+  const handleExchange = (rarity, itemName) => {
+    setScrap(prev => ({ ...prev, [rarity]: prev[rarity] - 2 }));
+    setInventory(prev => ({
+      ...prev,
+      [itemName]: [...prev[itemName] || '', { name: itemName, rarity, stat: getRarityStat(rarity) }]
+    }));
   };
 
   useEffect(() => {
     let interval;
-    if (crystalTimer > 0) {
+    if (crystalTimer > 0 || potionTimer > 0) {
       interval = setInterval(() => {
-        setCrystalTimer(prevTimer => prevTimer - 1);
+        if (crystalTimer > 0) {
+          setCrystalTimer(prevTimer => prevTimer - 1);
+        }
+        if (potionTimer > 0) {
+          setPotionTimer(prevTimer => prevTimer - 1);
+        }
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [crystalTimer]);
+  }, [crystalTimer, potionTimer]);
 
   return (
     <div style={{ width: '420px', margin: '0 auto' }}>
@@ -516,7 +697,8 @@ const CoinFlipMMORPG = () => {
         <button onClick={() => setView('game')} style={{ marginRight: '10px' }}>Game</button>
         <button onClick={() => setView('inventory')} style={{ marginRight: '10px' }}>Inventory</button>
         <button onClick={() => setView('equipment')} style={{ marginRight: '10px' }}>Equipment</button>
-        <button onClick={() => setView('shop')}>Shop</button>
+        <button onClick={() => setView('shop')} style={{ marginRight: '10px' }}>Shop</button>
+        <button onClick={() => setView('recycler')}>Recycler</button>
       </div>
 
       {view === 'game' && (
@@ -554,9 +736,19 @@ const CoinFlipMMORPG = () => {
             {isFlipping ? 'Flipping...' : 'Flip Coin'}
           </button>
 
+          <div style={{ marginBottom: '10px', textAlign: 'center' }}>
+            {(calculateWinRate() * 100).toFixed(2)}%
+          </div>
+
           {crystalTimer > 0 && (
             <div style={{ marginBottom: '10px', textAlign: 'center' }}>
               Crystal Boost: {Math.floor(crystalTimer / 60)}:{(crystalTimer % 60).toString().padStart(2, '0')}
+            </div>
+          )}
+          
+          {potionTimer > 0 && (
+            <div style={{ marginBottom: '10px', textAlign: 'center' }}>
+              Potion Effect: {Math.floor(potionTimer / 60)}:{(potionTimer % 60).toString().padStart(2, '0')}
             </div>
           )}
       
@@ -608,10 +800,18 @@ const CoinFlipMMORPG = () => {
         }}>
           <InventoryGrid 
             items={inventory}
-            onEquip={(item) => item.name === 'Crystal' ? useItem(item) : equipItem(item)} 
+            onEquip={(item) => {
+              if (item.name === 'Crystal' || item.name === 'Potion') {
+                useItem(item);
+              } else {
+                equipItem(item);
+              }
+            }}
+            inventorySlots={inventorySlots}
           />
         </div>
       )}
+
 
       {view === 'equipment' && (
         <WornEquipment 
@@ -622,7 +822,11 @@ const CoinFlipMMORPG = () => {
 
       {view === 'shop' && (
         <>
-          <Shop gold={wornEquipment.gold} onPurchase={purchaseItem} />
+          <Shop 
+            gold={inventory.Gold} 
+            inventorySlots={inventorySlots}
+            onPurchase={purchaseItem} 
+          />
           {purchaseNotification && (
             <div style={{
               position: 'fixed',
@@ -640,6 +844,18 @@ const CoinFlipMMORPG = () => {
           )}
         </>
       )}
+
+      {view === 'recycler' && (
+        <Recycler
+          inventory={inventory}
+          onRecycle={handleRecycle}
+          onExchange={handleExchange}
+        />
+      )}
+
+      <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#666' }}>
+        Version 1.0.0
+      </div>
 
       <Confetti active={showConfetti} difficulty={difficulty} />
     </div>
