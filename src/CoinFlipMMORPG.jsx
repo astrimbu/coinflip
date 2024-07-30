@@ -510,13 +510,14 @@ const CoinFlipMMORPG = () => {
   const [scrap, setScrap] = useState({ Common: 0, Magic: 0, Rare: 0, Unique: 0 });
 
   const equipItem = (item) => {
-    const slot = item.name === 'Sword' || item.name === 'Energy Sword' ? 'weapon' : item.name.toLowerCase();
+    const slot = item.name === 'Sword' ? 'weapon' : item.name.toLowerCase();
+
     setWornEquipment(prev => {
       const prevItem = prev[slot];
       
       // Remove item from inventory
       setInventory(prevInv => {
-        const category = item.name === 'Sword' || item.name === 'Energy Sword' ? 'Weapon' : item.name;
+        const category = item.name === 'Sword' ? 'Weapon' : item.name;
         return {
           ...prevInv,
           [category]: prevInv[category].filter(i => i !== item)
@@ -526,7 +527,7 @@ const CoinFlipMMORPG = () => {
       // If there was a previous item, add it back to inventory
       if (prevItem) {
         setInventory(prevInv => {
-          const category = prevItem.name === 'Sword' || prevItem.name === 'Energy Sword' ? 'Weapon' : prevItem.name;
+          const category = prevItem.name === 'Sword' ? 'Weapon' : prevItem.name;
           return {
             ...prevInv,
             [category]: [...prevInv[category], prevItem]
@@ -541,15 +542,10 @@ const CoinFlipMMORPG = () => {
   const unequipItem = (slot) => {
     const item = wornEquipment[slot];
     if (item) {
-      if (slot === 'gold') {
-        return;
-      } 
-      if (slot === 'potion') {
-        return;
-      }
+      if (slot === 'gold' || slot === 'potion') return;
       setWornEquipment(prev => ({ ...prev, [slot]: null }));
       setInventory(prevInv => {
-        const category = item.name === 'Sword' || item.name === 'Energy Sword' ? 'Weapon' : item.name;
+        const category = item.name === 'Sword' ? 'Weapon' : item.name;
         return {
           ...prevInv,
           [category]: [...prevInv[category] || [], item]
@@ -583,7 +579,7 @@ const CoinFlipMMORPG = () => {
         }));
         newItem = { name: randomItem, count: extraItems };
       } else if (randomItem === 'Weapon') {
-        const weapons = ['Sword', 'Energy Sword'];
+        const weapons = ['Sword'];
         const randomWeapon = weapons[Math.floor(Math.random() * weapons.length)];
         const stat = getRarityStat(rarity);
         newItem = { name: randomWeapon, rarity, stat };
