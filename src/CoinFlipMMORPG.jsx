@@ -94,7 +94,7 @@ const ProgressBar = ({ difficulty, scores, difficultyLevels }) => {
   );
 };
 
-const InventoryGrid = ({ items, onEquip, inventorySlots }) => {
+const InventoryGrid = ({ items, onEquip, inventorySlots, onUsePotion }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
   const itemImages = {
@@ -113,35 +113,43 @@ const InventoryGrid = ({ items, onEquip, inventorySlots }) => {
     Crystal: '/api/placeholder/50/50?text=CR',
   }; 
 
-  const flattenedItems = [
-    { name: 'Gold', count: items.Gold },
-    { name: 'Potion', count: items.Potion },
-    ...Object.entries(items).flatMap(([itemName, itemArray]) =>
+  const flattenedItems = Object.entries(items)
+    .filter(([itemName]) => itemName !== 'Gold' && itemName !== 'Potion')
+    .flatMap(([itemName, itemArray]) =>
       Array.isArray(itemArray) ? itemArray : []
     )
-  ].slice(0, inventorySlots);
+    .slice(0, inventorySlots);
 
-  return (
-    <div style={{
-      width: '360px',
-      margin: '0 auto',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    }}>
+    return (
       <div style={{
+        width: '360px',
+        margin: '0 auto',
         display: 'flex',
-        justifyContent: 'space-between',
-        width: '100%',
-        marginBottom: '10px',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}>
-        <div style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>
-          Gold: {(items.Gold)}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          width: '100%',
+          marginBottom: '10px',
+        }}>
+          <div style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>
+            Gold: {(items.Gold)}
+          </div>
+          <div 
+            style={{ 
+              border: '1px solid #ccc', 
+              padding: '5px', 
+              textAlign: 'center', 
+              cursor: items.Potion > 0 ? 'pointer' : 'default',
+              opacity: items.Potion > 0 ? 1 : 0.5,
+            }}
+            onClick={() => items.Potion > 0 && onUsePotion()}
+          >
+            Potions: {(items.Potion)}
+          </div>
         </div>
-        <div style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>
-          Potions: {(items.Potion)}
-        </div>
-      </div>
       <hr style={{ width: '100%', margin: '10px 0' }} />
       <div style={{
         display: 'grid',
@@ -204,6 +212,52 @@ const WornEquipment = ({ equipment, onUnequip }) => {
     }, 0);
   };
 
+  const [hoveredItem, setHoveredItem] = useState(null);
+
+  function renderSlot(slot) {
+    return (
+      <div>
+        <div
+          style={{
+            width: '50px',
+            height: '50px',
+            border: '1px solid #ccc',
+            position: 'relative',
+            margin: '0 auto',
+          }}
+          onClick={() => equipment[slot] && onUnequip(slot)}
+          onMouseEnter={() => setHoveredItem(equipment[slot])}
+          onMouseLeave={() => setHoveredItem(null)}
+          title={slot.charAt(0).toUpperCase() + slot.slice(1)}
+        >
+          {equipment[slot] && (
+            <img
+              src={`/api/placeholder/50/50?text=${slot[0].toUpperCase()}`}
+              alt={`${equipment[slot].rarity} ${equipment[slot].name}`}
+              style={{ width: '100%', height: '100%' }}
+            />
+          )}
+          {hoveredItem === equipment[slot] && equipment[slot] && (
+            <div style={{
+              position: 'absolute',
+              bottom: '100%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              color: 'white',
+              padding: '5px',
+              borderRadius: '3px',
+              whiteSpace: 'nowrap',
+              zIndex: 1000,
+            }}>
+              {`${equipment[slot].rarity} ${equipment[slot].name}\nStat: ${equipment[slot].stat}`}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div style={{
       width: '360px',
@@ -225,44 +279,11 @@ const WornEquipment = ({ equipment, onUnequip }) => {
       <div style={{ gridColumn: '2' }}>{renderSlot('boots')}</div>
       <div style={{ gridColumn: '3' }}>{renderSlot('ring')}</div>
 
-      <div style={{ gridColumn: '1 / span 3', display: 'flex', justifyContent: 'center', gap: '20px' }}>
-        {renderSlot('gold')}
-        {renderSlot('potion')}
-      </div>
       <div style={{ gridColumn: '1 / span 3' }}>
         <h3>Total Stats: {calculateTotalStats()}</h3>
-        {slots.map(slot => equipment[slot] && (
-          <p key={slot}>{equipment[slot].name}: {equipment[slot].stat}</p>
-        ))}
       </div>
     </div>
   );
-
-  function renderSlot(slot) {
-    return (
-      <div>
-        <div
-          style={{
-            width: '50px',
-            height: '50px',
-            border: '1px solid #ccc',
-            position: 'relative',
-            margin: '0 auto',
-          }}
-          onClick={() => equipment[slot] && onUnequip(slot)}
-          title={slot.charAt(0).toUpperCase() + slot.slice(1)}
-        >
-          {equipment[slot] && (
-            <img
-              src={`/api/placeholder/50/50?text=${slot[0].toUpperCase()}`}
-              alt={`${equipment[slot].rarity} ${equipment[slot].name}`}
-              style={{ width: '100%', height: '100%' }}
-            />
-          )}
-        </div>
-      </div>
-    );
-  }
 };
 
 const Shop = ({ gold, inventorySlots, onPurchase }) => {
@@ -324,6 +345,8 @@ const Recycler = ({ inventory, onRecycle, onExchange }) => {
   const [scrap, setScrap] = useState({ Common: 0, Magic: 0, Rare: 0, Unique: 0 });
   const [exchangeRarity, setExchangeRarity] = useState('Common');
   const [exchangeItem, setExchangeItem] = useState('');
+  const validEquipmentTypes = ['Sword', 'Hat', 'Cape', 'Body', 'Pants', 
+    'Gloves', 'Boots', 'Ring', 'Amulet'];
 
   const handleRecycle = () => {
     const recycledScrap = selectedItems.reduce((acc, item) => {
@@ -342,15 +365,17 @@ const Recycler = ({ inventory, onRecycle, onExchange }) => {
   };
 
   const handleExchange = () => {
-    if (scrap[exchangeRarity] >= 2 && exchangeItem) {
+    if (scrap[exchangeRarity] >= 2 && exchangeItem && validEquipmentTypes.includes(exchangeItem)) {
       setScrap(prevScrap => ({ ...prevScrap, [exchangeRarity]: prevScrap[exchangeRarity] - 2 }));
       onExchange(exchangeRarity, exchangeItem);
       setExchangeItem('');
     }
   };
 
-  const recyclableItems = Object.entries(inventory).flatMap(([category, items]) =>
-    items.filter(item => item.rarity && item.rarity !== 'Crystal')
+  const recyclableItems = Object.entries(inventory)
+    .filter(([category]) => category !== 'Gold' && category !== 'Potion' && category !== 'Crystal')
+    .flatMap(([category, items]) => 
+    Array.isArray(items) ? items.filter(item => item.rarity) : []
   );
 
   return (
@@ -382,22 +407,44 @@ const Recycler = ({ inventory, onRecycle, onExchange }) => {
           <p key={rarity}>{rarity}: {count}</p>
         ))}
       </div>
-      <div>
+      <div style={{ marginTop: '20px' }}>
         <h3>Exchange Scrap:</h3>
-        <select value={exchangeRarity} onChange={(e) => setExchangeRarity(e.target.value)}>
-          {Object.keys(scrap).map(rarity => (
-            <option key={rarity} value={rarity}>{rarity}</option>
-          ))}
-        </select>
-        <input
-          type="text"
-          value={exchangeItem}
-          onChange={(e) => setExchangeItem(e.target.value)}
-          placeholder="Enter item name"
-        />
-        <button onClick={handleExchange} disabled={scrap[exchangeRarity] < 2 || !exchangeItem}>
-          Exchange
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+          <select 
+            value={exchangeRarity} 
+            onChange={(e) => setExchangeRarity(e.target.value)}
+            style={{ padding: '5px', borderRadius: '3px' }}
+          >
+            {Object.keys(scrap).map(rarity => (
+              <option key={rarity} value={rarity}>{rarity}</option>
+            ))}
+          </select>
+          <select
+            value={exchangeItem}
+            onChange={(e) => setExchangeItem(e.target.value)}
+            style={{ padding: '5px', borderRadius: '3px' }}
+          >
+            <option value="">Select item type</option>
+            {validEquipmentTypes.map(type => (
+              <option key={type} value={type}>{type}</option>
+            ))}
+          </select>
+          <button 
+            onClick={handleExchange} 
+            disabled={scrap[exchangeRarity] < 2 || !exchangeItem}
+            style={{ 
+              padding: '5px 10px', 
+              backgroundColor: scrap[exchangeRarity] < 2 || !exchangeItem ? '#ccc' : '#4CAF50',
+              color: 'white',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: scrap[exchangeRarity] < 2 || !exchangeItem ? 'not-allowed' : 'pointer',
+            }}
+          >
+            Exchange
+          </button>
+        </div>
+        <p>Cost: 2 {exchangeRarity} scrap</p>
       </div>
     </div>
   );
@@ -625,6 +672,16 @@ const CoinFlipMMORPG = () => {
     }
   };
 
+  const usePotion = () => {
+    if (inventory.Potion > 0) {
+      setInventory(prev => ({
+        ...prev,
+        Potion: prev.Potion - 1
+      }));
+      setPotionTimer(300);
+    }
+  };
+
   const calculateWinRate = () => {
     const totalStats = calculateTotalStats();
     const statBonus = Math.floor(totalStats / 6) + totalStats * 0.1;
@@ -808,6 +865,7 @@ const CoinFlipMMORPG = () => {
               }
             }}
             inventorySlots={inventorySlots}
+            onUsePotion={usePotion}
           />
         </div>
       )}
