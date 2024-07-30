@@ -1,16 +1,37 @@
 import React, { useState, useEffect } from 'react';
 
 const Confetti = ({ active, difficulty }) => {
-  if (!active) return null;
+  const [isActive, setIsActive] = useState(false);
+  const [confettiItems, setConfettiItems] = useState([]);
 
-  const confettiCount = {
-    easy: 10,
-    medium: 50,
-    hard: 100,
-    impossible: 200,
-  }[difficulty];
+  useEffect(() => {
+    if (active && !isActive) {
+      setIsActive(true);
+      const confettiCount = {
+        easy: 10,
+        medium: 50,
+        hard: 100,
+        impossible: 200,
+      }[difficulty];
 
-  const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+      const newConfettiItems = [...Array(confettiCount)].map(() => ({
+        left: `${Math.random() * 100}%`,
+        animationDuration: 3 + Math.random() * 2,
+        color: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'][Math.floor(Math.random() * 6)],
+      }));
+
+      setConfettiItems(newConfettiItems);
+
+      const timer = setTimeout(() => {
+        setIsActive(false);
+        setConfettiItems([]);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [active, difficulty]);
+
+  if (!isActive) return null;
 
   return (
     <div style={{
@@ -22,38 +43,30 @@ const Confetti = ({ active, difficulty }) => {
       pointerEvents: 'none',
       zIndex: 9999,
     }}>
-      {[...Array(confettiCount)].map((_, i) => {
-        const left = `${Math.random() * 100}%`;
-        const animationDuration = 3 + Math.random() * 2;
-        const color = colors[Math.floor(Math.random() * colors.length)];
-
-        return (
-          <div key={i} style={{
-            position: 'absolute',
-            left: left,
-            top: '-20px',
-            width: '10px',
-            height: '10px',
-            backgroundColor: color,
-            borderRadius: Math.random() > 0.5 ? '50%' : '0',
-            opacity: Math.random(),
-            animation: `confetti-${i} ${animationDuration}s ease-out infinite`,
-          }} />
-        );
-      })}
+      {confettiItems.map((item, i) => (
+        <div key={i} style={{
+          position: 'absolute',
+          left: item.left,
+          top: '-20px',
+          width: '10px',
+          height: '10px',
+          backgroundColor: item.color,
+          borderRadius: Math.random() > 0.5 ? '50%' : '0',
+          opacity: Math.random(),
+          animation: `confetti-fall ${item.animationDuration}s ease-out forwards`,
+        }} />
+      ))}
       <style>{`
-        ${[...Array(confettiCount)].map((_, i) => `
-          @keyframes confetti-${i} {
-            0% {
-              transform: translate3d(0, 0, 0) rotate(0deg);
-              opacity: 1;
-            }
-            100% {
-              transform: translate3d(${(Math.random() - 0.5) * 500}px, ${window.innerHeight + 20}px, 0) rotate(${Math.random() * 720}deg);
-              opacity: 0;
-            }
+        @keyframes confetti-fall {
+          0% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 1;
           }
-        `).join('')}
+          100% {
+            transform: translateY(100vh) rotate(720deg);
+            opacity: 0;
+          }
+        }
       `}</style>
     </div>
   );
@@ -790,7 +803,9 @@ const CoinFlipMMORPG = () => {
           </button>
 
           <div style={{ marginBottom: '10px', textAlign: 'center' }}>
-            {(calculateWinRate() * 100).toFixed(2)}%
+            {(calculateWinRate() * 100).toFixed(2)}% flip win
+            <span> x </span>
+            {calculateItemDropRate()}% item drop
           </div>
 
           {crystalTimer > 0 && (
@@ -839,7 +854,7 @@ const CoinFlipMMORPG = () => {
           
           <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
             <p>Notice: Any resemblance to actual games is purely coincidental.</p>
-            <p>Remember: It's not gambling if you always lose!</p>
+            <p>Remember: It's not gambling if you always win!</p>
           </div>
 
         </div>
