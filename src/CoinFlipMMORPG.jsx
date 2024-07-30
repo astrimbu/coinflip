@@ -136,10 +136,10 @@ const InventoryGrid = ({ items, onEquip, inventorySlots }) => {
         marginBottom: '10px',
       }}>
         <div style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>
-          Gold: {(equipment.gold)}
+          Gold: {(items.Gold)}
         </div>
         <div style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>
-          Potions: {(equipment.gold)}
+          Potions: {(items.Potion)}
         </div>
       </div>
       <hr style={{ width: '100%', margin: '10px 0' }} />
