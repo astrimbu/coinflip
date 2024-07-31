@@ -347,13 +347,6 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
       acc[item.rarity] = (acc[item.rarity] || 0) + 1;
       return acc;
     }, {});
-    setScrap(prevScrap => {
-      const newScrap = { ...prevScrap };
-      Object.keys(recycledScrap).forEach(rarity => {
-        newScrap[rarity] = (newScrap[rarity] || 0) + recycledScrap[rarity];
-      });
-      return newScrap;
-    });
     onRecycle(selectedItems);
     setSelectedItems([]);
   };
@@ -362,14 +355,6 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
     const recycledScrap = Object.entries(inventory)
       .filter(([category]) => category !== 'Gold' && category !== 'Potion' && category !== 'Crystal')
       .flatMap(([category, items]) => Array.isArray(items) ? items.filter(item => item.rarity) : []);
-    setScrap(prevScrap => {
-      const newScrap = { ...prevScrap };
-      Object.values(recycledScrap).forEach(item => {
-        const rarity = item['rarity']
-        newScrap[rarity] = (newScrap[rarity] || 0) + 1;
-      });
-      return newScrap;
-    });
     onRecycle(recycledScrap);
   };
 
