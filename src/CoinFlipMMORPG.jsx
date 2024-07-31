@@ -582,13 +582,7 @@ const CoinFlipMMORPG = () => {
         Crystal: prev.Crystal.slice(1)
       }));
       setCrystalTimer(300);
-    } else if (item.name === 'Potion') {
-      setInventory(prev => ({
-        ...prev,
-        Potion: prev.Potion - 1
-      }));
-      setPotionTimer(300);
-    }
+    } 
   };
 
   const usePotion = () => {
