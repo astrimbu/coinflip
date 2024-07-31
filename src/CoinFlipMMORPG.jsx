@@ -110,21 +110,9 @@ const ProgressBar = ({ difficulty, scores, difficultyLevels }) => {
 const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
-  const itemImages = {
-    Weapon: {
-      Common: '/api/placeholder/50/50?text=CS',
-      Magic: '/api/placeholder/50/50?text=MS',
-      Rare: '/api/placeholder/50/50?text=RS',
-      Unique: '/api/placeholder/50/50?text=US',
-    },
-    Hat: {
-      Common: '/api/placeholder/50/50?text=CH',
-      Magic: '/api/placeholder/50/50?text=MH',
-      Rare: '/api/placeholder/50/50?text=RH',
-      Unique: '/api/placeholder/50/50?text=UH',
-    },
-    Crystal: '/api/placeholder/50/50?text=CR',
-  }; 
+  function getItemUrl (name, rarity) {
+    return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url).href
+  }
 
   const flattenedItems = Object.entries(items)
     .filter(([itemName]) => itemName !== 'Gold' && itemName !== 'Potion')
@@ -135,11 +123,12 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
 
     return (
       <div style={{
-        width: '360px',
+        width: '230px',
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        padding: '30px 0 30px 0',
       }}>
         <div style={{
           display: 'flex',
@@ -163,11 +152,11 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
             Potions: {(items.Potion)}
           </div>
         </div>
-      <hr style={{ width: '100%', margin: '10px 0' }} />
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 50px)',
         gridGap: '10px',
+        paddingTop: '10px',
       }}>
         {[...Array(16)].map((_, index) => (
         <div
@@ -183,7 +172,8 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
           {flattenedItems[index] && (
             <>
               <img
-                src={itemImages[flattenedItems[index].name] || '/api/placeholder/50/50?text=?'}
+                src={getItemUrl(flattenedItems[index].name.toLowerCase(),
+                  flattenedItems[index].rarity.toLowerCase())}
                 alt={flattenedItems[index].rarity + ' ' + flattenedItems[index].name}
                 style={{ width: '100%', height: '100%' }}
                 onMouseEnter={() => setHoveredItem(flattenedItems[index])}
@@ -215,6 +205,12 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
 
 const WornEquipment = ({ equipment, onUnequip }) => {
   const slots = ['hat', 'cape', 'amulet', 'weapon', 'body', 'pants', 'gloves', 'boots', 'ring'];
+
+  function getItemUrl (name, rarity) {
+    name = name.toLowerCase()
+    rarity = rarity.toLowerCase()
+    return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url).href
+  }
   
   const calculateTotalStats = () => {
     return slots.reduce((total, slot) => {
@@ -245,7 +241,7 @@ const WornEquipment = ({ equipment, onUnequip }) => {
         >
           {equipment[slot] && (
             <img
-              src={`/api/placeholder/50/50?text=${slot[0].toUpperCase()}`}
+              src={getItemUrl(equipment[slot].name, equipment[slot].rarity)}
               alt={`${equipment[slot].rarity} ${equipment[slot].name}`}
               style={{ width: '100%', height: '100%' }}
             />
