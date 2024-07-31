@@ -107,11 +107,11 @@ const ProgressBar = ({ difficulty, scores, difficultyLevels }) => {
   );
 };
 
-const InventoryGrid = ({ items, onEquip, inventorySlots, onUsePotion }) => {
+const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
   const itemImages = {
-    Sword: {
+    Weapon: {
       Common: '/api/placeholder/50/50?text=CS',
       Magic: '/api/placeholder/50/50?text=MS',
       Rare: '/api/placeholder/50/50?text=RS',
@@ -131,7 +131,7 @@ const InventoryGrid = ({ items, onEquip, inventorySlots, onUsePotion }) => {
     .flatMap(([itemName, itemArray]) =>
       Array.isArray(itemArray) ? itemArray : []
     )
-    .slice(0, inventorySlots);
+    .slice(0, 16);
 
     return (
       <div style={{
@@ -335,30 +335,15 @@ const Shop = ({ gold, inventorySlots, onPurchase }) => {
           Buy
         </button>
       </div>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginTop: '20px',
-      }}>
-        <div>
-          <img src="/api/placeholder/50/50?text=Slots" alt="Inventory Slots" />
-          <p>4 Inventory Slots (4 Gold)</p>
-        </div>
-        <button onClick={() => onPurchase('InventorySlots')} disabled={gold < 4}>
-          Buy
-        </button>
-      </div>
     </div>
   );
 }; 
 
-const Recycler = ({ inventory, onRecycle, onExchange }) => {
+const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
   const [selectedItems, setSelectedItems] = useState([]);
-  const [scrap, setScrap] = useState({ Common: 0, Magic: 0, Rare: 0, Unique: 0 });
   const [exchangeRarity, setExchangeRarity] = useState('Common');
   const [exchangeItem, setExchangeItem] = useState('');
-  const validEquipmentTypes = ['Sword', 'Hat', 'Cape', 'Body', 'Pants', 
+  const validEquipmentTypes = ['Weapon', 'Hat', 'Cape', 'Body', 'Pants', 
     'Gloves', 'Boots', 'Ring', 'Amulet'];
 
   const handleRecycle = () => {
@@ -375,6 +360,21 @@ const Recycler = ({ inventory, onRecycle, onExchange }) => {
     });
     onRecycle(selectedItems);
     setSelectedItems([]);
+  };
+
+  const handleRecycleAll = () => {
+    const recycledScrap = Object.entries(inventory)
+      .filter(([category]) => category !== 'Gold' && category !== 'Potion' && category !== 'Crystal')
+      .flatMap(([category, items]) => Array.isArray(items) ? items.filter(item => item.rarity) : []);
+    setScrap(prevScrap => {
+      const newScrap = { ...prevScrap };
+      Object.values(recycledScrap).forEach(item => {
+        const rarity = item['rarity']
+        newScrap[rarity] = (newScrap[rarity] || 0) + 1;
+      });
+      return newScrap;
+    });
+    onRecycle(recycledScrap);
   };
 
   const handleExchange = () => {
@@ -413,6 +413,7 @@ const Recycler = ({ inventory, onRecycle, onExchange }) => {
           </label>
         ))}
         <button onClick={handleRecycle} disabled={selectedItems.length === 0}>Recycle</button>
+        <button onClick={handleRecycleAll} disabled={recyclableItems.length === 0}>Recycle All</button>
       </div>
       <div>
         <h3>Scrap:</h3>
@@ -464,31 +465,6 @@ const Recycler = ({ inventory, onRecycle, onExchange }) => {
 };
 
 const CoinFlipMMORPG = () => {
-  const difficultyLevels = {
-    easy: { label: 'Easy', rate: 1/2, color: '#4CAF50' },
-    medium: { label: 'Medium', rate: 1/3, color: '#FFA500' },
-    hard: { label: 'Hard', rate: 1/10, color: '#F44336' },
-    impossible: { label: 'Impossible', rate: 1/100, color: '#9C27B0' }
-  };
-  const difficultyModifiers = { easy: 2, medium: 3, hard: 4, impossible: 5 };
-  const rarityByDifficulty = { 
-    easy: 'Common', 
-    medium: 'Magic', 
-    hard: 'Rare', 
-    impossible: 'Unique', 
-  };
-  const [difficulty, setDifficulty] = useState('easy');
-  const [scores, setScores] = useState({
-    easy: { flips: 0, wins: 0 },
-    medium: { flips: 0, wins: 0 },
-    hard: { flips: 0, wins: 0 },
-    impossible: { flips: 0, wins: 0 }
-  });
-  const [isFlipping, setIsFlipping] = useState(false);
-  const [message, setMessage] = useState('Good luck!');
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [view, setView] = useState('game'); // 'game' or 'inventory'
-  const [crystalTimer, setCrystalTimer] = useState(0);
   const [wornEquipment, setWornEquipment] = useState({
     hat: null,
     weapon: null,
@@ -511,114 +487,45 @@ const CoinFlipMMORPG = () => {
     Ring: [],
     Amulet: [],
     Crystal: [],
-    Gold: 0,
-    Potion: 0,
+    Gold: 1,
+    Potion: 1,
   });
+  const [scrap, setScrap] = useState({ Common: 0, Magic: 0, Rare: 0, Unique: 0 });
+
+
+
+  const difficultyLevels = {
+    easy: { label: 'Easy', rate: 1/2, color: '#4CAF50' },
+    medium: { label: 'Medium', rate: 1/3, color: '#FFA500' },
+    hard: { label: 'Hard', rate: 1/100, color: '#F44336' },
+    impossible: { label: 'Impossible', rate: 1/1000, color: '#9C27B0' }
+  };
+  const difficultyModifiers = { easy: 2, medium: 3, hard: 4, impossible: 5 };
+  const rarityByDifficulty = { 
+    easy: 'Common', 
+    medium: 'Magic', 
+    hard: 'Rare', 
+    impossible: 'Unique', 
+  };
+  const [difficulty, setDifficulty] = useState('easy');
+  const [scores, setScores] = useState({
+    easy: { flips: 0, wins: 0 },
+    medium: { flips: 0, wins: 0 },
+    hard: { flips: 0, wins: 0 },
+    impossible: { flips: 0, wins: 0 }
+  });
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [message, setMessage] = useState('Good luck!');
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [view, setView] = useState('game'); // 'game' or 'inventory'
+  const [crystalTimer, setCrystalTimer] = useState(0);
+  
   const [lastObtainedItem, setLastObtainedItem] = useState(null);
   const [recentItems, setRecentItems] = useState([]);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const currentScore = scores[difficulty];
-  const [inventorySlots, setInventorySlots] = useState(16);
   const [potionTimer, setPotionTimer] = useState(0);
-  const [scrap, setScrap] = useState({ Common: 0, Magic: 0, Rare: 0, Unique: 0 });
-
-  const equipItem = (item) => {
-    const slot = item.name === 'Sword' ? 'weapon' : item.name.toLowerCase();
-
-    setWornEquipment(prev => {
-      const prevItem = prev[slot];
-      
-      // Remove item from inventory
-      setInventory(prevInv => {
-        const category = item.name === 'Sword' ? 'Weapon' : item.name;
-        return {
-          ...prevInv,
-          [category]: prevInv[category].filter(i => i !== item)
-        };
-      });
-
-      // If there was a previous item, add it back to inventory
-      if (prevItem) {
-        setInventory(prevInv => {
-          const category = prevItem.name === 'Sword' ? 'Weapon' : prevItem.name;
-          return {
-            ...prevInv,
-            [category]: [...prevInv[category], prevItem]
-          };
-        });
-      } 
-
-      return { ...prev, [slot]: item };
-    });
-  };
-
-  const unequipItem = (slot) => {
-    const item = wornEquipment[slot];
-    if (item) {
-      if (slot === 'gold' || slot === 'potion') return;
-      setWornEquipment(prev => ({ ...prev, [slot]: null }));
-      setInventory(prevInv => {
-        const category = item.name === 'Sword' ? 'Weapon' : item.name;
-        return {
-          ...prevInv,
-          [category]: [...prevInv[category] || [], item]
-        };
-      });
-    }
-  };
-
-  const checkForItem = () => {
-    const baseChance = 0.1;
-    const modifier = difficultyModifiers[difficulty];
-    const itemChance = baseChance * modifier * (crystalTimer > 0 ? 2 : 1);
-    
-    if (Math.random() < itemChance) {
-      const items = ['Gold', 'Weapon', 'Hat', 'Cape', 'Body', 'Pants', 'Gloves', 'Boots', 'Ring', 'Amulet', 'Potion'];
-      const randomItem = items[Math.floor(Math.random() * items.length)];
-      const rarity = rarityByDifficulty[difficulty];
-
-      let newItem;
-      const extraItems = {
-        easy: 1,
-        medium: 2,
-        hard: 3,
-        impossible: 4
-      }[difficulty];
-
-      if (randomItem === 'Gold' || randomItem === 'Potion') {
-        setInventory(prev => ({
-          ...prev,
-          [randomItem]: prev[randomItem] + extraItems
-        }));
-        newItem = { name: randomItem, count: extraItems };
-      } else if (randomItem === 'Weapon') {
-        const weapons = ['Sword'];
-        const randomWeapon = weapons[Math.floor(Math.random() * weapons.length)];
-        const stat = getRarityStat(rarity);
-        newItem = { name: randomWeapon, rarity, stat };
-        setInventory(prevInventory => ({
-          ...prevInventory,
-          Weapon: [...prevInventory.Weapon, newItem]
-        }));
-      } else {
-        const stat = getRarityStat(rarity);
-        newItem = { name: randomItem, rarity, stat };
-        setInventory(prevInventory => ({
-          ...prevInventory,
-          [randomItem]: [...prevInventory[randomItem], newItem]
-        }));
-      }
-
-      setLastObtainedItem(newItem);
-      setMessage(`You found ${newItem.count ? newItem.count : 'a'} ${newItem.rarity ? `${newItem.rarity} ` : ''}
-        ${newItem.name}${newItem.count > 1 && newItem.name !== 'Gold' ? 's' : ''}`
-      );
-
-      setRecentItems(prev => [newItem, ...prev.slice(0, 4)]);
-    } else {
-      setLastObtainedItem(null);
-    } 
-  }; 
+  const inventorySlots = 16;
 
   const getRarityStat = (rarity) => {
     switch (rarity) {
@@ -653,15 +560,6 @@ const CoinFlipMMORPG = () => {
       }));
       setPurchaseNotification(true);
       setTimeout(() => setPurchaseNotification(false), 2000);
-    } else if (item === 'InventorySlots' && inventory.Gold >= 3 * Math.pow(2, (inventorySlots - 16)/4)) {
-      const cost = 4 * Math.pow(2, (inventorySlots - 16)/4);
-      setInventory(prev => ({
-        ...prev,
-        Gold: prev.Gold - cost
-      }));
-      setInventorySlots(prev => prev + 4);
-      setPurchaseNotification(true);
-      setTimeout(() => setPurchaseNotification(false), 2000);
     }
   };
 
@@ -687,7 +585,7 @@ const CoinFlipMMORPG = () => {
         ...prev,
         Potion: prev.Potion - 1
       }));
-      setPotionTimer(300);
+      setPotionTimer(20);
     }
   };
 
@@ -698,38 +596,22 @@ const CoinFlipMMORPG = () => {
     return Math.min(baseRate * Math.pow(2, statBonus), 1);
   };
 
-  const flipCoin = () => {
-    setIsFlipping(true);
-    setTimeout(() => {
-      const totalStats = calculateTotalStats();
-      const statBonus = Math.floor(totalStats / 6);
-      const baseRate = difficultyLevels[difficulty].rate;
-      const adjustedRate = Math.min(baseRate * Math.pow(2, statBonus), 1);
-      const result = Math.random() < adjustedRate;
-      setScores(prevScores => ({
-        ...prevScores,
-        [difficulty]: {
-          flips: prevScores[difficulty].flips + 1,
-          wins: prevScores[difficulty].wins + (result ? 1 : 0)
-        }
-      }));
-      if (result) {
-        setMessage('You won! The RNG gods smile upon you.');
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
-        checkForItem();
-      } else {
-        setMessage('You lost. Maybe buy our "Luck Boost" DLC?');
-      }
-      setIsFlipping(false);
-    }, potionTimer > 0 ? 10 : 1000);
+  const calculateItemDropRate = () => {
+    const baseChance = 0.1;
+    const modifier = difficultyModifiers[difficulty];
+    return (baseChance * modifier * (crystalTimer > 0 ? 2 : 1) * 100).toFixed(2);
   };
 
   const handleRecycle = (items) => {
     items.forEach(item => {
+      const category = item.name;
       setInventory(prev => ({
         ...prev,
-        [item.name]: [...prev[item.name].filter(i => i !== item) || '']
+        [category]: prev[category].filter(i => i !== item)
+      }));
+      setScrap(prev => ({
+        ...prev,
+        [item.rarity]: prev[item.rarity] + 1
       }));
     });
   };
@@ -740,6 +622,129 @@ const CoinFlipMMORPG = () => {
       ...prev,
       [itemName]: [...prev[itemName] || '', { name: itemName, rarity, stat: getRarityStat(rarity) }]
     }));
+  };
+
+  const checkInventoryFull = () => {
+    const totalItems = Object.values(inventory).reduce((sum, items) => 
+      sum + (Array.isArray(items) ? items.length : 0), 0);
+    return totalItems >= inventorySlots;
+  };
+
+  const equipItem = (item) => {
+    const slot = item.name.toLowerCase();
+
+    setWornEquipment(prev => {
+      const prevItem = prev[slot];
+      
+      // Remove item from inventory
+      setInventory(prevInv => {
+        const category = item.name;
+        return {
+          ...prevInv,
+          [category]: prevInv[category].filter(i => i !== item)
+        };
+      });
+
+      // If there was a previous item, add it back to inventory
+      if (prevItem) {
+        setInventory(prevInv => {
+          const category = prevItem.name;
+          return {
+            ...prevInv,
+            [category]: [...prevInv[category], prevItem]
+          };
+        });
+      } 
+
+      return { ...prev, [slot]: item };
+    });
+  };
+
+  const unequipItem = (slot) => {
+    const item = wornEquipment[slot];
+    if (item) {
+      if (slot === 'gold' || slot === 'potion') return;
+      setWornEquipment(prev => ({ ...prev, [slot]: null }));
+      setInventory(prevInv => {
+        const category = item.name;
+        return {
+          ...prevInv,
+          [category]: [...prevInv[category] || [], item]
+        };
+      });
+    }
+  };
+
+  const checkForItem = () => {
+    const baseChance = 0.1;
+    const modifier = difficultyModifiers[difficulty];
+    const itemChance = baseChance * modifier * (crystalTimer > 0 ? 2 : 1);
+    
+    if (Math.random() < itemChance) {
+      const items = ['Gold', 'Weapon', 'Hat', 'Cape', 'Body', 'Pants', 'Gloves', 'Boots', 'Ring', 'Amulet', 'Potion'];
+      const randomItem = items[Math.floor(Math.random() * items.length)];
+      const rarity = rarityByDifficulty[difficulty];
+
+      let newItem;
+      const extraItems = {
+        easy: 1,
+        medium: 2,
+        hard: 3,
+        impossible: 4
+      }[difficulty];
+
+      if (randomItem === 'Gold' || randomItem === 'Potion') {
+        setInventory(prev => ({
+          ...prev,
+          [randomItem]: prev[randomItem] + extraItems
+        }));
+        newItem = { name: randomItem, count: extraItems };
+      } else {
+        const stat = getRarityStat(rarity);
+        newItem = { name: randomItem, rarity, stat };
+        setInventory(prevInventory => ({
+          ...prevInventory,
+          [randomItem]: [...(prevInventory[randomItem] || []), newItem]
+        }));
+      }
+      setLastObtainedItem(newItem);
+      setMessage(`You found ${newItem.count ? newItem.count : 'a'} ${newItem.rarity ? `${newItem.rarity} ` : ''}
+        ${newItem.name}${newItem.count > 1 && newItem.name !== 'Gold' ? 's' : ''}`
+      );
+
+      setRecentItems(prev => [newItem, ...prev.slice(0, 4)]);
+    } else {
+      setLastObtainedItem(null);
+    } 
+  }; 
+
+  const flipCoin = () => {
+    setIsFlipping(true);
+    setTimeout(() => {
+      const totalStats = calculateTotalStats();
+      const statBonus = Math.floor(totalStats / 6);
+      const baseRate = difficultyLevels[difficulty].rate;
+      const adjustedRate = Math.min(baseRate * Math.pow(2, statBonus), 1);
+      const result = Math.random() < adjustedRate;
+
+      setScores(prevScores => ({
+        ...prevScores,
+        [difficulty]: {
+          flips: prevScores[difficulty].flips + 1,
+          wins: prevScores[difficulty].wins + (result ? 1 : 0)
+        }
+      }));
+      
+      if (result) {
+        setMessage('You won! The RNG gods smile upon you.');
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+        checkForItem();
+      } else {
+        setMessage('You lost. Maybe buy our "Luck Boost" DLC?');
+      }
+      setIsFlipping(false);
+    }, potionTimer > 0 ? 10 : 1000);
   };
 
   useEffect(() => {
@@ -875,7 +880,6 @@ const CoinFlipMMORPG = () => {
                 equipItem(item);
               }
             }}
-            inventorySlots={inventorySlots}
             onUsePotion={usePotion}
           />
         </div>
@@ -893,7 +897,6 @@ const CoinFlipMMORPG = () => {
         <>
           <Shop 
             gold={inventory.Gold} 
-            inventorySlots={inventorySlots}
             onPurchase={purchaseItem} 
           />
           {purchaseNotification && (
@@ -919,6 +922,8 @@ const CoinFlipMMORPG = () => {
           inventory={inventory}
           onRecycle={handleRecycle}
           onExchange={handleExchange}
+          scrap={scrap}
+          setScrap={setScrap}
         />
       )}
 
