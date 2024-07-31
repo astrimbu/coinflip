@@ -110,7 +110,20 @@ const ProgressBar = ({ difficulty, scores, difficultyLevels }) => {
 const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
+  const getRarityColor = (rarity) => {
+    switch (rarity) {
+      case 'Common': return '#4CAF50';
+      case 'Magic': return '#FFA500';
+      case 'Rare': return '#F44336';
+      case 'Unique': return '#000';
+      default: return '#ccc';
+    }
+  };
+
   function getItemUrl (name, rarity) {
+    if (name === 'crystal' || name === 'potion' || name === 'gold') {
+      return new URL(`./assets/items/${name}.png`, import.meta.url).href
+    }
     return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url).href
   }
 
@@ -137,7 +150,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
           marginBottom: '10px',
         }}>
           <div style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>
-            Gold: {(items.Gold)}
+          <img src={getItemUrl('gold')} alt="Gold" /> {(items.Gold)}
           </div>
           <div 
             style={{ 
@@ -149,7 +162,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
             }}
             onClick={() => items.Potion > 0 && onUsePotion()}
           >
-            Potions: {(items.Potion)}
+            <img src={getItemUrl('potion')} alt="Potion" /> {(items.Potion)}
           </div>
         </div>
       <div style={{
@@ -165,7 +178,9 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
             width: '50px',
             height: '50px',
             border: '1px solid #ccc',
-            position: 'relative'
+            position: 'relative',
+            outline: flattenedItems[index] ? `2px solid ${getRarityColor(flattenedItems[index].rarity)}` : 'none',
+            outlineOffset: '-2px',
           }}
           onClick={() => flattenedItems[index] && onEquip(flattenedItems[index])}
         >
@@ -206,6 +221,16 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
 const WornEquipment = ({ equipment, onUnequip }) => {
   const slots = ['hat', 'cape', 'amulet', 'weapon', 'body', 'pants', 'gloves', 'boots', 'ring'];
 
+  const getRarityColor = (rarity) => {
+    switch (rarity) {
+      case 'Common': return '#4CAF50';
+      case 'Magic': return '#FFA500';
+      case 'Rare': return '#F44336';
+      case 'Unique': return '#000';
+      default: return '#ccc';
+    }
+  };
+
   function getItemUrl (name, rarity) {
     name = name.toLowerCase()
     rarity = rarity.toLowerCase()
@@ -233,6 +258,8 @@ const WornEquipment = ({ equipment, onUnequip }) => {
             border: '1px solid #ccc',
             position: 'relative',
             margin: '0 auto',
+            outline: equipment[slot] ? `2px solid ${getRarityColor(equipment[slot].rarity)}` : 'none',
+            outlineOffset: '-2px',
           }}
           onClick={() => equipment[slot] && onUnequip(slot)}
           onMouseEnter={() => setHoveredItem(equipment[slot])}
@@ -296,6 +323,10 @@ const WornEquipment = ({ equipment, onUnequip }) => {
 };
 
 const Shop = ({ gold, inventorySlots, onPurchase }) => {
+  function getItemUrl (name) {
+    return new URL(`./assets/items/${name}.png`, import.meta.url).href
+  }
+
   return (
     <div style={{
       padding: '20px',
@@ -310,7 +341,7 @@ const Shop = ({ gold, inventorySlots, onPurchase }) => {
         marginTop: '20px',
       }}>
         <div>
-          <img src="/api/placeholder/50/50?text=Crystal" alt="Crystal" />
+          {<img src={getItemUrl('crystal')} alt="Crystal" />}
           <p>Crystal (1 Gold)</p>
         </div>
         <button onClick={() => onPurchase('Crystal')} disabled={gold < 1}>
@@ -324,7 +355,7 @@ const Shop = ({ gold, inventorySlots, onPurchase }) => {
         marginTop: '20px',
       }}>
         <div>
-          <img src="/api/placeholder/50/50?text=Potion" alt="Potion" />
+          {<img src={getItemUrl('potion')} alt="Potion" />}
           <p>Potion (1 Gold)</p>
         </div>
         <button onClick={() => onPurchase('Potion')} disabled={gold < 1}>
@@ -479,7 +510,7 @@ const CoinFlipMMORPG = () => {
     easy: { label: 'Easy', rate: 1/2, color: '#4CAF50' },
     medium: { label: 'Medium', rate: 1/3, color: '#FFA500' },
     hard: { label: 'Hard', rate: 1/100, color: '#F44336' },
-    impossible: { label: 'Impossible', rate: 1/1000, color: '#9C27B0' }
+    impossible: { label: 'Impossible', rate: 1/1000, color: '#000' }
   };
   const difficultyModifiers = { easy: 2, medium: 3, hard: 4, impossible: 5 };
   const rarityByDifficulty = { 
