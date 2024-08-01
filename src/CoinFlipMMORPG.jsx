@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './hover.css';
 
 const Confetti = ({ active, difficulty }) => {
   const [isActive, setIsActive] = useState(false);
@@ -323,39 +324,42 @@ const Shop = ({ gold, inventorySlots, onPurchase }) => {
 
   return (
     <div style={{
-      padding: '20px 20px 40px 20px',
+      padding: '20px',
       backgroundColor: '#f0f0f0',
-      borderRadius: '8px',
     }}>
-      <h2>Shop</h2>
-      <div style={{
+      <h2 style={{ marginTop: 0 }}>Shop</h2>
+      <label htmlFor='buy-crystal' className="shop-label" style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        marginTop: '30px',
+        justifyContent: 'space-evenly',
+        marginTop: '20px',
+        backgroundColor: '#d5d5d5',
+        padding: '10px',
       }}>
         <div>
-          {<img src={getItemUrl('crystal')} width='48px' height='42px' alt="Crystal" />}
+          {<img src={getItemUrl('crystal')} width='24px' height='21px' alt="Crystal" />}
           <p style={{margin: '0'}}>Crystal (1 Gold)</p>
         </div>
-        <button onClick={() => onPurchase('Crystal')} disabled={gold < 1}>
+        <button id='buy-crystal' onClick={() => onPurchase('Crystal')} disabled={gold < 1}>
           Buy
         </button>
-      </div>
-      <div style={{
+      </label>
+      <label htmlFor='buy-potion' className="shop-label" style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        marginTop: '30px',
+        justifyContent: 'space-evenly',
+        marginTop: '20px',
+        backgroundColor: '#d5d5d5',
+        padding: '10px',
       }}>
         <div>
-          {<img src={getItemUrl('potion')} width='42px' height='60px' alt="Potion" />}
+          {<img src={getItemUrl('potion')} width='21px' height='30px' alt="Potion" />}
           <p style={{margin: '0'}}>Potion (1 Gold)</p>
         </div>
-        <button onClick={() => onPurchase('Potion')} disabled={gold < 1}>
+        <button id='buy-potion' onClick={() => onPurchase('Potion')} disabled={gold < 1}>
           Buy
         </button>
-      </div>
+      </label>
     </div>
   );
 }; 
@@ -407,9 +411,9 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
   );
 
   return (
-    <div style={{ padding: '20px 0', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
-      <h2>Recycler</h2>
-      <div style={{ backgroundColor: '#d5d5d5', padding: '20px 0 30px 0' }}>
+    <div style={{ padding: 0, backgroundColor: '#f0f0f0' }}>
+      <h2 style={{ paddingTop: '20px' }}>Recycler</h2>
+      <div style={{ backgroundColor: '#d5d5d5', padding: '20px 0 20px 0' }}>
         <h3 style={{ margin: '0' }}>Select items to recycle:</h3>
         {recyclableItems.map((item, index) => (
           <label key={index} htmlFor={'recycling' + index} style={{ 
@@ -446,8 +450,12 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
           Recycle All
         </button>
       </div>
-      <div style={{ backgroundColor: '#d5d5d5', padding: '1px 0 25px 0' }}>
-        <h3>Scrap:</h3>
+      <div style={{ backgroundColor: '#f0f0f0'}}>
+        <br />
+      </div>
+      <div style={{ backgroundColor: '#d5d5d5', padding: '20px 0 20px 0' }}>
+        <h3 style={{ margin: 0 }}>Scrap:</h3>
+        <br />
         {Object.entries(scrap).map(([rarity, count]) => (
           <span key={rarity} style={{ 
             padding: '0 0.3em', 
@@ -538,6 +546,15 @@ const CoinFlipMMORPG = () => {
     Potion: 1,
   });
   const [scrap, setScrap] = useState({ Common: 0, Magic: 0, Rare: 0, Unique: 0 });
+
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1200);
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1200);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const getRarityColor = (rarity) => {
     switch (rarity) {
@@ -810,28 +827,16 @@ const CoinFlipMMORPG = () => {
     return () => clearInterval(interval);
   }, [crystalTimer, potionTimer]);
 
-  return (
-    <div style={{ width: '420px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-        <button onClick={() => setView('game')} style={{ marginRight: '10px' }}>Game</button>
-        {/* <button onClick={() => setView('inventory')} style={{ marginRight: '10px' }}>Inventory</button>
-        <button onClick={() => setView('equipment')} style={{ marginRight: '10px' }}>Equipment</button> */}
-        <button onClick={() => setView('character')} style={{ marginRight: '10px' }}>Character</button>
-        <button onClick={() => setView('shop')} style={{ marginRight: '10px' }}>Shop</button>
-        <button onClick={() => setView('recycler')}>Recycler</button>
-      </div>
-
-      {view === 'game' && (
-        <div style={{ 
-          maxWidth: '400px', 
-          margin: '0 auto', 
-          padding: '20px', 
-          backgroundColor: '#f0f0f0', 
-          borderRadius: '8px',
-        }}>
-          <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>CoinFlip Legends: The Flippening</h1>
-          
-          <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
+  const renderGame = () => (
+    <div style={{ 
+      maxWidth: '400px', 
+      margin: '0 auto', 
+      padding: '20px', 
+      backgroundColor: '#f0f0f0', 
+    }}>
+      <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>CoinFlip Legends: The Flippening</h1>
+      
+      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
             {Object.entries(difficultyLevels).map(([key, { label, color }]) => (
               <button
                 key={key}
@@ -851,7 +856,7 @@ const CoinFlipMMORPG = () => {
           <button 
             onClick={flipCoin} 
             disabled={isFlipping}
-            style={{ width: '100%', marginBottom: '16px' }}
+            style={{ width: '100%', height: '4em', marginBottom: '16px' }}
           >
             {isFlipping ? 'Flipping...' : 'Flip Coin'}
           </button>
@@ -920,107 +925,110 @@ const CoinFlipMMORPG = () => {
             <p>Notice: Any resemblance to actual games is purely coincidental.</p>
             <p>Remember: It's not gambling if you always win!</p>
           </div>
+    </div>
+  );
 
-        </div>
-      )}
-
-      {/* {view === 'inventory' && (
-        <div style={{
-          padding: '20px',
-          backgroundColor: '#f0f0f0',
-          borderRadius: '8px',
-        }}>
-          <InventoryGrid 
-            items={inventory}
-            onEquip={(item) => {
-              if (item.name === 'Crystal' || item.name === 'Potion') {
-                useItem(item);
-              } else {
-                equipItem(item);
-              }
-            }}
-            onUsePotion={usePotion}
-          />
-        </div>
-      )}
-
-
-      {view === 'equipment' && (
+  const renderCharacter = () => (
+    <div style={{
+      maxWidth: '420px',
+      display: 'flex',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      backgroundColor: '#f0f0f0',
+    }}>
+      <div style={{ width: '55%' }}>
+        <h3>Inventory</h3>
+        <InventoryGrid 
+          items={inventory}
+          onEquip={(item) => {
+            if (item.name === 'Crystal' || item.name === 'Potion') {
+              useItem(item);
+            } else {
+              equipItem(item);
+            }
+          }}
+          onUsePotion={usePotion}
+        />
+      </div>
+      <div style={{ width: '45%', 
+        backgroundColor: '#ccc', }}
+      >
+        <h3>Equipment</h3>
         <WornEquipment 
           equipment={wornEquipment}
           onUnequip={unequipItem}
         />
-      )} */}
+      </div>
+    </div>
+  );
 
-      {view === 'character' && (
+  const renderShop = () => (
+    <>
+      <Shop 
+        gold={inventory.Gold} 
+        onPurchase={purchaseItem} 
+      />
+      {purchaseNotification && (
         <div style={{
-          maxWidth: '420px',
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          backgroundColor: '#f0f0f0',
-          borderRadius: '8px',
+          position: 'fixed',
+          top: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: '#4CAF50',
+          color: 'white',
+          padding: '10px',
+          borderRadius: '5px',
+          zIndex: 1000,
         }}>
-          <div style={{ width: '55%' }}>
-            <h3>Inventory</h3>
-            <InventoryGrid 
-              items={inventory}
-              onEquip={(item) => {
-                if (item.name === 'Crystal' || item.name === 'Potion') {
-                  useItem(item);
-                } else {
-                  equipItem(item);
-                }
-              }}
-              onUsePotion={usePotion}
-            />
-          </div>
-          <div style={{ width: '45%', 
-            backgroundColor: '#ccc',
-            borderTopRightRadius: '8px',
-            borderBottomRightRadius: '8px', }}
-          >
-            <h3>Equipment</h3>
-            <WornEquipment 
-              equipment={wornEquipment}
-              onUnequip={unequipItem}
-            />
-          </div>
+          Purchase successful!
+        </div>
+      )}
+    </>
+  );
+
+  const renderRecycler = () => (
+    <Recycler
+      inventory={inventory}
+      onRecycle={handleRecycle}
+      onExchange={handleExchange}
+      scrap={scrap}
+      setScrap={setScrap}
+    />
+  );
+
+  return (
+    <div style={{ 
+      width: isDesktop ? '100%' : '420px', 
+      margin: '0 auto',
+      display: isDesktop ? 'flex' : 'block',
+      justifyContent: 'center',
+      gap: '20px',
+    }}>
+      {!isDesktop && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+          <button onClick={() => setView('game')} style={{ marginRight: '10px' }}>Game</button>
+          <button onClick={() => setView('character')} style={{ marginRight: '10px' }}>Character</button>
+          <button onClick={() => setView('recycler')} style={{ marginRight: '10px' }}>Recycler</button>
+          <button onClick={() => setView('shop')}>Shop</button>
         </div>
       )}
 
-      {view === 'shop' && (
+      {isDesktop ? (
         <>
-          <Shop 
-            gold={inventory.Gold} 
-            onPurchase={purchaseItem} 
-          />
-          {purchaseNotification && (
-            <div style={{
-              position: 'fixed',
-              top: '20px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              backgroundColor: '#4CAF50',
-              color: 'white',
-              padding: '10px',
-              borderRadius: '5px',
-              zIndex: 1000,
-            }}>
-              Purchase successful!
-            </div>
-          )}
+          <div style={{ width: '30%' }}>{renderCharacter()}</div>
+          <div style={{ width: '40%' }}>{renderGame()}</div>
+          <div style={{ width: '30%' }}>
+            {renderShop()}
+            {renderRecycler()}
+          </div>
         </>
-      )}
-
-      {view === 'recycler' && (
-        <Recycler
-          inventory={inventory}
-          onRecycle={handleRecycle}
-          onExchange={handleExchange}
-          scrap={scrap}
-          setScrap={setScrap}
-        />
+      ) : (
+        <>
+          {view === 'game' && renderGame()}
+          {view === 'character' && renderCharacter()}
+          {view === 'shop' && renderShop()}
+          {view === 'recycler' && renderRecycler()}
+        </>
       )}
 
       <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#666' }}>
