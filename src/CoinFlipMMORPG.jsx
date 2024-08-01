@@ -395,7 +395,6 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
 
   const handleExchange = () => {
     if (scrap[exchangeRarity] >= 2 && exchangeItem && validEquipmentTypes.includes(exchangeItem)) {
-      setScrap(prevScrap => ({ ...prevScrap, [exchangeRarity]: prevScrap[exchangeRarity] - 2 }));
       onExchange(exchangeRarity, exchangeItem);
       setExchangeItem('');
     }
