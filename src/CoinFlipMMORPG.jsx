@@ -409,8 +409,8 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
   return (
     <div style={{ padding: '20px 0', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
       <h2>Recycler</h2>
-      <div style={{ backgroundColor: '#e0e0e0', padding: '0 0 10px 0' }}>
-        <h3>Select items to recycle:</h3>
+      <div style={{ backgroundColor: '#d5d5d5', padding: '20px 0 30px 0' }}>
+        <h3 style={{ margin: '0' }}>Select items to recycle:</h3>
         {recyclableItems.map((item, index) => (
           <label key={index} htmlFor={'recycling' + index} style={{ 
             border: `2px solid ${getRarityColor(item.rarity)}`,
@@ -446,15 +446,18 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
           Recycle All
         </button>
       </div>
-      <div style={{ backgroundColor: "#e0e0e0", padding: '0 0 10px 0' }}>
+      <div style={{ backgroundColor: '#d5d5d5', padding: '1px 0 25px 0' }}>
         <h3>Scrap:</h3>
         {Object.entries(scrap).map(([rarity, count]) => (
           <span key={rarity} style={{ 
-            padding: '0 1em', 
+            padding: '0 0.3em', 
+            margin: '0 0.5em',
             marginBottom: '5px', 
             borderRadius: '4px',
             fontSize: '2em',
+            fontWeight: '1000',
             color: `${getRarityColor(rarity)}`,
+            backgroundColor: '#f0f0f0',
           }}>
             {count}
           </span>
@@ -547,7 +550,7 @@ const CoinFlipMMORPG = () => {
   };
   const difficultyLevels = {
     easy: { label: 'Easy', rate: 1/2, color: '#4CAF50' },
-    medium: { label: 'Medium', rate: 1/3, color: '#FFA500' },
+    medium: { label: 'Medium', rate: 1/10, color: '#FFA500' },
     hard: { label: 'Hard', rate: 1/100, color: '#F44336' },
     impossible: { label: 'Impossible', rate: 1/1000, color: '#000' }
   };
