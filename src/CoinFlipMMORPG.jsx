@@ -87,7 +87,6 @@ const ProgressBar = ({ difficulty, scores, difficultyLevels }) => {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      width: '360px',
       height: '40px',
       position: 'relative',
       overflow: 'hidden',
@@ -450,17 +449,11 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
           Recycle All
         </button>
       </div>
-      <div style={{ backgroundColor: '#f0f0f0'}}>
-        <br />
-      </div>
       <div style={{ backgroundColor: '#d5d5d5', padding: '20px 0 20px 0' }}>
-        <h3 style={{ margin: 0 }}>Scrap:</h3>
-        <br />
         {Object.entries(scrap).map(([rarity, count]) => (
           <span key={rarity} style={{ 
             padding: '0 0.3em', 
             margin: '0 0.5em',
-            marginBottom: '5px', 
             borderRadius: '4px',
             fontSize: '2em',
             fontWeight: '1000',
@@ -477,7 +470,7 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
           display: 'flex',
           gap: '10px',
           justifyContent: 'center',
-          marginBottom: '0 auto' }}
+          marginBottom: 0 }}
         >
           <select 
             value={exchangeRarity}
@@ -498,22 +491,24 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
               <option key={type} value={type}>{type}</option>
             ))}
           </select>
-          <button 
-            onClick={handleExchange} 
-            disabled={scrap[exchangeRarity] < 2 || !exchangeItem}
-            style={{ 
-              padding: '5px 10px', 
-              backgroundColor: scrap[exchangeRarity] < 2 || !exchangeItem ? '#aaa' : '#4CAF50',
-              color: 'white',
-              border: 'none',
-              borderRadius: '3px',
-              cursor: scrap[exchangeRarity] < 2 || !exchangeItem ? 'not-allowed' : 'pointer',
-            }}
-          >
-            Exchange
-          </button>
+          
         </div>
-        <p>Cost: 2 {exchangeRarity} scrap</p>
+        <button 
+          onClick={handleExchange} 
+          disabled={scrap[exchangeRarity] < 2 || !exchangeItem}
+          style={{ 
+            padding: '5px 10px', 
+            marginTop: '10px',
+            backgroundColor: scrap[exchangeRarity] < 2 || !exchangeItem ? '#aaa' : '#4CAF50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '3px',
+            cursor: scrap[exchangeRarity] < 2 || !exchangeItem ? 'not-allowed' : 'pointer',
+          }}
+        >
+          Exchange
+        </button>
+        <p style={{paddingBottom:'20px'}}>Cost: 2 {exchangeRarity} scrap</p>
       </div>
     </div>
   );
@@ -907,13 +902,11 @@ const CoinFlipMMORPG = () => {
             )}
           </div> 
           
-          <div>
-            <ProgressBar
-              difficulty={difficulty} 
-              scores={scores} 
-              difficultyLevels={difficultyLevels} 
-            />
-          </div>
+          <ProgressBar
+            difficulty={difficulty} 
+            scores={scores} 
+            difficultyLevels={difficultyLevels} 
+          />
           
           {message && (
             <div style={{ marginTop: '16px', padding: '8px', backgroundColor: '#FFF3CD', border: '1px solid #FFEEBA' }}>
@@ -923,7 +916,10 @@ const CoinFlipMMORPG = () => {
           
           <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
             <p>Notice: Any resemblance to actual games is purely coincidental.</p>
-            <p>Remember: It's not gambling if you always win!</p>
+          </div>
+
+          <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#666' }}>
+            Version 1.0.0
           </div>
     </div>
   );
@@ -1030,10 +1026,6 @@ const CoinFlipMMORPG = () => {
           {view === 'recycler' && renderRecycler()}
         </>
       )}
-
-      <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#666' }}>
-        Version 1.0.0
-      </div>
 
       <Confetti active={showConfetti} difficulty={difficulty} />
     </div>
