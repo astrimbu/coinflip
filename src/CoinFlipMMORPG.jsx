@@ -136,12 +136,12 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
 
     return (
       <div style={{
-        width: '230px',
+        width: '200px',
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '30px 0 30px 0',
+        padding: '0 0 30px 0',
       }}>
         <div style={{
           display: 'flex',
@@ -150,7 +150,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
           marginBottom: '10px',
         }}>
           <div style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>
-          <img src={getItemUrl('gold')} alt="Gold" /> {(items.Gold)}
+            <img src={getItemUrl('gold')} alt="Gold" /> {(items.Gold)}
           </div>
           <div 
             style={{ 
@@ -168,8 +168,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 50px)',
-        gridGap: '10px',
-        paddingTop: '10px',
+        gridGap: '4px',
       }}>
         {[...Array(16)].map((_, index) => (
         <div
@@ -255,10 +254,9 @@ const WornEquipment = ({ equipment, onUnequip }) => {
           style={{
             width: '50px',
             height: '50px',
-            border: '1px solid #ccc',
             position: 'relative',
             margin: '0 auto',
-            outline: equipment[slot] ? `2px solid ${getRarityColor(equipment[slot].rarity)}` : 'none',
+            outline: equipment[slot] ? `2px solid ${getRarityColor(equipment[slot].rarity)}` : '2px solid #eee',
             outlineOffset: '-2px',
           }}
           onClick={() => equipment[slot] && onUnequip(slot)}
@@ -296,14 +294,10 @@ const WornEquipment = ({ equipment, onUnequip }) => {
 
   return (
     <div style={{
-      width: '360px',
       margin: '0 auto',
       display: 'grid',
       gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '10px',
-      padding: '50px 20px 20px 20px',
-      backgroundColor: '#f0f0f0',
-      borderRadius: '8px',
+      gap: '4px',
     }}>
       <div style={{ gridColumn: '2' }}>{renderSlot('hat')}</div>
       <div style={{ gridColumn: '1' }}>{renderSlot('cape')}</div>
@@ -329,7 +323,7 @@ const Shop = ({ gold, inventorySlots, onPurchase }) => {
 
   return (
     <div style={{
-      padding: '20px',
+      padding: '20px 20px 40px 20px',
       backgroundColor: '#f0f0f0',
       borderRadius: '8px',
     }}>
@@ -338,11 +332,11 @@ const Shop = ({ gold, inventorySlots, onPurchase }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop: '20px',
+        marginTop: '30px',
       }}>
         <div>
-          {<img src={getItemUrl('crystal')} alt="Crystal" />}
-          <p>Crystal (1 Gold)</p>
+          {<img src={getItemUrl('crystal')} width='48px' height='42px' alt="Crystal" />}
+          <p style={{margin: '0'}}>Crystal (1 Gold)</p>
         </div>
         <button onClick={() => onPurchase('Crystal')} disabled={gold < 1}>
           Buy
@@ -352,11 +346,11 @@ const Shop = ({ gold, inventorySlots, onPurchase }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop: '20px',
+        marginTop: '30px',
       }}>
         <div>
-          {<img src={getItemUrl('potion')} alt="Potion" />}
-          <p>Potion (1 Gold)</p>
+          {<img src={getItemUrl('potion')} width='42px' height='60px' alt="Potion" />}
+          <p style={{margin: '0'}}>Potion (1 Gold)</p>
         </div>
         <button onClick={() => onPurchase('Potion')} disabled={gold < 1}>
           Buy
@@ -372,6 +366,16 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
   const [exchangeItem, setExchangeItem] = useState('');
   const validEquipmentTypes = ['Weapon', 'Hat', 'Cape', 'Body', 'Pants', 
     'Gloves', 'Boots', 'Ring', 'Amulet'];
+  
+  const getRarityColor = (rarity) => {
+    switch (rarity) {
+      case 'Common': return '#4CAF50';
+      case 'Magic': return '#FFA500';
+      case 'Rare': return '#F44336';
+      case 'Unique': return '#000';
+      default: return '#ccc';
+    }
+  };
 
   const handleRecycle = () => {
     const recycledScrap = selectedItems.reduce((acc, item) => {
@@ -404,13 +408,16 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
   );
 
   return (
-    <div style={{ padding: '20px', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
+    <div style={{ padding: '20px 0', backgroundColor: '#f0f0f0', borderRadius: '8px' }}>
       <h2>Recycler</h2>
-      <div>
+      <div style={{ backgroundColor: '#e0e0e0', padding: '0 0 10px 0' }}>
         <h3>Select items to recycle:</h3>
         {recyclableItems.map((item, index) => (
-          <label key={index}>
+          <label key={index} htmlFor={'recycling' + index} style={{ 
+            border: `2px solid ${getRarityColor(item.rarity)}`,
+          }}>
             <input
+              id={'recycling' + index}
               type="checkbox"
               checked={selectedItems.includes(item)}
               onChange={() => {
@@ -424,20 +431,46 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
             {item.rarity} {item.name}
           </label>
         ))}
-        <button onClick={handleRecycle} disabled={selectedItems.length === 0}>Recycle</button>
-        <button onClick={handleRecycleAll} disabled={recyclableItems.length === 0}>Recycle All</button>
+        <br />
+        <button 
+          onClick={handleRecycle} 
+          style={{margin: '0 10px'}}
+          disabled={selectedItems.length === 0}
+        >
+          Recycle
+        </button>
+        <button 
+          onClick={handleRecycleAll} 
+          style={{margin: '0 10px'}} 
+          disabled={recyclableItems.length === 0}
+        >
+          Recycle All
+        </button>
       </div>
-      <div>
+      <div style={{ backgroundColor: "#e0e0e0", padding: '0 0 10px 0' }}>
         <h3>Scrap:</h3>
         {Object.entries(scrap).map(([rarity, count]) => (
-          <p key={rarity}>{rarity}: {count}</p>
+          <span key={rarity} style={{ 
+            padding: '0 1em', 
+            marginBottom: '5px', 
+            borderRadius: '4px',
+            fontSize: '2em',
+            color: `${getRarityColor(rarity)}`,
+          }}>
+            {count}
+          </span>
         ))}
       </div>
       <div style={{ marginTop: '20px' }}>
         <h3>Exchange Scrap:</h3>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+        <div style={{
+          display: 'flex',
+          gap: '10px',
+          justifyContent: 'center',
+          marginBottom: '0 auto' }}
+        >
           <select 
-            value={exchangeRarity} 
+            value={exchangeRarity}
             onChange={(e) => setExchangeRarity(e.target.value)}
             style={{ padding: '5px', borderRadius: '3px' }}
           >
@@ -460,7 +493,7 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
             disabled={scrap[exchangeRarity] < 2 || !exchangeItem}
             style={{ 
               padding: '5px 10px', 
-              backgroundColor: scrap[exchangeRarity] < 2 || !exchangeItem ? '#ccc' : '#4CAF50',
+              backgroundColor: scrap[exchangeRarity] < 2 || !exchangeItem ? '#aaa' : '#4CAF50',
               color: 'white',
               border: 'none',
               borderRadius: '3px',
@@ -504,8 +537,15 @@ const CoinFlipMMORPG = () => {
   });
   const [scrap, setScrap] = useState({ Common: 0, Magic: 0, Rare: 0, Unique: 0 });
 
-
-
+  const getRarityColor = (rarity) => {
+    switch (rarity) {
+      case 'Common': return '#4CAF50';
+      case 'Magic': return '#FFA500';
+      case 'Rare': return '#F44336';
+      case 'Unique': return '#000';
+      default: return '#ccc';
+    }
+  };
   const difficultyLevels = {
     easy: { label: 'Easy', rate: 1/2, color: '#4CAF50' },
     medium: { label: 'Medium', rate: 1/3, color: '#FFA500' },
@@ -772,8 +812,9 @@ const CoinFlipMMORPG = () => {
     <div style={{ width: '420px', margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
         <button onClick={() => setView('game')} style={{ marginRight: '10px' }}>Game</button>
-        <button onClick={() => setView('inventory')} style={{ marginRight: '10px' }}>Inventory</button>
-        <button onClick={() => setView('equipment')} style={{ marginRight: '10px' }}>Equipment</button>
+        {/* <button onClick={() => setView('inventory')} style={{ marginRight: '10px' }}>Inventory</button>
+        <button onClick={() => setView('equipment')} style={{ marginRight: '10px' }}>Equipment</button> */}
+        <button onClick={() => setView('character')} style={{ marginRight: '10px' }}>Character</button>
         <button onClick={() => setView('shop')} style={{ marginRight: '10px' }}>Shop</button>
         <button onClick={() => setView('recycler')}>Recycler</button>
       </div>
@@ -813,10 +854,16 @@ const CoinFlipMMORPG = () => {
             {isFlipping ? 'Flipping...' : 'Flip Coin'}
           </button>
 
-          <div style={{ marginBottom: '10px', textAlign: 'center' }}>
-            {(calculateWinRate() * 100).toFixed(2)}% flip win
-            <span> x </span>
-            {calculateItemDropRate()}% item drop
+          <div style={{
+            marginBottom: '10px',
+            textAlign: 'center',
+            fontStyle: 'italic' }}
+          >
+            Base win rate: {(difficultyLevels[difficulty].rate * 100).toFixed(2)}%
+            <br />
+            Effective win rate: {(calculateWinRate() * 100).toFixed(2)}%
+            <br />
+            Item drop rate: {calculateItemDropRate()}%
           </div>
 
           {crystalTimer > 0 && (
@@ -831,12 +878,16 @@ const CoinFlipMMORPG = () => {
             </div>
           )}
       
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{ marginBottom: '30px' }}>
             <h3>Recently Obtained Items:</h3>
             {recentItems.length > 0 ? (
               <ul style={{ listStyleType: 'none', padding: 0 }}>
                 {recentItems.map((item, index) => (
-                  <li key={index}>
+                  <li key={index} style={{ 
+                    color: `${getRarityColor(item.rarity)}`,
+                    textShadow: '1px 1px #000',
+                    borderRadius: '4px'
+                  }}>
                     {item.count ? `${item.count} ` : ''}
                     {item.rarity ? `${item.rarity} ` : ''}
                     {item.name}
@@ -871,7 +922,7 @@ const CoinFlipMMORPG = () => {
         </div>
       )}
 
-      {view === 'inventory' && (
+      {/* {view === 'inventory' && (
         <div style={{
           padding: '20px',
           backgroundColor: '#f0f0f0',
@@ -897,6 +948,43 @@ const CoinFlipMMORPG = () => {
           equipment={wornEquipment}
           onUnequip={unequipItem}
         />
+      )} */}
+
+      {view === 'character' && (
+        <div style={{
+          maxWidth: '420px',
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          backgroundColor: '#f0f0f0',
+          borderRadius: '8px',
+        }}>
+          <div style={{ width: '55%' }}>
+            <h3>Inventory</h3>
+            <InventoryGrid 
+              items={inventory}
+              onEquip={(item) => {
+                if (item.name === 'Crystal' || item.name === 'Potion') {
+                  useItem(item);
+                } else {
+                  equipItem(item);
+                }
+              }}
+              onUsePotion={usePotion}
+            />
+          </div>
+          <div style={{ width: '45%', 
+            backgroundColor: '#ccc',
+            borderTopRightRadius: '8px',
+            borderBottomRightRadius: '8px', }}
+          >
+            <h3>Equipment</h3>
+            <WornEquipment 
+              equipment={wornEquipment}
+              onUnequip={unequipItem}
+            />
+          </div>
+        </div>
       )}
 
       {view === 'shop' && (
