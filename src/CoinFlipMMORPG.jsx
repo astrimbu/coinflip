@@ -114,10 +114,10 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
   const getRarityColor = (rarity) => {
     switch (rarity) {
       case 'Common': return '#4CAF50';
-      case 'Magic': return '#FFA500';
+      case 'Magic': return '#3B88FF';
       case 'Rare': return '#F44336';
       case 'Unique': return '#000';
-      default: return '#ccc';
+      default: return '#888';
     }
   };
 
@@ -150,12 +150,12 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
           width: '100%',
           marginBottom: '10px',
         }}>
-          <div style={{ border: '1px solid #ccc', padding: '5px', textAlign: 'center' }}>
+          <div style={{ border: '2px solid #aaa', padding: '5px', textAlign: 'center' }}>
             <img src={getItemUrl('gold')} alt="Gold" /> {(items.Gold)}
           </div>
           <div 
             style={{ 
-              border: '1px solid #ccc', 
+              border: '2px solid #aaa', 
               padding: '5px', 
               textAlign: 'center', 
               cursor: items.Potion > 0 ? 'pointer' : 'default',
@@ -177,10 +177,13 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
           style={{
             width: '50px',
             height: '50px',
-            border: '1px solid #ccc',
+            border: '2px solid #ccc',
             position: 'relative',
             outline: flattenedItems[index] ? `2px solid ${getRarityColor(flattenedItems[index].rarity)}` : 'none',
             outlineOffset: '-2px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
           onClick={() => flattenedItems[index] && onEquip(flattenedItems[index])}
         >
@@ -190,7 +193,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
                 src={getItemUrl(flattenedItems[index].name.toLowerCase(),
                   flattenedItems[index].rarity.toLowerCase())}
                 alt={flattenedItems[index].rarity + ' ' + flattenedItems[index].name}
-                style={{ width: '100%', height: '100%' }}
+                style={{}}
                 onMouseEnter={() => setHoveredItem(flattenedItems[index])}
                 onMouseLeave={() => setHoveredItem(null)}
               />
@@ -224,7 +227,7 @@ const WornEquipment = ({ equipment, onUnequip }) => {
   const getRarityColor = (rarity) => {
     switch (rarity) {
       case 'Common': return '#4CAF50';
-      case 'Magic': return '#FFA500';
+      case 'Magic': return '#3B88FF';
       case 'Rare': return '#F44336';
       case 'Unique': return '#000';
       default: return '#ccc';
@@ -257,8 +260,11 @@ const WornEquipment = ({ equipment, onUnequip }) => {
             height: '50px',
             position: 'relative',
             margin: '0 auto',
-            outline: equipment[slot] ? `2px solid ${getRarityColor(equipment[slot].rarity)}` : '2px solid #eee',
+            outline: equipment[slot] ? `3px solid ${getRarityColor(equipment[slot].rarity)}` : '2px solid #888',
             outlineOffset: '-2px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
           onClick={() => equipment[slot] && onUnequip(slot)}
           onMouseEnter={() => setHoveredItem(equipment[slot])}
@@ -269,7 +275,7 @@ const WornEquipment = ({ equipment, onUnequip }) => {
             <img
               src={getItemUrl(equipment[slot].name, equipment[slot].rarity)}
               alt={`${equipment[slot].rarity} ${equipment[slot].name}`}
-              style={{ width: '100%', height: '100%' }}
+              style={{}}
             />
           )}
           {hoveredItem === equipment[slot] && equipment[slot] && (
@@ -285,7 +291,7 @@ const WornEquipment = ({ equipment, onUnequip }) => {
               whiteSpace: 'nowrap',
               zIndex: 1000,
             }}>
-              {`${equipment[slot].rarity} ${equipment[slot].name}\nStat: ${equipment[slot].stat}`}
+              {`+${equipment[slot].stat} to Stats`}
             </div>
           )}
         </div>
@@ -337,7 +343,7 @@ const Shop = ({ gold, onPurchase }) => {
         padding: '10px',
       }}>
         <div>
-          {<img src={getItemUrl('crystal')} width='24px' height='21px' alt="Crystal" />}
+          {<img src={getItemUrl('crystal')} alt="Crystal" />}
           <p style={{margin: '0'}}>Crystal (1 Gold)</p>
         </div>
         <button id='buy-crystal' onClick={() => onPurchase('Crystal')} disabled={gold < 1}>
@@ -353,7 +359,7 @@ const Shop = ({ gold, onPurchase }) => {
         padding: '10px',
       }}>
         <div>
-          {<img src={getItemUrl('potion')} width='21px' height='30px' alt="Potion" />}
+          {<img src={getItemUrl('potion')} alt="Potion" />}
           <p style={{margin: '0'}}>Potion (1 Gold)</p>
         </div>
         <button id='buy-potion' onClick={() => onPurchase('Potion')} disabled={gold < 1}>
@@ -368,24 +374,27 @@ const Recycler = ({ inventory, scrap, onRecycle, onExchange }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [exchangeRarity, setExchangeRarity] = useState('Common');
   const [exchangeItem, setExchangeItem] = useState('');
-  const validEquipmentTypes = ['Weapon', 'Hat', 'Cape', 'Body', 'Pants', 
-    'Gloves', 'Boots', 'Ring', 'Amulet'];
+  const validEquipmentTypes = ['Hat', 'Cape', 'Amulet', 'Weapon', 'Body', 'Pants', 
+    'Gloves', 'Boots', 'Ring' ];
   
   const getRarityColor = (rarity) => {
     switch (rarity) {
       case 'Common': return '#4CAF50';
-      case 'Magic': return '#FFA500';
+      case 'Magic': return '#3B88FF';
       case 'Rare': return '#F44336';
       case 'Unique': return '#000';
       default: return '#ccc';
     }
   };
 
+  function getItemUrl (name, rarity) {
+    if (name === 'crystal' || name === 'potion' || name === 'gold') {
+      return new URL(`./assets/items/${name}.png`, import.meta.url).href
+    }
+    return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url).href
+  }
+
   const handleRecycle = () => {
-    const recycledScrap = selectedItems.reduce((acc, item) => {
-      acc[item.rarity] = (acc[item.rarity] || 0) + 1;
-      return acc;
-    }, {});
     onRecycle(selectedItems);
     setSelectedItems([]);
   };
@@ -413,48 +422,67 @@ const Recycler = ({ inventory, scrap, onRecycle, onExchange }) => {
   return (
     <div style={{ padding: 0, backgroundColor: '#f0f0f0' }}>
       <h2 style={{ paddingTop: '20px' }}>Recycler</h2>
-      <div style={{ backgroundColor: '#d5d5d5', padding: '20px 0 20px 0' }}>
+      <div style={{ backgroundColor: '#d5d5d5', padding: '10px 0' }}>
         <h3 style={{ margin: '0' }}>Select items to recycle:</h3>
-        {recyclableItems.map((item, index) => (
-          <label key={index} htmlFor={'recycling' + index} style={{ 
-            border: `2px solid ${getRarityColor(item.rarity)}`,
+        <div style={{ display: 'flex' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 50px)',
+            gridGap: '4px', 
+            margin: '0 auto',
+            alignItems: 'center',
           }}>
-            <input
-              id={'recycling' + index}
-              type="checkbox"
-              checked={selectedItems.includes(item)}
-              onChange={() => {
-                if (selectedItems.includes(item)) {
-                  setSelectedItems(selectedItems.filter(i => i !== item));
-                } else {
-                  setSelectedItems([...selectedItems, item]);
-                }
-              }}
-            />
-            {item.rarity} {item.name}
-          </label>
-        ))}
-        <br />
-        <button 
-          onClick={handleRecycle} 
-          style={{margin: '0 10px'}}
-          disabled={selectedItems.length === 0}
-        >
-          Recycle
-        </button>
-        <button 
-          onClick={handleRecycleAll} 
-          style={{margin: '0 10px'}} 
-          disabled={recyclableItems.length === 0}
-        >
-          Recycle All
-        </button>
+            {recyclableItems.map((item, index) => (
+              <label key={index} htmlFor={'recycling' + index} style={{ 
+                border: `2px solid ${getRarityColor(item.rarity)}`,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+                <input
+                  id={'recycling' + index}
+                  type="checkbox"
+                  checked={selectedItems.includes(item)}
+                  style={{}}
+                  onChange={() => {
+                    if (selectedItems.includes(item)) {
+                      setSelectedItems(selectedItems.filter(i => i !== item));
+                    } else {
+                      setSelectedItems([...selectedItems, item]);
+                    }
+                  }}
+                />
+                <img
+                  src={getItemUrl(item.name.toLowerCase(), item.rarity.toLowerCase())}
+                  alt={item.rarity + ' ' + item.name}
+                  style={{}}
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+        <div style={{marginTop:'5px'}}>
+          <button 
+            onClick={handleRecycle} 
+            style={{margin: '0 10px'}}
+            disabled={selectedItems.length === 0}
+          >
+            Recycle
+          </button>
+          <button 
+            onClick={handleRecycleAll} 
+            style={{margin: '0 10px'}} 
+            disabled={recyclableItems.length === 0}
+          >
+            Recycle All
+          </button>
+        </div>
       </div>
-      <div style={{ backgroundColor: '#d5d5d5', padding: '20px 0 20px 0' }}>
+      <div style={{ backgroundColor: '#d5d5d5', padding: '10px 0' }}>
         {Object.entries(scrap).map(([rarity, count]) => (
           <span key={rarity} style={{ 
             padding: '0 0.3em', 
-            margin: '0 0.5em',
+            margin: '0 5px',
             borderRadius: '4px',
             fontSize: '2em',
             fontWeight: '1000',
@@ -479,7 +507,11 @@ const Recycler = ({ inventory, scrap, onRecycle, onExchange }) => {
             style={{ padding: '5px', borderRadius: '3px' }}
           >
             {Object.keys(scrap).map(rarity => (
-              <option key={rarity} value={rarity}>{rarity}</option>
+              <option key={rarity} value={rarity} 
+                style={{ backgroundColor: getRarityColor(rarity) }}
+              >
+                {rarity}
+              </option>
             ))}
           </select>
           <select
@@ -555,7 +587,7 @@ const CoinFlipMMORPG = () => {
   const getRarityColor = (rarity) => {
     switch (rarity) {
       case 'Common': return '#4CAF50';
-      case 'Magic': return '#FFA500';
+      case 'Magic': return '#3B88FF';
       case 'Rare': return '#F44336';
       case 'Unique': return '#000';
       default: return '#ccc';
@@ -563,7 +595,7 @@ const CoinFlipMMORPG = () => {
   };
   const difficultyLevels = {
     easy: { label: 'Easy', rate: 1/2, color: '#4CAF50' },
-    medium: { label: 'Medium', rate: 1/10, color: '#FFA500' },
+    medium: { label: 'Medium', rate: 1/10, color: '#3B88FF' },
     hard: { label: 'Hard', rate: 1/100, color: '#F44336' },
     impossible: { label: 'Impossible', rate: 1/1000, color: '#000' }
   };
@@ -914,8 +946,43 @@ const CoinFlipMMORPG = () => {
           </div>
 
           <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#666' }}>
-            Version 1.0.0
+            Version 1.1.0
           </div>
+    </div>
+  );
+
+  const renderInventory = () => (
+    <div style={{ 
+      backgroundColor: '#f0f0f0',
+      padding: '20px',
+      marginBottom: '20px',
+    }}>
+      <h3>Inventory</h3>
+      <InventoryGrid 
+        items={inventory}
+        onEquip={(item) => {
+          if (item.name === 'Crystal' || item.name === 'Potion') {
+            useItem(item);
+          } else {
+            equipItem(item);
+          }
+        }}
+        onUsePotion={usePotion}
+      />
+    </div>
+  );
+
+  const renderEquipment = () => (
+    <div style={{ 
+      backgroundColor: '#f0f0f0',
+      padding: '20px',
+      marginBottom: '20px',
+    }}>
+      <h3>Equipment</h3>
+      <WornEquipment 
+        equipment={wornEquipment}
+        onUnequip={unequipItem}
+      />
     </div>
   );
 
@@ -1006,10 +1073,13 @@ const CoinFlipMMORPG = () => {
 
       {isDesktop ? (
         <>
-          <div style={{ width: '30%' }}>{renderCharacter()}</div>
+          <div style={{ width: '30%' }}>
+            {renderInventory()}
+            {renderShop()}
+          </div>
           <div style={{ width: '40%' }}>{renderGame()}</div>
           <div style={{ width: '30%' }}>
-            {renderShop()}
+            {renderEquipment()}
             {renderRecycler()}
           </div>
         </>
