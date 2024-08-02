@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable react/prop-types */
+import { useState, useEffect } from 'react';
 import './hover.css';
 
 const Confetti = ({ active, difficulty }) => {
@@ -129,7 +130,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
 
   const flattenedItems = Object.entries(items)
     .filter(([itemName]) => itemName !== 'Gold' && itemName !== 'Potion')
-    .flatMap(([itemName, itemArray]) =>
+    .flatMap(([, itemArray]) =>
       Array.isArray(itemArray) ? itemArray : []
     )
     .slice(0, 16);
@@ -316,7 +317,7 @@ const WornEquipment = ({ equipment, onUnequip }) => {
   );
 };
 
-const Shop = ({ gold, inventorySlots, onPurchase }) => {
+const Shop = ({ gold, onPurchase }) => {
   function getItemUrl (name) {
     return new URL(`./assets/items/${name}.png`, import.meta.url).href
   }
@@ -363,7 +364,7 @@ const Shop = ({ gold, inventorySlots, onPurchase }) => {
   );
 }; 
 
-const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
+const Recycler = ({ inventory, scrap, onRecycle, onExchange }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [exchangeRarity, setExchangeRarity] = useState('Common');
   const [exchangeItem, setExchangeItem] = useState('');
@@ -392,7 +393,7 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
   const handleRecycleAll = () => {
     const recycledScrap = Object.entries(inventory)
       .filter(([category]) => category !== 'Gold' && category !== 'Potion' && category !== 'Crystal')
-      .flatMap(([category, items]) => Array.isArray(items) ? items.filter(item => item.rarity) : []);
+      .flatMap(([, items]) => Array.isArray(items) ? items.filter(item => item.rarity) : []);
     onRecycle(recycledScrap);
   };
 
@@ -405,7 +406,7 @@ const Recycler = ({ inventory, scrap, setScrap, onRecycle, onExchange }) => {
 
   const recyclableItems = Object.entries(inventory)
     .filter(([category]) => category !== 'Gold' && category !== 'Potion' && category !== 'Crystal')
-    .flatMap(([category, items]) => 
+    .flatMap(([, items]) => 
     Array.isArray(items) ? items.filter(item => item.rarity) : []
   );
 
@@ -586,10 +587,8 @@ const CoinFlipMMORPG = () => {
   const [view, setView] = useState('game'); // 'game' or 'inventory'
   const [crystalTimer, setCrystalTimer] = useState(0);
   
-  const [lastObtainedItem, setLastObtainedItem] = useState(null);
   const [recentItems, setRecentItems] = useState([]);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
-  const currentScore = scores[difficulty];
   const [potionTimer, setPotionTimer] = useState(0);
   const inventorySlots = 16;
 
@@ -767,15 +766,12 @@ const CoinFlipMMORPG = () => {
           [randomItem]: [...(prevInventory[randomItem] || []), newItem]
         }));
       }
-      setLastObtainedItem(newItem);
       setMessage(`You found ${newItem.count ? newItem.count : 'a'} ${newItem.rarity ? `${newItem.rarity} ` : ''}
         ${newItem.name}${newItem.count > 1 && newItem.name !== 'Gold' ? 's' : ''}`
       );
 
       setRecentItems(prev => [newItem, ...prev.slice(0, 4)]);
-    } else {
-      setLastObtainedItem(null);
-    } 
+    }
   }; 
 
   const flipCoin = () => {
@@ -836,7 +832,6 @@ const CoinFlipMMORPG = () => {
               <button
                 key={key}
                 onClick={() => setDifficulty(key)}
-                variant={difficulty === key ? "default" : "outline"}
                 style={{
                   backgroundColor: difficulty === key ? color : 'transparent',
                   color: difficulty === key ? 'white' : 'black',
