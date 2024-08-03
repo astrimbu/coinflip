@@ -504,7 +504,12 @@ const Recycler = ({ inventory, scrap, onRecycle, onExchange }) => {
           <select 
             value={exchangeRarity}
             onChange={(e) => setExchangeRarity(e.target.value)}
-            style={{ padding: '5px', borderRadius: '3px' }}
+            style={{ 
+              padding: '5px',
+              borderRadius: '3px',
+              backgroundColor: getRarityColor(exchangeRarity),
+              color: 'white',
+            }}
           >
             {Object.keys(scrap).map(rarity => (
               <option key={rarity} value={rarity} 
@@ -895,15 +900,24 @@ const CoinFlipMMORPG = () => {
             Item drop rate: {calculateItemDropRate()}%
           </div>
 
-          {crystalTimer > 0 && (
-            <div style={{ marginBottom: '10px', textAlign: 'center' }}>
-              Crystal Boost: {Math.floor(crystalTimer / 60)}:{(crystalTimer % 60).toString().padStart(2, '0')}
-            </div>
-          )}
-          
-          {potionTimer > 0 && (
-            <div style={{ marginBottom: '10px', textAlign: 'center' }}>
-              Potion Effect: {Math.floor(potionTimer / 60)}:{(potionTimer % 60).toString().padStart(2, '0')}
+          {(crystalTimer > 0 || potionTimer > 0) && (
+            <div style={{ 
+              marginBottom: '10px', 
+              textAlign: 'center',
+              padding: '10px',
+              backgroundColor: '#80d3da',
+              borderRadius: '5px',
+            }}>
+              {crystalTimer > 0 && (
+                <div>
+                  Crystal Boost: {Math.floor(crystalTimer / 60)}:{(crystalTimer % 60).toString().padStart(2, '0')}
+                </div>
+              )}
+              {potionTimer > 0 && (
+                <div>
+                  Potion Effect: {Math.floor(potionTimer / 60)}:{(potionTimer % 60).toString().padStart(2, '0')}
+                </div>
+              )}
             </div>
           )}
       
