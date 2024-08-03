@@ -323,7 +323,7 @@ const WornEquipment = ({ equipment, onUnequip }) => {
   );
 };
 
-const Shop = ({ gold, onPurchase }) => {
+const Shop = ({ gold, inventoryFull, onPurchase }) => {
   function getItemUrl (name) {
     return new URL(`./assets/items/${name}.png`, import.meta.url).href
   }
@@ -346,7 +346,9 @@ const Shop = ({ gold, onPurchase }) => {
           {<img src={getItemUrl('crystal')} alt="Crystal" />}
           <p style={{margin: '0'}}>Crystal (1 Gold)</p>
         </div>
-        <button id='buy-crystal' onClick={() => onPurchase('Crystal')} disabled={gold < 1}>
+        <button id='buy-crystal' onClick={() => onPurchase('Crystal')} 
+          disabled={(gold < 1) || inventoryFull}
+        >
           Buy
         </button>
       </label>
@@ -370,7 +372,7 @@ const Shop = ({ gold, onPurchase }) => {
   );
 }; 
 
-const Recycler = ({ inventory, scrap, onRecycle, onExchange }) => {
+const Recycler = ({ inventory, inventoryFull, scrap, onRecycle, onExchange }) => {
   const [selectedItems, setSelectedItems] = useState([]);
   const [exchangeRarity, setExchangeRarity] = useState('Common');
   const [exchangeItem, setExchangeItem] = useState('');
@@ -499,7 +501,8 @@ const Recycler = ({ inventory, scrap, onRecycle, onExchange }) => {
           display: 'flex',
           gap: '10px',
           justifyContent: 'center',
-          marginBottom: 0 }}
+          marginBottom: 0
+          }}
         >
           <select 
             value={exchangeRarity}
@@ -533,20 +536,26 @@ const Recycler = ({ inventory, scrap, onRecycle, onExchange }) => {
         </div>
         <button 
           onClick={handleExchange} 
-          disabled={scrap[exchangeRarity] < 2 || !exchangeItem}
+          disabled={scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull}
           style={{ 
             padding: '5px 10px', 
             marginTop: '10px',
-            backgroundColor: scrap[exchangeRarity] < 2 || !exchangeItem ? '#aaa' : '#4CAF50',
+            backgroundColor: scrap[exchangeRarity] < 2 || !exchangeItem || 
+              inventoryFull ? '#aaa' : '#4CAF50',
             color: 'white',
             border: 'none',
             borderRadius: '3px',
-            cursor: scrap[exchangeRarity] < 2 || !exchangeItem ? 'not-allowed' : 'pointer',
+            cursor: scrap[exchangeRarity] < 2 || !exchangeItem || 
+              inventoryFull ? 'not-allowed' : 'pointer',
           }}
         >
           Exchange
         </button>
-        <p style={{paddingBottom:'20px'}}>Cost: 2 {exchangeRarity} scrap</p>
+        <p style={{paddingBottom:'20px'}}>
+          {inventoryFull && <span style={{color: 'red'}}>Inventory is full!</span>}
+          <br/>
+          Cost: 2 {exchangeRarity} scrap
+        </p>
       </div>
     </div>
   );
@@ -798,13 +807,16 @@ const CoinFlipMMORPG = () => {
       } else {
         const stat = getRarityStat(rarity);
         newItem = { name: randomItem, rarity, stat };
-        setInventory(prevInventory => ({
-          ...prevInventory,
-          [randomItem]: [...(prevInventory[randomItem] || []), newItem]
-        }));
+        if (!inventoryFull) {
+          addItem(randomItem, newItem);
+        } else {
+          newItem.missed = true;
+        }
       }
-      setMessage(`You found ${newItem.count ? newItem.count : 'a'} ${newItem.rarity ? `${newItem.rarity} ` : ''}
-        ${newItem.name}${newItem.count > 1 && newItem.name !== 'Gold' ? 's' : ''}`
+      setMessage(`You found ${newItem.count ? newItem.count : 'a'} 
+        ${newItem.rarity ? `${newItem.rarity} ` : ''}
+        ${newItem.name}${newItem.count > 1 && newItem.name !== 'Gold' ? 's' : ''}
+        ${newItem.missed ? ' but your inventory is full!' : ''}`
       );
 
       setRecentItems(prev => [newItem, ...prev.slice(0, 4)]);
@@ -829,12 +841,9 @@ const CoinFlipMMORPG = () => {
       }));
       
       if (result) {
-        setMessage('You won! The RNG gods smile upon you.');
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
         checkForItem();
-      } else {
-        setMessage('You lost. Maybe buy our "Luck Boost" DLC?');
       }
       setIsFlipping(false);
     }, potionTimer > 0 ? 10 : 1000);
@@ -929,7 +938,8 @@ const CoinFlipMMORPG = () => {
                   <li key={index} style={{ 
                     color: `${getRarityColor(item.rarity)}`,
                     textShadow: '1px 1px #000',
-                    borderRadius: '4px'
+                    borderRadius: '4px',
+                    textDecoration: item.missed ? 'line-through' : 'none',
                   }}>
                     {item.count ? `${item.count} ` : ''}
                     {item.rarity ? `${item.rarity} ` : ''}
