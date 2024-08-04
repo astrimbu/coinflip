@@ -8,7 +8,7 @@ const Confetti = ({ active, difficulty }) => {
   const [confettiItems, setConfettiItems] = useState([]);
 
   useEffect(() => {
-    if (active && !isActive) {
+    if (active) {
       setIsActive(true);
       const confettiCount = {
         easy: 10,
