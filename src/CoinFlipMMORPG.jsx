@@ -143,7 +143,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '0 0 30px 0',
+        padding: '0 0 10px 0',
       }}>
         <div style={{
           display: 'flex',
@@ -221,6 +221,9 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
         </div>
       ))}
       </div>
+        {(flattenedItems.length >= 16) && 
+        <p style={{ margin: '10px 0 0 0' }}
+        >Inventory is full</p>}
     </div>
   )
 };
@@ -557,8 +560,6 @@ const Recycler = ({ inventory, inventoryFull, scrap, onRecycle, onExchange }) =>
           Exchange
         </button>
         <p style={{paddingBottom:'20px'}}>
-          {inventoryFull && <span style={{color: 'red'}}>Inventory is full!</span>}
-          <br/>
           Cost: 2 {exchangeRarity} scrap
         </p>
       </div>
