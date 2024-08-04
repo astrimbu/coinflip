@@ -170,7 +170,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(4, 50px)',
-        gridGap: '4px',
+        gridGap: '9px',
       }}>
         {[...Array(16)].map((_, index) => (
         <div
@@ -178,10 +178,10 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
           style={{
             width: '50px',
             height: '50px',
-            border: '2px solid #ccc',
+            border: '3px solid #ccc',
             position: 'relative',
-            outline: flattenedItems[index] ? `2px solid ${getRarityColor(flattenedItems[index].rarity)}` : 'none',
-            outlineOffset: '-2px',
+            outline: flattenedItems[index] ? `3px solid ${getRarityColor(flattenedItems[index].rarity)}` : 'none',
+            outlineOffset: '-3px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -611,7 +611,6 @@ const CoinFlipMMORPG = () => {
     impossible: { flips: 0, wins: 0 }
   });
   const [isFlipping, setIsFlipping] = useState(false);
-  const [message, setMessage] = useState('Good luck!');
   const [showConfetti, setShowConfetti] = useState(false);
   const [view, setView] = useState('game');
   const [crystalTimer, setCrystalTimer] = useState(0);
@@ -619,6 +618,18 @@ const CoinFlipMMORPG = () => {
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
   const [tickets, setTickets] = useState(0);
+  const [pets, setPets] = useState({
+    easy: 0,
+    medium: 0,
+    hard: 0,
+    impossible: 0,
+  });
+  const petDropRates = {
+    easy: 1/1000,
+    medium: 1/1000,
+    hard: 1/1000,
+    impossible: 1/1000,
+  };
   const inventorySlots = 16;
 
   const getRarityColor = (rarity) => {
@@ -639,6 +650,12 @@ const CoinFlipMMORPG = () => {
       default: return 0;
     }
   };
+  function getItemUrl (name, rarity) {
+    if (name === 'crystal' || name === 'potion' || name === 'gold') {
+      return new URL(`./assets/items/${name}.png`, import.meta.url).href
+    }
+    return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url).href
+  }
 
   const calculateTotalStats = () => {
     return Object.values(equipment).reduce((total, item) => {
@@ -712,6 +729,20 @@ const CoinFlipMMORPG = () => {
     addItem(itemName, { name: itemName, rarity, stat: getRarityStat(rarity) });
   };
 
+  const checkForPet = () => {
+    const dropRate = petDropRates[difficulty];
+    if (Math.random() < dropRate) {
+      setPets(prevPets => ({
+        ...prevPets,
+        [difficulty]: prevPets[difficulty] + 1
+      }));
+      setRecentItems(prev => [{ name: 'Pet', 
+        rarity: `${rarityByDifficulty[difficulty]}` },
+        ...prev.slice(0, 4)]
+      );
+    }
+  };
+
   const checkForItem = () => {
     const baseChance = 0.1;
     const modifier = difficultyModifiers[difficulty];
@@ -774,10 +805,42 @@ const CoinFlipMMORPG = () => {
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
         checkForItem();
+        checkForPet();
       }
       setIsFlipping(false);
     }, potionTimer > 0 ? 10 : 1000);
   };
+
+  const renderPets = () => (
+    (( pets.easy > 0 || pets.medium > 0 || pets.hard > 0 || pets.impossible > 0 ) &&
+    <div style={{ marginBottom: '16px', 
+      backgroundColor: '#e0e0e0', 
+      padding: '10px', 
+      borderRadius: '5px' }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+        {Object.entries(pets)
+          .filter(([, count]) => count > 0)
+          .map(([key, count]) => (
+          <div key={key} style={{ textAlign: 'center', margin: '0 auto' }}>
+            <img 
+              src={`${getItemUrl('pet', key)}`} 
+              alt={`${difficultyLevels[key].label} Pet`} 
+              style={{}}
+            />
+            <div style={{ fontSize: '10px', 
+              fontWeight: 'bold', 
+              color: `${difficultyLevels[key].color}` }}
+            >
+              x{count}
+            </div>
+          </div>
+        ))}
+      </div>
+      <span style={{ fontSize: '10px' }}>(1/1,000)</span>
+    </div>
+    )
+  );
 
   const renderGame = () => (
     <div style={{ 
@@ -874,19 +937,15 @@ const CoinFlipMMORPG = () => {
             scores={scores} 
             difficultyLevels={difficultyLevels} 
           />
-          
-          {message && (
-            <div style={{ marginTop: '16px', padding: '8px', backgroundColor: '#FFF3CD', border: '1px solid #FFEEBA' }}>
-              <p>{message}</p>
-            </div>
-          )}
+
+          {renderPets()}
           
           <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
             <p>Notice: Any resemblance to actual games is purely coincidental.</p>
           </div>
 
           <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#666' }}>
-            Version 1.2.0
+            Version 1.3.0
           </div>
     </div>
   );
