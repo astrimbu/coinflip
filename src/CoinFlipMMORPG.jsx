@@ -617,6 +617,7 @@ const CoinFlipMMORPG = () => {
   const [recentItems, setRecentItems] = useState([]);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
+  const [tickets, setTickets] = useState(0);
   const inventorySlots = 16;
 
   const getRarityColor = (rarity) => {
@@ -667,9 +668,26 @@ const CoinFlipMMORPG = () => {
   const usePotion = () => {
     if (inventory.Potion > 0) {
       updateCurrency('Potion', -1);
-      setPotionTimer(20);
+      setPotionTimer(prevTimer => prevTimer + 20);
     }
   };
+
+  useEffect(() => {
+    let interval;
+    if (crystalTimer > 0 || potionTimer > 0) {
+      interval = setInterval(() => {
+        if (crystalTimer > 0) {
+          setCrystalTimer(prevTimer => prevTimer - 1);
+        }
+        if (potionTimer > 0) {
+          setPotionTimer(prevTimer => {
+            return prevTimer - 1;
+          });
+        }
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [crystalTimer, potionTimer]);
 
   const calculateWinRate = () => {
     const totalStats = calculateTotalStats();
@@ -728,6 +746,12 @@ const CoinFlipMMORPG = () => {
   }; 
 
   const flipCoin = () => {
+    const ticketCost = { easy: 0, medium: 1, hard: 2, impossible: 3 }[difficulty];
+    if (tickets < ticketCost) {
+      return;
+    }
+
+    setTickets(prevTickets => prevTickets - ticketCost);
     setIsFlipping(true);
     setTimeout(() => {
       const totalStats = calculateTotalStats();
@@ -745,6 +769,7 @@ const CoinFlipMMORPG = () => {
       }));
       
       if (result) {
+        setTickets(prevTickets => prevTickets + 10);
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
         checkForItem();
@@ -752,21 +777,6 @@ const CoinFlipMMORPG = () => {
       setIsFlipping(false);
     }, potionTimer > 0 ? 10 : 1000);
   };
-
-  useEffect(() => {
-    let interval;
-    if (crystalTimer > 0 || potionTimer > 0) {
-      interval = setInterval(() => {
-        if (crystalTimer > 0) {
-          setCrystalTimer(prevTimer => prevTimer - 1);
-        }
-        if (potionTimer > 0) {
-          setPotionTimer(prevTimer => prevTimer - 1);
-        }
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [crystalTimer, potionTimer]);
 
   const renderGame = () => (
     <div style={{ 
@@ -799,7 +809,7 @@ const CoinFlipMMORPG = () => {
             disabled={isFlipping}
             style={{ width: '100%', height: '4em', marginBottom: '16px' }}
           >
-            {isFlipping ? 'Flipping...' : 'Flip Coin'}
+            {isFlipping ? 'Flipping...' : `Flip Coin (${tickets})`}
           </button>
 
           <div style={{
