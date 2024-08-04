@@ -127,7 +127,16 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
       return new URL(`./assets/items/${name}.png`, import.meta.url).href
     }
     return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url).href
-  }
+  };
+
+  const handleClick = (flattenedItems, index) => {
+    if (!flattenedItems[index]) return;
+    if (flattenedItems[index].name === 'Crystal') {
+      onUseCrystal(flattenedItems[index])
+    } else {
+      onEquip(flattenedItems[index], flattenedItems[index].name)
+    }
+  };
 
   const flattenedItems = Object.entries(items)
     .filter(([itemName]) => itemName !== 'Gold' && itemName !== 'Potion')
@@ -186,10 +195,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          onClick={() => flattenedItems[index] && 
-            (flattenedItems[index].name === 'Crystal' && onUseCrystal()) ||
-            onEquip(flattenedItems[index], flattenedItems[index].name)
-          }
+          onClick={() => handleClick(flattenedItems, index)}
         >
           {flattenedItems[index] && (
             <>
@@ -677,10 +683,11 @@ const CoinFlipMMORPG = () => {
     }
   };
 
-  const useCrystal = (item) => {
-    console.log('useCrystal');
-    removeItem('Crystal', item);
-    setCrystalTimer(300);
+  const useCrystal = () => {
+    if (inventory.Crystal.length > 0) {
+      removeItem('Crystal', inventory.Crystal[0]);
+      setCrystalTimer(300);
+    }
   };
 
   const usePotion = () => {

@@ -145,7 +145,6 @@ const useInventoryManager = () => {
   }, []);
 
   const equipItem = useCallback((item, slot) => {
-    console.log('equipItem');
     dispatch({ type: EQUIP_ITEM, payload: { item, slot } });
   }, []);
 
