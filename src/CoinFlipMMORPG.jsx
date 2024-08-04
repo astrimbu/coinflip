@@ -885,7 +885,7 @@ const CoinFlipMMORPG = () => {
           </div>
 
           <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#666' }}>
-            Version 1.1.1
+            Version 1.2.0
           </div>
     </div>
   );
