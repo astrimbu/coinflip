@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect } from 'react';
+import useInventoryManager from './useInventoryManager';
 import './hover.css';
 
 const Confetti = ({ active, difficulty }) => {
@@ -108,7 +109,7 @@ const ProgressBar = ({ difficulty, scores, difficultyLevels }) => {
   );
 };
 
-const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
+const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
   const getRarityColor = (rarity) => {
@@ -185,7 +186,10 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
             alignItems: 'center',
             justifyContent: 'center',
           }}
-          onClick={() => flattenedItems[index] && onEquip(flattenedItems[index])}
+          onClick={() => flattenedItems[index] && 
+            (flattenedItems[index].name === 'Crystal' && onUseCrystal()) ||
+            onEquip(flattenedItems[index], flattenedItems[index].name)
+          }
         >
           {flattenedItems[index] && (
             <>
@@ -194,7 +198,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
                   flattenedItems[index].rarity.toLowerCase())}
                 alt={flattenedItems[index].rarity + ' ' + flattenedItems[index].name}
                 style={{}}
-                onMouseEnter={() => setHoveredItem(flattenedItems[index])}
+                onMouseEnter={() => setHoveredItem(flattenedItems[index].name)}
                 onMouseLeave={() => setHoveredItem(null)}
               />
               {hoveredItem === flattenedItems[index] && (
@@ -222,7 +226,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion }) => {
 };
 
 const WornEquipment = ({ equipment, onUnequip }) => {
-  const slots = ['hat', 'cape', 'amulet', 'weapon', 'body', 'pants', 'gloves', 'boots', 'ring'];
+  const slots = ['Hat', 'Cape', 'Amulet', 'Weapon', 'Body', 'Pants', 'Gloves', 'Boots', 'Ring'];
 
   const getRarityColor = (rarity) => {
     switch (rarity) {
@@ -260,7 +264,8 @@ const WornEquipment = ({ equipment, onUnequip }) => {
             height: '50px',
             position: 'relative',
             margin: '0 auto',
-            outline: equipment[slot] ? `3px solid ${getRarityColor(equipment[slot].rarity)}` : '2px solid #888',
+            outline: equipment[slot] ? `3px solid 
+              ${getRarityColor(equipment[slot].rarity)}` : '2px solid #888',
             outlineOffset: '-2px',
             display: 'flex',
             alignItems: 'center',
@@ -306,15 +311,15 @@ const WornEquipment = ({ equipment, onUnequip }) => {
       gridTemplateColumns: 'repeat(3, 1fr)',
       gap: '4px',
     }}>
-      <div style={{ gridColumn: '2' }}>{renderSlot('hat')}</div>
-      <div style={{ gridColumn: '1' }}>{renderSlot('cape')}</div>
-      <div style={{ gridColumn: '2' }}>{renderSlot('amulet')}</div>
-      <div style={{ gridColumn: '1' }}>{renderSlot('weapon')}</div>
-      <div style={{ gridColumn: '2' }}>{renderSlot('body')}</div>
-      <div style={{ gridColumn: '2' }}>{renderSlot('pants')}</div>
-      <div style={{ gridColumn: '1' }}>{renderSlot('gloves')}</div>
-      <div style={{ gridColumn: '2' }}>{renderSlot('boots')}</div>
-      <div style={{ gridColumn: '3' }}>{renderSlot('ring')}</div>
+      <div style={{ gridColumn: '2' }}>{renderSlot('Hat')}</div>
+      <div style={{ gridColumn: '1' }}>{renderSlot('Cape')}</div>
+      <div style={{ gridColumn: '2' }}>{renderSlot('Amulet')}</div>
+      <div style={{ gridColumn: '1' }}>{renderSlot('Weapon')}</div>
+      <div style={{ gridColumn: '2' }}>{renderSlot('Body')}</div>
+      <div style={{ gridColumn: '2' }}>{renderSlot('Pants')}</div>
+      <div style={{ gridColumn: '1' }}>{renderSlot('Gloves')}</div>
+      <div style={{ gridColumn: '2' }}>{renderSlot('Boots')}</div>
+      <div style={{ gridColumn: '3' }}>{renderSlot('Ring')}</div>
 
       <div style={{ gridColumn: '1 / span 3' }}>
         <h3>Total Stats: {calculateTotalStats()}</h3>
@@ -562,32 +567,19 @@ const Recycler = ({ inventory, inventoryFull, scrap, onRecycle, onExchange }) =>
 };
 
 const CoinFlipMMORPG = () => {
-  const [wornEquipment, setWornEquipment] = useState({
-    hat: null,
-    weapon: null,
-    cape: null,
-    body: null,
-    pants: null,
-    gloves: null,
-    boots: null,
-    ring: null,
-    amulet: null,
-  });
-  const [inventory, setInventory] = useState({
-    Weapon: [],
-    Hat: [],
-    Cape: [],
-    Body: [],
-    Pants: [],
-    Gloves: [],
-    Boots: [],
-    Ring: [],
-    Amulet: [],
-    Crystal: [],
-    Gold: 1,
-    Potion: 1,
-  });
-  const [scrap, setScrap] = useState({ Common: 0, Magic: 0, Rare: 0, Unique: 0 });
+  const {
+    inventory,
+    equipment,
+    scrap,
+    inventoryFull,
+    addItem,
+    removeItem,
+    equipItem,
+    unequipItem,
+    updateCurrency,
+    recycleItems,
+    removeScrap
+  } = useInventoryManager();
 
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1200);
   useEffect(() => {
@@ -597,16 +589,6 @@ const CoinFlipMMORPG = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const getRarityColor = (rarity) => {
-    switch (rarity) {
-      case 'Common': return '#4CAF50';
-      case 'Magic': return '#3B88FF';
-      case 'Rare': return '#F44336';
-      case 'Unique': return '#000';
-      default: return '#ccc';
-    }
-  };
   const difficultyLevels = {
     easy: { label: 'Easy', rate: 1/2, color: '#4CAF50' },
     medium: { label: 'Medium', rate: 1/10, color: '#3B88FF' },
@@ -630,14 +612,22 @@ const CoinFlipMMORPG = () => {
   const [isFlipping, setIsFlipping] = useState(false);
   const [message, setMessage] = useState('Good luck!');
   const [showConfetti, setShowConfetti] = useState(false);
-  const [view, setView] = useState('game'); // 'game' or 'inventory'
+  const [view, setView] = useState('game');
   const [crystalTimer, setCrystalTimer] = useState(0);
-  
   const [recentItems, setRecentItems] = useState([]);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
   const inventorySlots = 16;
 
+  const getRarityColor = (rarity) => {
+    switch (rarity) {
+      case 'Common': return '#4CAF50';
+      case 'Magic': return '#3B88FF';
+      case 'Rare': return '#F44336';
+      case 'Unique': return '#000';
+      default: return '#ccc';
+    }
+  };
   const getRarityStat = (rarity) => {
     switch (rarity) {
       case 'Common': return 1;
@@ -649,47 +639,34 @@ const CoinFlipMMORPG = () => {
   };
 
   const calculateTotalStats = () => {
-    return Object.values(wornEquipment).reduce((total, item) => {
+    return Object.values(equipment).reduce((total, item) => {
       return total + (item && item.stat ? item.stat : 0);
     }, 0);
   };
 
   const purchaseItem = (item) => {
     if (item === 'Crystal' && inventory.Gold >= 1) {
-      setInventory(prev => ({
-        ...prev,
-        Gold: prev.Gold - 1,
-        Crystal: [...prev.Crystal, { name: 'Crystal', rarity: 'Crystal' }]
-      }));
+      updateCurrency('Gold', -1);
+      addItem('Crystal', { name: 'Crystal', rarity: 'Crystal' });
       setPurchaseNotification(true);
       setTimeout(() => setPurchaseNotification(false), 2000);
     } else if (item === 'Potion' && inventory.Gold >= 1) {
-      setInventory(prev => ({
-        ...prev,
-        Gold: prev.Gold - 1,
-        Potion: prev.Potion + 1
-      }));
+      updateCurrency('Gold', -1);
+      updateCurrency('Potion', 1);
       setPurchaseNotification(true);
       setTimeout(() => setPurchaseNotification(false), 2000);
     }
   };
 
-  const useItem = (item) => {
-    if (item.name === 'Crystal') {
-      setInventory(prev => ({
-        ...prev,
-        Crystal: prev.Crystal.slice(1)
-      }));
-      setCrystalTimer(300);
-    } 
+  const useCrystal = (item) => {
+    console.log('useCrystal');
+    removeItem('Crystal', item);
+    setCrystalTimer(300);
   };
 
   const usePotion = () => {
     if (inventory.Potion > 0) {
-      setInventory(prev => ({
-        ...prev,
-        Potion: prev.Potion - 1
-      }));
+      updateCurrency('Potion', -1);
       setPotionTimer(20);
     }
   };
@@ -708,76 +685,12 @@ const CoinFlipMMORPG = () => {
   };
 
   const handleRecycle = (items) => {
-    items.forEach(item => {
-      const category = item.name;
-      setInventory(prev => ({
-        ...prev,
-        [category]: prev[category].filter(i => i !== item)
-      }));
-      setScrap(prev => ({
-        ...prev,
-        [item.rarity]: prev[item.rarity] + 1
-      }));
-    });
+    recycleItems(items);
   };
 
   const handleExchange = (rarity, itemName) => {
-    setScrap(prev => ({ ...prev, [rarity]: prev[rarity] - 2 }));
-    setInventory(prev => ({
-      ...prev,
-      [itemName]: [...prev[itemName] || '', { name: itemName, rarity, stat: getRarityStat(rarity) }]
-    }));
-  };
-
-  const checkInventoryFull = () => {
-    const totalItems = Object.values(inventory).reduce((sum, items) => 
-      sum + (Array.isArray(items) ? items.length : 0), 0);
-    return totalItems >= inventorySlots;
-  };
-
-  const equipItem = (item) => {
-    const slot = item.name.toLowerCase();
-
-    setWornEquipment(prev => {
-      const prevItem = prev[slot];
-      
-      // Remove item from inventory
-      setInventory(prevInv => {
-        const category = item.name;
-        return {
-          ...prevInv,
-          [category]: prevInv[category].filter(i => i !== item)
-        };
-      });
-
-      // If there was a previous item, add it back to inventory
-      if (prevItem) {
-        setInventory(prevInv => {
-          const category = prevItem.name;
-          return {
-            ...prevInv,
-            [category]: [...prevInv[category], prevItem]
-          };
-        });
-      } 
-
-      return { ...prev, [slot]: item };
-    });
-  };
-
-  const unequipItem = (slot) => {
-    const item = wornEquipment[slot];
-    if (item) {
-      if (slot === 'gold' || slot === 'potion') return;
-      setWornEquipment(prev => ({ ...prev, [slot]: null }));
-      setInventory(prevInv => {
-        const category = item.name;
-        return {
-          ...prevInv,
-          [category]: [...prevInv[category] || [], item]
-        };
-      });
-    }
+    removeScrap(rarity);
+    addItem(itemName, { name: itemName, rarity, stat: getRarityStat(rarity) });
   };
 
   const checkForItem = () => {
@@ -799,10 +712,7 @@ const CoinFlipMMORPG = () => {
       }[difficulty];
 
       if (randomItem === 'Gold' || randomItem === 'Potion') {
-        setInventory(prev => ({
-          ...prev,
-          [randomItem]: prev[randomItem] + extraItems
-        }));
+        updateCurrency(randomItem, extraItems);
         newItem = { name: randomItem, count: extraItems };
       } else {
         const stat = getRarityStat(rarity);
@@ -818,7 +728,6 @@ const CoinFlipMMORPG = () => {
         ${newItem.name}${newItem.count > 1 && newItem.name !== 'Gold' ? 's' : ''}
         ${newItem.missed ? ' but your inventory is full!' : ''}`
       );
-
       setRecentItems(prev => [newItem, ...prev.slice(0, 4)]);
     }
   }; 
@@ -881,6 +790,7 @@ const CoinFlipMMORPG = () => {
                 style={{
                   backgroundColor: difficulty === key ? color : 'transparent',
                   color: difficulty === key ? 'white' : 'black',
+                  padding: '0.5em',
                   border: `1px solid ${color}`,
                 }}
               >
@@ -984,14 +894,9 @@ const CoinFlipMMORPG = () => {
       <h3>Inventory</h3>
       <InventoryGrid 
         items={inventory}
-        onEquip={(item) => {
-          if (item.name === 'Crystal' || item.name === 'Potion') {
-            useItem(item);
-          } else {
-            equipItem(item);
-          }
-        }}
+        onEquip={equipItem}
         onUsePotion={usePotion}
+        onUseCrystal={useCrystal}
       />
     </div>
   );
@@ -1004,7 +909,7 @@ const CoinFlipMMORPG = () => {
     }}>
       <h3>Equipment</h3>
       <WornEquipment 
-        equipment={wornEquipment}
+        equipment={equipment}
         onUnequip={unequipItem}
       />
     </div>
@@ -1022,22 +927,14 @@ const CoinFlipMMORPG = () => {
         <h3>Inventory</h3>
         <InventoryGrid 
           items={inventory}
-          onEquip={(item) => {
-            if (item.name === 'Crystal' || item.name === 'Potion') {
-              useItem(item);
-            } else {
-              equipItem(item);
-            }
-          }}
+          onEquip={equipItem}
           onUsePotion={usePotion}
         />
       </div>
-      <div style={{ width: '45%', 
-        backgroundColor: '#ccc', }}
-      >
+      <div style={{ width: '45%', backgroundColor: '#ccc', }}>
         <h3>Equipment</h3>
         <WornEquipment 
-          equipment={wornEquipment}
+          equipment={equipment}
           onUnequip={unequipItem}
         />
       </div>
@@ -1048,6 +945,7 @@ const CoinFlipMMORPG = () => {
     <>
       <Shop 
         gold={inventory.Gold} 
+        inventoryFull={inventoryFull}
         onPurchase={purchaseItem} 
       />
       {purchaseNotification && (
@@ -1071,10 +969,10 @@ const CoinFlipMMORPG = () => {
   const renderRecycler = () => (
     <Recycler
       inventory={inventory}
+      inventoryFull={inventoryFull}
+      scrap={scrap}
       onRecycle={handleRecycle}
       onExchange={handleExchange}
-      scrap={scrap}
-      setScrap={setScrap}
     />
   );
 
