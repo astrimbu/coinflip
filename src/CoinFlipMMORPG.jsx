@@ -573,7 +573,7 @@ const Recycler = ({ inventory, inventoryFull, scrap, onRecycle, onExchange }) =>
   );
 };
 
-const CoinFlipMMORPG = () => {
+const CoinFlipMMORPG = () => { 
   const {
     inventory,
     equipment,
@@ -952,7 +952,7 @@ const CoinFlipMMORPG = () => {
           </div>
 
           <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#666' }}>
-            Version 1.3.0
+            Version 1.3.1
           </div>
     </div>
   );
@@ -973,19 +973,23 @@ const CoinFlipMMORPG = () => {
     </div>
   );
 
-  const renderEquipment = () => (
-    <div style={{ 
-      backgroundColor: '#f0f0f0',
-      padding: '20px',
-      marginBottom: '20px',
-    }}>
-      <h3>Equipment</h3>
-      <WornEquipment 
-        equipment={equipment}
-        onUnequip={unequipItem}
-      />
-    </div>
-  );
+  const renderEquipment = () => {
+    const hasFullUniqueSet = Object.values(equipment).every(item => item && item.rarity === 'Unique');
+    return (
+      <div style={{ 
+        backgroundColor: hasFullUniqueSet ? '#444' : '#f0f0f0',
+        padding: '20px',
+        marginBottom: '20px',
+      }}>
+        <h3>Equipment</h3>
+        <WornEquipment 
+          equipment={equipment}
+          onUnequip={unequipItem}
+          fullUnique={hasFullUniqueSet}
+        />
+      </div>
+    );
+};
 
   const renderCharacter = () => (
     <div style={{
