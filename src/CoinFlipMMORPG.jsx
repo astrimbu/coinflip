@@ -723,11 +723,6 @@ const CoinFlipMMORPG = () => {
           newItem.missed = true;
         }
       }
-      setMessage(`You found ${newItem.count ? newItem.count : 'a'} 
-        ${newItem.rarity ? `${newItem.rarity} ` : ''}
-        ${newItem.name}${newItem.count > 1 && newItem.name !== 'Gold' ? 's' : ''}
-        ${newItem.missed ? ' but your inventory is full!' : ''}`
-      );
       setRecentItems(prev => [newItem, ...prev.slice(0, 4)]);
     }
   }; 
@@ -880,7 +875,7 @@ const CoinFlipMMORPG = () => {
           </div>
 
           <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '12px', color: '#666' }}>
-            Version 1.1.0
+            Version 1.1.1
           </div>
     </div>
   );
