@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useInventoryManager from './useInventoryManager';
 import './hover.css';
 
@@ -72,6 +72,78 @@ const Confetti = ({ active, difficulty }) => {
           }
         }
       `}</style>
+    </div>
+  );
+};
+
+const CoinAnimation = ({ isFlipping, onAnimationEnd, flipped, result }) => {
+  const coinRef = useRef(null);
+  const getColor = (result) => {
+    switch (result) {
+      case 'WIN!': return 'green'
+      case 'LOSE': {
+        if (flipped()) return '#e00000'
+        else return 'black'
+      }
+      default: return 'black'
+    }
+  };
+
+  useEffect(() => {
+    if (isFlipping && coinRef.current) {
+      coinRef.current.animate(
+        [
+          { transform: 'rotateX(0)' },
+          { transform: 'rotateX(1800deg)' },
+        ],
+        {
+          duration: 1000,
+          easing: 'ease-out',
+        }
+      ).onfinish = onAnimationEnd;
+    }
+  }, [isFlipping, onAnimationEnd]);
+
+  return (
+    <div
+      id='coin'
+      ref={coinRef}
+      style={{
+        width: '100px',
+        height: '100px',
+        margin: '20px auto',
+        transformStyle: 'preserve-3d',
+        position: 'relative',
+      }}
+    >
+      <div
+        className='coin'
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          color: getColor(result),
+          backfaceVisibility: 'hidden',
+        }}
+      >
+        {!flipped() && (!isFlipping && 'flip!')}
+        {isFlipping && '👨'}
+        {flipped() && (!isFlipping && result)}
+      </div>
+      <div
+        className='coin'
+        style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          color: getColor[result],
+          backfaceVisibility: 'hidden',
+          transform: 'rotateY(180deg)',
+        }}
+      >
+        {isFlipping && '🦅'}
+        {flipped() && (!isFlipping && result)}
+      </div>
     </div>
   );
 };
@@ -747,6 +819,7 @@ const CoinFlipMMORPG = () => {
   const [recentItems, setRecentItems] = useState([]);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
+  const [animationResult, setAnimationResult] = useState(null);
   const [tickets, setTickets] = useState(0);
   const [pets, setPets] = useState({
     easy: 0,
@@ -761,6 +834,14 @@ const CoinFlipMMORPG = () => {
     impossible: 1 / 1000,
   };
   const inventorySlots = 16;
+
+  const hasFlipped = () => {
+    let flips = 0
+    Object.keys(scores).map(diff => {
+      flips += scores[diff].flips
+    })
+    return Boolean(flips);
+  };
 
   const getRarityColor = (rarity) => {
     switch (rarity) {
@@ -951,6 +1032,9 @@ const CoinFlipMMORPG = () => {
         const adjustedRate = Math.min(baseRate * Math.pow(2, statBonus), 1);
         const result = Math.random() < adjustedRate;
 
+        setIsFlipping(false);
+        setAnimationResult(result);
+
         setScores((prevScores) => ({
           ...prevScores,
           [difficulty]: {
@@ -969,23 +1053,10 @@ const CoinFlipMMORPG = () => {
       },
       potionTimer > 0 ? 10 : 1000
     );
-      setScores(prevScores => ({
-        ...prevScores,
-        [difficulty]: {
-          flips: prevScores[difficulty].flips + 1,
-          wins: prevScores[difficulty].wins + (result ? 1 : 0)
-        }
-      }));
-      
-      if (result) {
-        setTickets(prevTickets => prevTickets + 10);
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
-        checkForItem();
-        checkForPet();
-      }
-      setIsFlipping(false);
-    }, potionTimer > 0 ? 10 : 1000);
+  };
+
+  const handleAnimationEnd = () => {
+    setIsFlipping(false);
   };
 
   const renderPets = () =>
@@ -1065,38 +1136,12 @@ const CoinFlipMMORPG = () => {
         ))}
       </div>
 
-    <div style={{ 
-      maxWidth: '400px', 
-      margin: '0 auto', 
-      padding: '20px', 
-      backgroundColor: '#f0f0f0', 
-    }}>
-      <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}>CoinFlip Legends: The Flippening</h1>
-      
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between' }}>
-            {Object.entries(difficultyLevels).map(([key, { label, color }]) => (
-              <button
-                key={key}
-                onClick={() => setDifficulty(key)}
-                style={{
-                  backgroundColor: difficulty === key ? color : 'transparent',
-                  color: difficulty === key ? 'white' : 'black',
-                  padding: '0.5em',
-                  border: `1px solid ${color}`,
-                }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          
-          <button 
-            onClick={flipCoin} 
-            disabled={isFlipping}
-            style={{ width: '100%', height: '4em', marginBottom: '16px' }}
-          >
-            {isFlipping ? 'Flipping...' : `Flip Coin (${tickets})`}
-          </button>
+      <CoinAnimation
+        isFlipping={isFlipping}
+        onAnimationEnd={handleAnimationEnd}
+        flipped={hasFlipped}
+        result={animationResult ? 'WIN!' : 'LOSE'}
+      />
 
       <button
         onClick={flipCoin}
@@ -1193,7 +1238,7 @@ const CoinFlipMMORPG = () => {
           color: '#666',
         }}
       >
-        Version 1.3.1 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.4.0 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div>
   );
