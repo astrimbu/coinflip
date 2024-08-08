@@ -127,7 +127,7 @@ const CoinAnimation = ({ isFlipping, onAnimationEnd, flipped, result }) => {
         }}
       >
         {!flipped() && (!isFlipping && 'flip!')}
-        {isFlipping && '👨'}
+        <span style={{fontSize: '2em'}}>{isFlipping && '👨'}</span>
         {flipped() && (!isFlipping && result)}
       </div>
       <div
@@ -136,12 +136,12 @@ const CoinAnimation = ({ isFlipping, onAnimationEnd, flipped, result }) => {
           position: 'absolute',
           width: '100%',
           height: '100%',
-          color: getColor[result],
+          color: getColor(result),
           backfaceVisibility: 'hidden',
           transform: 'rotateY(180deg)',
         }}
       >
-        {isFlipping && '🦅'}
+        <span style={{fontSize: '2em'}}>{isFlipping && '🦅'}</span>
         {flipped() && (!isFlipping && result)}
       </div>
     </div>
@@ -1238,7 +1238,7 @@ const CoinFlipMMORPG = () => {
           color: '#666',
         }}
       >
-        Version 1.4.0 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.4.1 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div>
   );
