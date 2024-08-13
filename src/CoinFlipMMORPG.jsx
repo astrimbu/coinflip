@@ -20,8 +20,8 @@ const Confetti = ({ active, difficulty }) => {
       const newConfettiItems = [...Array(confettiCount)].map(() => ({
         left: `${Math.random() * 100}%`,
         animationDuration: 3 + Math.random() * 2,
-        color: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']
-          [Math.floor(Math.random() * 6)],
+        color: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'][
+          Math.floor(Math.random() * 6)],
       }));
 
       setConfettiItems(newConfettiItems);
@@ -127,7 +127,7 @@ const CoinAnimation = ({ isFlipping, onAnimationEnd, flipped, result }) => {
         }}
       >
         {!flipped() && (!isFlipping && 'flip!')}
-        <span style={{fontSize: '2em'}}>{isFlipping && '👨'}</span>
+        <span style={{ fontSize: '2em' }}>{isFlipping && '👨'}</span>
         {flipped() && (!isFlipping && result)}
       </div>
       <div
@@ -141,7 +141,7 @@ const CoinAnimation = ({ isFlipping, onAnimationEnd, flipped, result }) => {
           transform: 'rotateY(180deg)',
         }}
       >
-        <span style={{fontSize: '2em'}}>{isFlipping && '🦅'}</span>
+        <span style={{ fontSize: '2em' }}>{isFlipping && '🦅'}</span>
         {flipped() && (!isFlipping && result)}
       </div>
     </div>
