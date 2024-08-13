@@ -14,7 +14,7 @@ const REMOVE_SCRAP = 'REMOVE_SCRAP';
 
 // Utility functions
 const countInventoryItems = (inventory) => {
-  return Object.values(inventory).reduce((sum, items) => 
+  return Object.values(inventory).reduce((sum, items) =>
     sum + (Array.isArray(items) ? items.length : 0), 0);
 };
 
@@ -28,7 +28,9 @@ const inventoryReducer = (state, action) => {
         ...state,
         inventory: {
           ...state.inventory,
-          [action.payload.category]: [...state.inventory[action.payload.category], action.payload.item]
+          [action.payload.category]: Array.isArray(state.inventory[action.payload.category])
+            ? [...state.inventory[action.payload.category], action.payload.item]
+            : [action.payload.item]
         },
         inventoryFull: countInventoryItems(state.inventory) + 1 >= MAX_INVENTORY_SLOTS
       };
@@ -41,7 +43,7 @@ const inventoryReducer = (state, action) => {
         },
         inventoryFull: false
       };
-    case EQUIP_ITEM:
+    case EQUIP_ITEM: {
       const { item, slot } = action.payload;
       const updatedInventory = {
         ...state.inventory,
@@ -57,7 +59,8 @@ const inventoryReducer = (state, action) => {
         equipment: updatedEquipment,
         inventoryFull: countInventoryItems(updatedInventory) >= MAX_INVENTORY_SLOTS
       };
-    case UNEQUIP_ITEM:
+    }
+    case UNEQUIP_ITEM: {
       if (countInventoryItems(state.inventory) >= MAX_INVENTORY_SLOTS) {
         return { ...state, inventoryFull: true };
       }
@@ -71,6 +74,7 @@ const inventoryReducer = (state, action) => {
         equipment: { ...state.equipment, [action.payload.slot]: null },
         inventoryFull: countInventoryItems(state.inventory) + 1 >= MAX_INVENTORY_SLOTS
       };
+    }
     case UPDATE_CURRENCY:
       return {
         ...state,
@@ -79,7 +83,7 @@ const inventoryReducer = (state, action) => {
           [action.payload.currency]: state.inventory[action.payload.currency] + action.payload.amount
         }
       };
-    case RECYCLE_ITEMS:
+    case RECYCLE_ITEMS: {
       const recycledInventory = { ...state.inventory };
       const updatedScrap = { ...state.scrap };
       action.payload.items.forEach(item => {
@@ -92,7 +96,8 @@ const inventoryReducer = (state, action) => {
         scrap: updatedScrap,
         inventoryFull: false
       };
-    case REMOVE_SCRAP:
+    }
+    case REMOVE_SCRAP: {
       const newScrap = { ...state.scrap };
       const rarity = action.payload.rarity;
       newScrap[rarity] -= 2;
@@ -100,6 +105,7 @@ const inventoryReducer = (state, action) => {
         ...state,
         scrap: newScrap,
       };
+    }
     default:
       return state;
   }

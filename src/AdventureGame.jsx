@@ -3,186 +3,55 @@ import { useState, useEffect, useRef } from 'react';
 import useInventoryManager from './useInventoryManager';
 import './hover.css';
 
-const Confetti = ({ active, difficulty }) => {
-  const [isActive, setIsActive] = useState(false);
-  const [confettiItems, setConfettiItems] = useState([]);
+const MonsterAnimation = ({ isAttacking, onAnimationEnd, monster, hitpoints }) => {
+  const monsterRef = useRef(null);
 
   useEffect(() => {
-    if (active) {
-      setIsActive(true);
-      const confettiCount = {
-        easy: 10,
-        medium: 50,
-        hard: 100,
-        impossible: 200,
-      }[difficulty];
-
-      const newConfettiItems = [...Array(confettiCount)].map(() => ({
-        left: `${Math.random() * 100}%`,
-        animationDuration: 3 + Math.random() * 2,
-        color: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'][
-          Math.floor(Math.random() * 6)],
-      }));
-
-      setConfettiItems(newConfettiItems);
-
-      const timer = setTimeout(() => {
-        setIsActive(false);
-        setConfettiItems([]);
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [active, difficulty]);
-
-  if (!isActive) return null;
-
-  return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      pointerEvents: 'none',
-      zIndex: 9999,
-    }}>
-      {confettiItems.map((item, i) => (
-        <div key={i} style={{
-          position: 'absolute',
-          left: item.left,
-          top: '-20px',
-          width: '10px',
-          height: '10px',
-          backgroundColor: item.color,
-          borderRadius: Math.random() > 0.5 ? '50%' : '0',
-          opacity: Math.random(),
-          animation: `confetti-fall ${item.animationDuration}s ease-out forwards`,
-        }} />
-      ))}
-      <style>{`
-        @keyframes confetti-fall {
-          0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 1;
-          }
-          100% {
-            transform: translateY(100vh) rotate(720deg);
-            opacity: 0;
-          }
-        }
-      `}</style>
-    </div>
-  );
-};
-
-const CoinAnimation = ({ isFlipping, onAnimationEnd, flipped, result }) => {
-  const coinRef = useRef(null);
-  const getColor = (result) => {
-    switch (result) {
-      case 'WIN!': return 'green'
-      case 'LOSE': {
-        if (flipped()) return '#e00000'
-        else return 'black'
-      }
-      default: return 'black'
-    }
-  };
-
-  useEffect(() => {
-    if (isFlipping && coinRef.current) {
-      coinRef.current.animate(
+    if (isAttacking && monsterRef.current) {
+      monsterRef.current.animate(
         [
-          { transform: 'rotateX(0)' },
-          { transform: 'rotateX(1800deg)' },
+          { transform: 'translateX(0)' },
+          { transform: 'translateX(10px)' },
+          { transform: 'translateX(-10px)' },
+          { transform: 'translateX(0)' },
         ],
         {
-          duration: 1000,
-          easing: 'ease-out',
+          duration: 300,
+          easing: 'ease-in-out',
         }
       ).onfinish = onAnimationEnd;
     }
-  }, [isFlipping, onAnimationEnd]);
+  }, [isAttacking, onAnimationEnd]);
 
   return (
     <div
-      id='coin'
-      ref={coinRef}
+      ref={monsterRef}
       style={{
         width: '100px',
         height: '100px',
         margin: '20px auto',
-        transformStyle: 'preserve-3d',
         position: 'relative',
-      }}
-    >
-      <div
-        className='coin'
-        style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          color: getColor(result),
-          backfaceVisibility: 'hidden',
-        }}
-      >
-        {!flipped() && (!isFlipping && 'flip!')}
-        <span style={{ fontSize: '2em' }}>{isFlipping && '👨'}</span>
-        {flipped() && (!isFlipping && result)}
-      </div>
-      <div
-        className='coin'
-        style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          color: getColor(result),
-          backfaceVisibility: 'hidden',
-          transform: 'rotateY(180deg)',
-        }}
-      >
-        <span style={{ fontSize: '2em' }}>{isFlipping && '🦅'}</span>
-        {flipped() && (!isFlipping && result)}
-      </div>
-    </div>
-  );
-};
-
-const ProgressBar = ({ difficulty, scores, difficultyLevels }) => {
-  const { wins, flips } = scores[difficulty];
-  const { label, color } = difficultyLevels[difficulty];
-  const progress = flips > 0 ? (wins / flips) * 100 : 0;
-
-  return (
-    <div
-      style={{
-        marginBottom: '8px',
-        padding: '8px',
-        backgroundColor: '#e0e0e0',
-        borderRadius: '4px',
         display: 'flex',
-        justifyContent: 'space-between',
+        flexDirection: 'column',
         alignItems: 'center',
-        height: '40px',
-        position: 'relative',
-        overflow: 'hidden',
       }}
     >
-      <div
+      <img
+        src={`/api/placeholder/100/100?text=${monster}`}
+        alt={monster}
         style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: `${progress}%`,
+          width: '100%',
           height: '100%',
-          backgroundColor: color,
-          transition: 'width 0.3s ease-in-out',
-          zIndex: 1,
         }}
       />
-      <div style={{ zIndex: 2, color: 'black' }}>{label}:</div>
-      <div style={{ zIndex: 2, color: 'black' }}>
-        {wins}/{flips}
+      <div style={{ width: '100%', height: '10px', backgroundColor: 'red', marginTop: '10px' }}>
+        <div
+          style={{
+            width: `${(hitpoints / 10) * 100}%`,
+            height: '100%',
+            backgroundColor: 'green',
+          }}
+        />
       </div>
     </div>
   );
@@ -769,7 +638,7 @@ const Recycler = ({
   );
 };
 
-const CoinFlipMMORPG = () => {
+const AdventureGame = () => {
   const {
     inventory,
     equipment,
@@ -792,11 +661,12 @@ const CoinFlipMMORPG = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
   const difficultyLevels = {
-    easy: { label: 'Easy', rate: 1 / 2, color: '#4CAF50' },
-    medium: { label: 'Medium', rate: 1 / 10, color: '#3B88FF' },
-    hard: { label: 'Hard', rate: 1 / 100, color: '#F44336' },
-    impossible: { label: 'Impossible', rate: 1 / 1000, color: '#000' },
+    easy: { label: 'Easy', rate: 1 / 2, color: '#4CAF50', monster: 'Goblin' },
+    medium: { label: 'Medium', rate: 1 / 10, color: '#3B88FF', monster: 'Orc' },
+    hard: { label: 'Hard', rate: 1 / 100, color: '#F44336', monster: 'Dragon' },
+    impossible: { label: 'Impossible', rate: 1 / 1000, color: '#000', monster: 'Demon Lord' },
   };
   const difficultyModifiers = { easy: 2, medium: 3, hard: 4, impossible: 5 };
   const rarityByDifficulty = {
@@ -807,13 +677,15 @@ const CoinFlipMMORPG = () => {
   };
   const [difficulty, setDifficulty] = useState('easy');
   const [scores, setScores] = useState({
-    easy: { flips: 0, wins: 0 },
-    medium: { flips: 0, wins: 0 },
-    hard: { flips: 0, wins: 0 },
-    impossible: { flips: 0, wins: 0 },
+    easy: { fights: 0, wins: 0 },
+    medium: { fights: 0, wins: 0 },
+    hard: { fights: 0, wins: 0 },
+    impossible: { fights: 0, wins: 0 },
   });
-  const [isFlipping, setIsFlipping] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
+  const [isFighting, setIsFighting] = useState(false);
+  const fightIntervalRef = useRef(null);
+  const [isAttacking, setIsAttacking] = useState(false);
+  const [monsterHitpoints, setMonsterHitpoints] = useState(10);
   const [view, setView] = useState('game');
   const [crystalTimer, setCrystalTimer] = useState(0);
   const [recentItems, setRecentItems] = useState([]);
@@ -1005,7 +877,9 @@ const CoinFlipMMORPG = () => {
         const stat = getRarityStat(rarity);
         newItem = { name: randomItem, rarity, stat };
         if (!inventoryFull) {
+          console.log(inventory);
           addItem(randomItem, newItem);
+          console.log(inventory);
         } else {
           newItem.missed = true;
         }
@@ -1014,49 +888,66 @@ const CoinFlipMMORPG = () => {
     }
   };
 
-  const flipCoin = () => {
-    const ticketCost = { easy: 0, medium: 1, hard: 2, impossible: 3 }[
-      difficulty
-    ];
+  const fightMonster = () => {
+    const ticketCost = { easy: 0, medium: 1, hard: 2, impossible: 3 }[difficulty];
     if (tickets < ticketCost) {
       return;
     }
 
     setTickets((prevTickets) => prevTickets - ticketCost);
-    setIsFlipping(true);
-    setTimeout(
-      () => {
-        const totalStats = calculateTotalStats();
-        const statBonus = Math.floor(totalStats / 6);
-        const baseRate = difficultyLevels[difficulty].rate;
-        const adjustedRate = Math.min(baseRate * Math.pow(2, statBonus), 1);
-        const result = Math.random() < adjustedRate;
+    setIsFighting(true);
+  };
 
-        setIsFlipping(false);
+  useEffect(() => {
+    const performAttack = () => {
+      const totalStats = calculateTotalStats();
+      const statBonus = Math.floor(totalStats / 6);
+      const baseRate = difficultyLevels[difficulty].rate;
+      const adjustedRate = Math.min(baseRate * Math.pow(2, statBonus), 1);
+      const result = Math.random() < adjustedRate;
+
+      setIsAttacking(true);
+      setTimeout(() => {
+        setIsAttacking(false);
         setAnimationResult(result);
 
         setScores((prevScores) => ({
           ...prevScores,
           [difficulty]: {
-            flips: prevScores[difficulty].flips + 1,
+            fights: prevScores[difficulty].fights + 1,
             wins: prevScores[difficulty].wins + (result ? 1 : 0),
           },
         }));
 
         if (result) {
-          setTickets((prevTickets) => prevTickets + 10);
-          setShowConfetti(true);
-          setTimeout(() => setShowConfetti(false), 3000);
-          checkForItem();
-          checkForPet();
+          const damage = potionTimer > 0 ? 2 : 1; // Potion effect: 2x damage
+          setMonsterHitpoints((prevHp) => {
+            const newHp = prevHp - damage;
+            if (newHp <= 0) {
+              checkForItem();
+              checkForPet();
+              setTickets((prevTickets) => prevTickets + 10);
+              setIsFighting(false);
+              return 10; // Reset monster HP
+            }
+            return newHp;
+          });
         }
-      },
-      potionTimer > 0 ? 10 : 1000
-    );
-  };
+      }, 300);
+    };
+
+    if (isFighting) {
+      performAttack();
+      fightIntervalRef.current = setInterval(performAttack, 600);
+    } else {
+      clearInterval(fightIntervalRef.current);
+    }
+
+    return () => clearInterval(fightIntervalRef.current);
+  }, [isFighting, difficulty, potionTimer]);
 
   const handleAnimationEnd = () => {
-    setIsFlipping(false);
+    setIsAttacking(false);
   };
 
   const renderPets = () =>
@@ -1110,7 +1001,7 @@ const CoinFlipMMORPG = () => {
       <h1
         style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}
       >
-        CoinFlip Legends: The Flippening
+        Adventure Game
       </h1>
 
       <div
@@ -1123,7 +1014,10 @@ const CoinFlipMMORPG = () => {
         {Object.entries(difficultyLevels).map(([key, { label, color }]) => (
           <button
             key={key}
-            onClick={() => setDifficulty(key)}
+            onClick={() => {
+              setDifficulty(key);
+              setMonsterHitpoints(10);
+            }}
             style={{
               backgroundColor: difficulty === key ? color : 'transparent',
               color: difficulty === key ? 'white' : 'black',
@@ -1136,21 +1030,19 @@ const CoinFlipMMORPG = () => {
         ))}
       </div>
 
-      <CoinAnimation
-        isFlipping={isFlipping}
+      <MonsterAnimation
+        isAttacking={isAttacking}
         onAnimationEnd={handleAnimationEnd}
-        flipped={hasFlipped}
-        result={animationResult ? 'WIN!' : 'LOSE'}
+        monster={difficultyLevels[difficulty].monster}
+        hitpoints={monsterHitpoints}
       />
 
       <button
-        onClick={flipCoin}
-        disabled={isFlipping}
+        onClick={fightMonster}
+        disabled={isFighting || tickets < { easy: 0, medium: 1, hard: 2, impossible: 3 }[difficulty]}
         style={{ width: '100%', height: '4em', marginBottom: '16px' }}
       >
-        {!hasFlipped() && (!isFlipping && '➡️ ')}
-        {isFlipping ? 'Flipping...' : `Flip Coin (${tickets})`}
-        {!hasFlipped() && (!isFlipping && '️ ⬅️')}
+        {isFighting ? 'Fighting...' : `Fight Monster (${tickets})`}
       </button>
 
       <div
@@ -1217,12 +1109,6 @@ const CoinFlipMMORPG = () => {
           <p>No items obtained yet.</p>
         )}
       </div>
-
-      <ProgressBar
-        difficulty={difficulty}
-        scores={scores}
-        difficultyLevels={difficultyLevels}
-      />
 
       {renderPets()}
 
@@ -1406,9 +1292,8 @@ const CoinFlipMMORPG = () => {
         </>
       )}
 
-      <Confetti active={showConfetti} difficulty={difficulty} />
     </div>
   );
 };
 
-export default CoinFlipMMORPG;
+export default AdventureGame;

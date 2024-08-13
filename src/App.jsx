@@ -1,11 +1,11 @@
 import './App.css'
 import './hover.css'
-import CoinFlipMMORPG from './CoinFlipMMORPG'
+import AdventureGame from './AdventureGame'
 
 function App() {
   return (
     <>
-      <CoinFlipMMORPG />
+      <AdventureGame />
     </>
   );
 }
