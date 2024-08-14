@@ -72,7 +72,7 @@ describe('AdventureGame', () => {
   it('changes monster when a difficulty button is clicked', () => {
     render(<AdventureGame />);
     fireEvent.click(screen.getByRole('button', { name: 'Medium' }));
-    expect(screen.getByAltText('Orc')).toBeDefined();
+    expect(screen.getByAltText('Ogre')).toBeDefined();
   });
 
   it('starts fighting when the Fight Monster button is clicked', () => {

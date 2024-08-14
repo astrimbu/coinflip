@@ -37,10 +37,9 @@ const MonsterAnimation = ({ isAttacking, onAnimationEnd, monster, hitpoints }) =
       }}
     >
       <img
-        src={`/api/placeholder/100/100?text=${monster}`}
+        src={new URL(`./assets/monsters/${monster.toLowerCase()}.png`, import.meta.url).href}
         alt={monster}
         style={{
-          width: '100%',
           height: '100%',
         }}
       />
@@ -48,7 +47,7 @@ const MonsterAnimation = ({ isAttacking, onAnimationEnd, monster, hitpoints }) =
         <div
           style={{
             width: `${(hitpoints / 10) * 100}%`,
-            height: '100%',
+            height: '16px',
             backgroundColor: 'green',
           }}
         />
@@ -666,9 +665,9 @@ const AdventureGame = () => {
 
   const difficultyLevels = {
     easy: { label: 'Easy', rate: 1 / 2, color: '#4CAF50', monster: 'Goblin' },
-    medium: { label: 'Medium', rate: 1 / 10, color: '#3B88FF', monster: 'Orc' },
-    hard: { label: 'Hard', rate: 1 / 100, color: '#F44336', monster: 'Dragon' },
-    impossible: { label: 'Impossible', rate: 1 / 1000, color: '#000', monster: 'Demon Lord' },
+    medium: { label: 'Medium', rate: 1 / 8, color: '#3B88FF', monster: 'Ogre' },
+    hard: { label: 'Hard', rate: 1 / 32, color: '#F44336', monster: 'Demon' },
+    impossible: { label: 'Impossible', rate: 1 / 128, color: '#000', monster: 'Dragon' },
   };
   const difficultyModifiers = { easy: 2, medium: 3, hard: 4, impossible: 5 };
   const rarityByDifficulty = {
@@ -706,15 +705,6 @@ const AdventureGame = () => {
     medium: 1 / 1000,
     hard: 1 / 1000,
     impossible: 1 / 1000,
-  };
-  const inventorySlots = 16;
-
-  const hasFlipped = () => {
-    let flips = 0
-    Object.keys(scores).map(diff => {
-      flips += scores[diff].flips
-    })
-    return Boolean(flips);
   };
 
   const getRarityColor = (rarity) => {
@@ -922,7 +912,7 @@ const AdventureGame = () => {
         }));
 
         if (result) {
-          const damage = potionTimer > 0 ? 2 : 1; // Potion effect: 2x damage
+          const damage = potionTimer > 0 ? 2 : 1;
           setMonsterHitpoints((prevHp) => {
             const newHp = prevHp - damage;
             if (newHp <= 0) {
@@ -930,7 +920,7 @@ const AdventureGame = () => {
               checkForPet();
               setTickets((prevTickets) => prevTickets + 10);
               setIsFighting(false);
-              return 10; // Reset monster HP
+              return 10;
             }
             return newHp;
           });
@@ -1042,7 +1032,7 @@ const AdventureGame = () => {
       <button
         onClick={fightMonster}
         disabled={isFighting || tickets < { easy: 0, medium: 1, hard: 2, impossible: 3 }[difficulty]}
-        style={{ width: '100%', height: '4em', marginBottom: '16px' }}
+        style={{ width: '100%', height: '4em', margin: '16px 0 16px 0 ' }}
       >
         {isFighting ? 'Fighting...' : `Fight Monster (${tickets})`}
       </button>
