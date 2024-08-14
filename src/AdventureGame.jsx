@@ -99,6 +99,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
 
   return (
     <div
+      data-testid='Inventory'
       style={{
         width: '200px',
         margin: '0 auto',
@@ -117,6 +118,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
         }}
       >
         <div
+          data-testid='Gold'
           style={{
             border: '2px solid #aaa',
             padding: '5px',
