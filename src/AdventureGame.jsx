@@ -47,7 +47,7 @@ const MonsterAnimation = ({ isAttacking, onAnimationEnd, monster, hitpoints }) =
         <div
           style={{
             width: `${(hitpoints / 10) * 100}%`,
-            height: '16px',
+            height: '10px',
             backgroundColor: 'green',
           }}
         />
