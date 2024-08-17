@@ -899,6 +899,24 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
       const result = Math.random() < adjustedRate;
 
       setIsAttacking(true);
+
+      if (result) {
+        const damage = potionTimer > 0 ? 2 : 1;
+        setMonsterHitpoints((prevHp) => {
+          const newHp = prevHp - damage;
+          console.log('hp after attack: ' + newHp);
+          if (newHp <= 0) {
+            checkForItem();
+            checkForPet();
+            setTickets((prevTickets) => prevTickets + 10);
+            setIsFighting(false);
+            console.log('monsterHitpoints: ' + monsterHitpoints);
+            return monsterHitpoints;
+          }
+          return newHp;
+        });
+      }
+
       setTimeout(() => {
         setIsAttacking(false);
         setAnimationResult(result);
@@ -911,20 +929,6 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
           },
         }));
 
-        if (result) {
-          const damage = potionTimer > 0 ? 2 : 1;
-          setMonsterHitpoints((prevHp) => {
-            const newHp = prevHp - damage;
-            if (newHp <= 0) {
-              checkForItem();
-              checkForPet();
-              setTickets((prevTickets) => prevTickets + 10);
-              setIsFighting(false);
-              return monsterHitpoints;
-            }
-            return newHp;
-          });
-        }
       }, 600);
     };
 
