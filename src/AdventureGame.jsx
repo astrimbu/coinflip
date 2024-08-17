@@ -869,9 +869,7 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
         const stat = getRarityStat(rarity);
         newItem = { name: randomItem, rarity, stat };
         if (!inventoryFull) {
-          console.log(inventory);
           addItem(randomItem, newItem);
-          console.log(inventory);
         } else {
           newItem.missed = true;
         }
@@ -904,13 +902,11 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
         const damage = potionTimer > 0 ? 2 : 1;
         setMonsterHitpoints((prevHp) => {
           const newHp = prevHp - damage;
-          console.log('hp after attack: ' + newHp);
           if (newHp <= 0) {
             checkForItem();
             checkForPet();
             setTickets((prevTickets) => prevTickets + 10);
             setIsFighting(false);
-            console.log('monsterHitpoints: ' + monsterHitpoints);
             return monsterHitpoints;
           }
           return newHp;
