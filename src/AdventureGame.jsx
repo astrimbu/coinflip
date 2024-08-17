@@ -639,7 +639,7 @@ const Recycler = ({
   );
 };
 
-const AdventureGame = () => {
+const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
   const {
     inventory,
     equipment,
@@ -686,7 +686,7 @@ const AdventureGame = () => {
   const [isFighting, setIsFighting] = useState(false);
   const fightIntervalRef = useRef(null);
   const [isAttacking, setIsAttacking] = useState(false);
-  const [monsterHitpoints, setMonsterHitpoints] = useState(10);
+  const [monsterHitpoints, setMonsterHitpoints] = useState(initialMonsterHitpoints);
   const [view, setView] = useState('game');
   const [crystalTimer, setCrystalTimer] = useState(0);
   const [recentItems, setRecentItems] = useState([]);
@@ -920,12 +920,12 @@ const AdventureGame = () => {
               checkForPet();
               setTickets((prevTickets) => prevTickets + 10);
               setIsFighting(false);
-              return 10;
+              return monsterHitpoints;
             }
             return newHp;
           });
         }
-      }, 300);
+      }, 600);
     };
 
     if (isFighting) {
