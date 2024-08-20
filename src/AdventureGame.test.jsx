@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeAll, afterAll } from 'vitest';
 import { render, screen, fireEvent, within, act } from '@testing-library/react';
 import AdventureGame from './AdventureGame';
 // import useInventoryManager from './useInventoryManager';
@@ -48,10 +48,6 @@ describe('AdventureGame', () => {
   afterAll(() => {
     vi.useRealTimers();
   });
-
-  //  beforeEach(() => {
-  //    vi.clearAllMocks();
-  //  });
 
   afterEach(() => {
     vi.clearAllTimers();

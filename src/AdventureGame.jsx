@@ -1,645 +1,14 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef } from 'react';
 import useInventoryManager from './useInventoryManager';
+import MonsterAnimation from './components/MonsterAnimation'
+import InventoryGrid from './components/InventoryGrid'
+import WornEquipment from './components/WornEquipment'
+import Shop from './components/Shop'
+import Recycler from './components/Recycler'
 import './hover.css';
 
-const MonsterAnimation = ({ isAttacking, onAnimationEnd, monster, hitpoints }) => {
-  const monsterRef = useRef(null);
-
-  useEffect(() => {
-    if (isAttacking && monsterRef.current) {
-      monsterRef.current.animate(
-        [
-          { transform: 'translateX(0)' },
-          { transform: 'translateX(10px)' },
-          { transform: 'translateX(-10px)' },
-          { transform: 'translateX(0)' },
-        ],
-        {
-          duration: 300,
-          easing: 'ease-in-out',
-        }
-      ).onfinish = onAnimationEnd;
-    }
-  }, [isAttacking, onAnimationEnd]);
-
-  return (
-    <div
-      ref={monsterRef}
-      style={{
-        width: '100px',
-        height: '100px',
-        margin: '20px auto',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      <img
-        src={new URL(`./assets/monsters/${monster.toLowerCase()}.png`, import.meta.url).href}
-        alt={monster}
-        style={{
-          height: '100%',
-        }}
-      />
-      <div style={{ width: '100%', height: '10px', backgroundColor: 'red', marginTop: '10px' }}>
-        <div
-          style={{
-            width: `${(hitpoints / 10) * 100}%`,
-            height: '10px',
-            backgroundColor: 'green',
-          }}
-        />
-      </div>
-    </div>
-  );
-};
-
-const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
-  const [hoveredItem, setHoveredItem] = useState(null);
-
-  const getRarityColor = (rarity) => {
-    switch (rarity) {
-      case 'Common':
-        return '#4CAF50';
-      case 'Magic':
-        return '#3B88FF';
-      case 'Rare':
-        return '#F44336';
-      case 'Unique':
-        return '#000';
-      default:
-        return '#888';
-    }
-  };
-
-  function getItemUrl(name, rarity) {
-    if (name === 'crystal' || name === 'potion' || name === 'gold') {
-      return new URL(`./assets/items/${name}.png`, import.meta.url).href;
-    }
-    return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url)
-      .href;
-  }
-
-  const handleClick = (flattenedItems, index) => {
-    if (!flattenedItems[index]) return;
-    if (flattenedItems[index].name === 'Crystal') {
-      onUseCrystal(flattenedItems[index]);
-    } else {
-      onEquip(flattenedItems[index], flattenedItems[index].name);
-    }
-  };
-
-  const flattenedItems = Object.entries(items)
-    .filter(([itemName]) => itemName !== 'Gold' && itemName !== 'Potion')
-    .flatMap(([, itemArray]) => (Array.isArray(itemArray) ? itemArray : []))
-    .slice(0, 16);
-
-  return (
-    <div
-      data-testid='Inventory'
-      style={{
-        width: '200px',
-        margin: '0 auto',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        padding: '0 0 10px 0',
-      }}
-    >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          width: '100%',
-          marginBottom: '10px',
-        }}
-      >
-        <div
-          data-testid='Gold'
-          style={{
-            border: '2px solid #aaa',
-            padding: '5px',
-            textAlign: 'center',
-          }}
-        >
-          <img src={getItemUrl('gold')} alt='Gold' /> {items.Gold}
-        </div>
-        <div
-          style={{
-            border: '2px solid #aaa',
-            padding: '5px',
-            textAlign: 'center',
-            cursor: items.Potion > 0 ? 'pointer' : 'default',
-            opacity: items.Potion > 0 ? 1 : 0.5,
-          }}
-          onClick={() => items.Potion > 0 && onUsePotion()}
-        >
-          <img src={getItemUrl('potion')} alt='Potion' /> {items.Potion}
-        </div>
-      </div>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 50px)',
-          gridGap: '9px',
-        }}
-      >
-        {[...Array(16)].map((_, index) => (
-          <div
-            key={index}
-            style={{
-              width: '50px',
-              height: '50px',
-              border: '3px solid #ccc',
-              position: 'relative',
-              outline: flattenedItems[index]
-                ? `3px solid ${getRarityColor(flattenedItems[index].rarity)}`
-                : 'none',
-              outlineOffset: '-3px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            onClick={() => handleClick(flattenedItems, index)}
-          >
-            {flattenedItems[index] && (
-              <>
-                <img
-                  src={getItemUrl(
-                    flattenedItems[index].name.toLowerCase(),
-                    flattenedItems[index].rarity.toLowerCase()
-                  )}
-                  alt={
-                    flattenedItems[index].rarity +
-                    ' ' +
-                    flattenedItems[index].name
-                  }
-                  style={{}}
-                  onMouseEnter={() =>
-                    setHoveredItem(flattenedItems[index].name)
-                  }
-                  onMouseLeave={() => setHoveredItem(null)}
-                />
-                {hoveredItem === flattenedItems[index] && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: '100%',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      backgroundColor: 'rgba(0,0,0,0.8)',
-                      color: 'white',
-                      padding: '5px',
-                      borderRadius: '3px',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {`${flattenedItems[index].name} (${flattenedItems[index].rarity})`}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-      {flattenedItems.length >= 16 && (
-        <p style={{ margin: '10px 0 0 0' }}>Inventory is full</p>
-      )}
-    </div>
-  );
-};
-
-const WornEquipment = ({ equipment, onUnequip }) => {
-  const slots = [
-    'Hat',
-    'Cape',
-    'Amulet',
-    'Weapon',
-    'Body',
-    'Pants',
-    'Gloves',
-    'Boots',
-    'Ring',
-  ];
-
-  const getRarityColor = (rarity) => {
-    switch (rarity) {
-      case 'Common':
-        return '#4CAF50';
-      case 'Magic':
-        return '#3B88FF';
-      case 'Rare':
-        return '#F44336';
-      case 'Unique':
-        return '#000';
-      default:
-        return '#ccc';
-    }
-  };
-
-  function getItemUrl(name, rarity) {
-    name = name.toLowerCase();
-    rarity = rarity.toLowerCase();
-    return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url)
-      .href;
-  }
-
-  const calculateTotalStats = () => {
-    return slots.reduce((total, slot) => {
-      if (equipment[slot] && equipment[slot].stat) {
-        return total + equipment[slot].stat;
-      }
-      return total;
-    }, 0);
-  };
-
-  const [hoveredItem, setHoveredItem] = useState(null);
-
-  function renderSlot(slot) {
-    return (
-      <div>
-        <div
-          style={{
-            width: '50px',
-            height: '50px',
-            position: 'relative',
-            margin: '0 auto',
-            outline: equipment[slot]
-              ? `3px solid 
-              ${getRarityColor(equipment[slot].rarity)}`
-              : '2px solid #888',
-            outlineOffset: '-2px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-          onClick={() => equipment[slot] && onUnequip(slot)}
-          onMouseEnter={() => setHoveredItem(equipment[slot])}
-          onMouseLeave={() => setHoveredItem(null)}
-          title={slot.charAt(0).toUpperCase() + slot.slice(1)}
-        >
-          {equipment[slot] && (
-            <img
-              src={getItemUrl(equipment[slot].name, equipment[slot].rarity)}
-              alt={`${equipment[slot].rarity} ${equipment[slot].name}`}
-              style={{}}
-            />
-          )}
-          {hoveredItem === equipment[slot] && equipment[slot] && (
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '100%',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                backgroundColor: 'rgba(0,0,0,0.8)',
-                color: 'white',
-                padding: '5px',
-                borderRadius: '3px',
-                whiteSpace: 'nowrap',
-                zIndex: 1000,
-              }}
-            >
-              {`+${equipment[slot].stat} to Stats`}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      style={{
-        margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '4px',
-      }}
-    >
-      <div style={{ gridColumn: '2' }}>{renderSlot('Hat')}</div>
-      <div style={{ gridColumn: '1' }}>{renderSlot('Cape')}</div>
-      <div style={{ gridColumn: '2' }}>{renderSlot('Amulet')}</div>
-      <div style={{ gridColumn: '1' }}>{renderSlot('Weapon')}</div>
-      <div style={{ gridColumn: '2' }}>{renderSlot('Body')}</div>
-      <div style={{ gridColumn: '2' }}>{renderSlot('Pants')}</div>
-      <div style={{ gridColumn: '1' }}>{renderSlot('Gloves')}</div>
-      <div style={{ gridColumn: '2' }}>{renderSlot('Boots')}</div>
-      <div style={{ gridColumn: '3' }}>{renderSlot('Ring')}</div>
-
-      <div style={{ gridColumn: '1 / span 3' }}>
-        <h3>Total Stats: {calculateTotalStats()}</h3>
-      </div>
-    </div>
-  );
-};
-
-const Shop = ({ gold, inventoryFull, onPurchase }) => {
-  function getItemUrl(name) {
-    return new URL(`./assets/items/${name}.png`, import.meta.url).href;
-  }
-
-  return (
-    <div
-      style={{
-        padding: '20px',
-        backgroundColor: '#f0f0f0',
-      }}
-    >
-      <h2 style={{ marginTop: 0 }}>Shop</h2>
-      <label
-        htmlFor='buy-crystal'
-        className='shop-label'
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-evenly',
-          marginTop: '20px',
-          backgroundColor: '#d5d5d5',
-          padding: '10px',
-        }}
-      >
-        <div>
-          {<img src={getItemUrl('crystal')} alt='Crystal' />}
-          <p style={{ margin: '0' }}>Crystal (1 Gold)</p>
-        </div>
-        <button
-          id='buy-crystal'
-          onClick={() => onPurchase('Crystal')}
-          disabled={gold < 1 || inventoryFull}
-        >
-          Buy
-        </button>
-      </label>
-      <label
-        htmlFor='buy-potion'
-        className='shop-label'
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-evenly',
-          marginTop: '20px',
-          backgroundColor: '#d5d5d5',
-          padding: '10px',
-        }}
-      >
-        <div>
-          {<img src={getItemUrl('potion')} alt='Potion' />}
-          <p style={{ margin: '0' }}>Potion (1 Gold)</p>
-        </div>
-        <button
-          id='buy-potion'
-          onClick={() => onPurchase('Potion')}
-          disabled={gold < 1}
-        >
-          Buy
-        </button>
-      </label>
-    </div>
-  );
-};
-
-const Recycler = ({
-  inventory,
-  inventoryFull,
-  scrap,
-  onRecycle,
-  onExchange,
-}) => {
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [exchangeRarity, setExchangeRarity] = useState('Common');
-  const [exchangeItem, setExchangeItem] = useState('');
-  const validEquipmentTypes = [
-    'Hat',
-    'Cape',
-    'Amulet',
-    'Weapon',
-    'Body',
-    'Pants',
-    'Gloves',
-    'Boots',
-    'Ring',
-  ];
-
-  const getRarityColor = (rarity) => {
-    switch (rarity) {
-      case 'Common':
-        return '#4CAF50';
-      case 'Magic':
-        return '#3B88FF';
-      case 'Rare':
-        return '#F44336';
-      case 'Unique':
-        return '#000';
-      default:
-        return '#ccc';
-    }
-  };
-
-  function getItemUrl(name, rarity) {
-    if (name === 'crystal' || name === 'potion' || name === 'gold') {
-      return new URL(`./assets/items/${name}.png`, import.meta.url).href;
-    }
-    return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url)
-      .href;
-  }
-
-  const handleRecycle = () => {
-    onRecycle(selectedItems);
-    setSelectedItems([]);
-  };
-
-  const handleRecycleAll = () => {
-    const recycledScrap = Object.entries(inventory)
-      .filter(
-        ([category]) =>
-          category !== 'Gold' && category !== 'Potion' && category !== 'Crystal'
-      )
-      .flatMap(([, items]) =>
-        Array.isArray(items) ? items.filter((item) => item.rarity) : []
-      );
-    onRecycle(recycledScrap);
-  };
-
-  const handleExchange = () => {
-    if (
-      scrap[exchangeRarity] >= 2 &&
-      exchangeItem &&
-      validEquipmentTypes.includes(exchangeItem)
-    ) {
-      onExchange(exchangeRarity, exchangeItem);
-      setExchangeItem('');
-    }
-  };
-
-  const recyclableItems = Object.entries(inventory)
-    .filter(
-      ([category]) =>
-        category !== 'Gold' && category !== 'Potion' && category !== 'Crystal'
-    )
-    .flatMap(([, items]) =>
-      Array.isArray(items) ? items.filter((item) => item.rarity) : []
-    );
-
-  return (
-    <div style={{ padding: 0, backgroundColor: '#f0f0f0' }}>
-      <h2 style={{ paddingTop: '20px' }}>Recycler</h2>
-      <div style={{ backgroundColor: '#d5d5d5', padding: '10px 0' }}>
-        <h3 style={{ margin: '0' }}>Select items to recycle:</h3>
-        <div style={{ display: 'flex' }}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 50px)',
-              gridGap: '4px',
-              margin: '0 auto',
-              alignItems: 'center',
-            }}
-          >
-            {recyclableItems.map((item, index) => (
-              <label
-                key={index}
-                htmlFor={'recycling' + index}
-                style={{
-                  border: `2px solid ${getRarityColor(item.rarity)}`,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <input
-                  id={'recycling' + index}
-                  type='checkbox'
-                  checked={selectedItems.includes(item)}
-                  style={{}}
-                  onChange={() => {
-                    if (selectedItems.includes(item)) {
-                      setSelectedItems(selectedItems.filter((i) => i !== item));
-                    } else {
-                      setSelectedItems([...selectedItems, item]);
-                    }
-                  }}
-                />
-                <img
-                  src={getItemUrl(
-                    item.name.toLowerCase(),
-                    item.rarity.toLowerCase()
-                  )}
-                  alt={item.rarity + ' ' + item.name}
-                  style={{}}
-                />
-              </label>
-            ))}
-          </div>
-        </div>
-        <div style={{ marginTop: '5px' }}>
-          <button
-            onClick={handleRecycle}
-            style={{ margin: '0 10px' }}
-            disabled={selectedItems.length === 0}
-          >
-            Recycle
-          </button>
-          <button
-            onClick={handleRecycleAll}
-            style={{ margin: '0 10px' }}
-            disabled={recyclableItems.length === 0}
-          >
-            Recycle All
-          </button>
-        </div>
-      </div>
-      <div style={{ backgroundColor: '#d5d5d5', padding: '10px 0' }}>
-        {Object.entries(scrap).map(([rarity, count]) => (
-          <span
-            key={rarity}
-            style={{
-              padding: '0 0.3em',
-              margin: '0 5px',
-              borderRadius: '4px',
-              fontSize: '2em',
-              fontWeight: '1000',
-              color: `${getRarityColor(rarity)}`,
-              backgroundColor: '#f0f0f0',
-            }}
-          >
-            {count}
-          </span>
-        ))}
-      </div>
-      <div style={{ marginTop: '20px' }}>
-        <h3>Exchange Scrap:</h3>
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            justifyContent: 'center',
-            marginBottom: 0,
-          }}
-        >
-          <select
-            value={exchangeRarity}
-            onChange={(e) => setExchangeRarity(e.target.value)}
-            style={{
-              padding: '5px',
-              borderRadius: '3px',
-              backgroundColor: getRarityColor(exchangeRarity),
-              color: 'white',
-            }}
-          >
-            {Object.keys(scrap).map((rarity) => (
-              <option
-                key={rarity}
-                value={rarity}
-                style={{ backgroundColor: getRarityColor(rarity) }}
-              >
-                {rarity}
-              </option>
-            ))}
-          </select>
-          <select
-            value={exchangeItem}
-            onChange={(e) => setExchangeItem(e.target.value)}
-            style={{ padding: '5px', borderRadius: '3px' }}
-          >
-            <option value=''>Select item type</option>
-            {validEquipmentTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          onClick={handleExchange}
-          disabled={scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull}
-          style={{
-            padding: '5px 10px',
-            marginTop: '10px',
-            backgroundColor:
-              scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull
-                ? '#aaa'
-                : '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '3px',
-            cursor:
-              scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull
-                ? 'not-allowed'
-                : 'pointer',
-          }}
-        >
-          Exchange
-        </button>
-        <p style={{ paddingBottom: '20px' }}>Cost: 2 {exchangeRarity} scrap</p>
-      </div>
-    </div>
-  );
-};
-
-const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
+const AdventureGame = () => {
   const {
     inventory,
     equipment,
@@ -663,13 +32,19 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const maxHP = {
+    easy: 4,
+    medium: 5,
+    hard: 10,
+    impossible: 20,
+  };
   const difficultyLevels = {
     easy: { label: 'Easy', rate: 1 / 2, color: '#4CAF50', monster: 'Goblin' },
-    medium: { label: 'Medium', rate: 1 / 8, color: '#3B88FF', monster: 'Ogre' },
-    hard: { label: 'Hard', rate: 1 / 32, color: '#F44336', monster: 'Demon' },
+    medium: { label: 'Medium', rate: 1 / 6, color: '#3B88FF', monster: 'Ogre' },
+    hard: { label: 'Hard', rate: 1 / 40, color: '#F44336', monster: 'Demon' },
     impossible: { label: 'Impossible', rate: 1 / 128, color: '#000', monster: 'Dragon' },
   };
-  const difficultyModifiers = { easy: 2, medium: 3, hard: 4, impossible: 5 };
+  const difficultyModifiers = { easy: 6, medium: 4, hard: 2, impossible: 1 };
   const rarityByDifficulty = {
     easy: 'Common',
     medium: 'Magic',
@@ -677,7 +52,7 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
     impossible: 'Unique',
   };
   const [difficulty, setDifficulty] = useState('easy');
-  const [scores, setScores] = useState({
+  const [, setScores] = useState({
     easy: { fights: 0, wins: 0 },
     medium: { fights: 0, wins: 0 },
     hard: { fights: 0, wins: 0 },
@@ -686,13 +61,13 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
   const [isFighting, setIsFighting] = useState(false);
   const fightIntervalRef = useRef(null);
   const [isAttacking, setIsAttacking] = useState(false);
-  const [monsterHitpoints, setMonsterHitpoints] = useState(initialMonsterHitpoints);
+  const [monsterHitpoints, setMonsterHitpoints] = useState(maxHP[difficulty]);
   const [view, setView] = useState('game');
   const [crystalTimer, setCrystalTimer] = useState(0);
   const [recentItems, setRecentItems] = useState([]);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
-  const [animationResult, setAnimationResult] = useState(null);
+  const [, setAnimationResult] = useState(null);
   const [tickets, setTickets] = useState(0);
   const [pets, setPets] = useState({
     easy: 0,
@@ -773,7 +148,7 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
   const usePotion = () => {
     if (inventory.Potion > 0) {
       updateCurrency('Potion', -1);
-      setPotionTimer((prevTimer) => prevTimer + 20);
+      setPotionTimer((prevTimer) => prevTimer + 120);
     }
   };
 
@@ -890,10 +265,7 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
 
   useEffect(() => {
     const performAttack = () => {
-      const totalStats = calculateTotalStats();
-      const statBonus = Math.floor(totalStats / 6);
-      const baseRate = difficultyLevels[difficulty].rate;
-      const adjustedRate = Math.min(baseRate * Math.pow(2, statBonus), 1);
+      const adjustedRate = calculateWinRate();
       const result = Math.random() < adjustedRate;
 
       setIsAttacking(true);
@@ -907,7 +279,7 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
             checkForPet();
             setTickets((prevTickets) => prevTickets + 10);
             setIsFighting(false);
-            return monsterHitpoints;
+            return maxHP[difficulty];
           }
           return newHp;
         });
@@ -925,7 +297,7 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
           },
         }));
 
-      }, 600);
+      }, 300);
     };
 
     if (isFighting) {
@@ -936,7 +308,7 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
     }
 
     return () => clearInterval(fightIntervalRef.current);
-  }, [isFighting, difficulty, potionTimer]);
+  }, [isFighting, difficulty]);
 
   const handleAnimationEnd = () => {
     setIsAttacking(false);
@@ -1008,7 +380,7 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
             key={key}
             onClick={() => {
               setDifficulty(key);
-              setMonsterHitpoints(10);
+              setMonsterHitpoints(maxHP[key]);
             }}
             style={{
               backgroundColor: difficulty === key ? color : 'transparent',
@@ -1027,6 +399,7 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
         onAnimationEnd={handleAnimationEnd}
         monster={difficultyLevels[difficulty].monster}
         hitpoints={monsterHitpoints}
+        maxHP={maxHP[difficulty]}
       />
 
       <button
@@ -1044,11 +417,9 @@ const AdventureGame = ({ initialMonsterHitpoints = 10 }) => {
           fontStyle: 'italic',
         }}
       >
-        Base win rate: {(difficultyLevels[difficulty].rate * 100).toFixed(2)}%
+        Accuracy: {(calculateWinRate() * 100).toFixed(2)}%
         <br />
-        Effective win rate: {(calculateWinRate() * 100).toFixed(2)}%
-        <br />
-        Item drop rate: {calculateItemDropRate()}%
+        Drop rate: {calculateItemDropRate()}%
       </div>
 
       {(crystalTimer > 0 || potionTimer > 0) && (
