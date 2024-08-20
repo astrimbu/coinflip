@@ -207,7 +207,6 @@ const AdventureGame = () => {
     const modifier = difficultyModifiers[difficulty];
     const itemChance = baseChance * modifier * (crystalTimer > 0 ? 2 : 1);
 
-    // Check this
     if (Math.random() < itemChance) {
       const items = [
         'Gold',
@@ -479,7 +478,7 @@ const AdventureGame = () => {
           color: '#666',
         }}
       >
-        Version 1.4.1 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.0 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div>
   );
