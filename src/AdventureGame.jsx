@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState, useEffect, useRef } from 'react';
 import useInventoryManager from './useInventoryManager';
 import MonsterAnimation from './components/MonsterAnimation'
@@ -14,6 +13,7 @@ const AdventureGame = () => {
     equipment,
     scrap,
     inventoryFull,
+    recentItems,
     addItem,
     removeItem,
     equipItem,
@@ -64,7 +64,6 @@ const AdventureGame = () => {
   const [monsterHitpoints, setMonsterHitpoints] = useState(maxHP[difficulty]);
   const [view, setView] = useState('game');
   const [crystalTimer, setCrystalTimer] = useState(0);
-  const [recentItems, setRecentItems] = useState([]);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
   const [, setAnimationResult] = useState(null);
@@ -200,10 +199,6 @@ const AdventureGame = () => {
         ...prevPets,
         [difficulty]: prevPets[difficulty] + 1,
       }));
-      setRecentItems((prev) => [
-        { name: 'Pet', rarity: `${rarityByDifficulty[difficulty]}` },
-        ...prev.slice(0, 4),
-      ]);
     }
   };
 
@@ -212,6 +207,7 @@ const AdventureGame = () => {
     const modifier = difficultyModifiers[difficulty];
     const itemChance = baseChance * modifier * (crystalTimer > 0 ? 2 : 1);
 
+    // Check this
     if (Math.random() < itemChance) {
       const items = [
         'Gold',
@@ -243,13 +239,9 @@ const AdventureGame = () => {
       } else {
         const stat = getRarityStat(rarity);
         newItem = { name: randomItem, rarity, stat };
-        if (!inventoryFull) {
-          addItem(randomItem, newItem);
-        } else {
-          newItem.missed = true;
-        }
+        addItem(randomItem, newItem);
+        //  newItem.missed = true;
       }
-      setRecentItems((prev) => [newItem, ...prev.slice(0, 4)]);
     }
   };
 

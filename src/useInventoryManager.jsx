@@ -20,20 +20,28 @@ const countInventoryItems = (inventory) => {
 
 const inventoryReducer = (state, action) => {
   switch (action.type) {
-    case ADD_ITEM:
+    case ADD_ITEM: {
       if (countInventoryItems(state.inventory) >= MAX_INVENTORY_SLOTS) {
         return { ...state, inventoryFull: true };
       }
+
+      const { category, item } = action.payload;
+      const updatedInventory = {
+        ...state.inventory,
+        [category]: [...state.inventory[category], item]
+      };
+      const updatedRecentItems = [
+        item,
+        ...state.recentItems.slice(0, 4)
+      ];
+
       return {
         ...state,
-        inventory: {
-          ...state.inventory,
-          [action.payload.category]: Array.isArray(state.inventory[action.payload.category])
-            ? [...state.inventory[action.payload.category], action.payload.item]
-            : [action.payload.item]
-        },
-        inventoryFull: countInventoryItems(state.inventory) + 1 >= MAX_INVENTORY_SLOTS
+        inventory: updatedInventory,
+        recentItems: updatedRecentItems,
+        inventoryFull: countInventoryItems(updatedInventory) >= MAX_INVENTORY_SLOTS
       };
+    }
     case REMOVE_ITEM:
       return {
         ...state,
@@ -139,10 +147,12 @@ const useInventoryManager = () => {
       Amulet: null,
     },
     scrap: { Common: 0, Magic: 0, Rare: 0, Unique: 0 },
-    inventoryFull: false
+    inventoryFull: false,
+    recentItems: []
   });
 
   const addItem = useCallback((category, item) => {
+    console.log(`addItem: ${JSON.stringify(item)}`);
     dispatch({ type: ADD_ITEM, payload: { category, item } });
   }, []);
 
@@ -175,6 +185,7 @@ const useInventoryManager = () => {
     equipment: state.equipment,
     scrap: state.scrap,
     inventoryFull: state.inventoryFull,
+    recentItems: state.recentItems,
     addItem,
     removeItem,
     equipItem,
