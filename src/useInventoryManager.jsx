@@ -152,7 +152,6 @@ const useInventoryManager = () => {
   });
 
   const addItem = useCallback((category, item) => {
-    console.log(`addItem: ${JSON.stringify(item)}`);
     dispatch({ type: ADD_ITEM, payload: { category, item } });
   }, []);
 

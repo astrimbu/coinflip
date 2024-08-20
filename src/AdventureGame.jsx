@@ -58,6 +58,8 @@ const AdventureGame = () => {
     hard: { fights: 0, wins: 0 },
     impossible: { fights: 0, wins: 0 },
   });
+  const [checkSeed, setCheckSeed] = useState(Math.random());
+  const [itemSeed, setItemSeed] = useState(Math.random());
   const [isFighting, setIsFighting] = useState(false);
   const fightIntervalRef = useRef(null);
   const [isAttacking, setIsAttacking] = useState(false);
@@ -194,7 +196,7 @@ const AdventureGame = () => {
 
   const checkForPet = () => {
     const dropRate = petDropRates[difficulty];
-    if (Math.random() < dropRate) {
+    if (checkSeed < dropRate) {
       setPets((prevPets) => ({
         ...prevPets,
         [difficulty]: prevPets[difficulty] + 1,
@@ -207,7 +209,7 @@ const AdventureGame = () => {
     const modifier = difficultyModifiers[difficulty];
     const itemChance = baseChance * modifier * (crystalTimer > 0 ? 2 : 1);
 
-    if (Math.random() < itemChance) {
+    if (checkSeed < itemChance) {
       const items = [
         'Gold',
         'Weapon',
@@ -221,7 +223,7 @@ const AdventureGame = () => {
         'Amulet',
         'Potion',
       ];
-      const randomItem = items[Math.floor(Math.random() * items.length)];
+      const randomItem = items[Math.floor(itemSeed * items.length)];
       const rarity = rarityByDifficulty[difficulty];
 
       let newItem;
@@ -394,7 +396,11 @@ const AdventureGame = () => {
       />
 
       <button
-        onClick={fightMonster}
+        onClick={() => {
+          fightMonster();
+          setItemSeed(Math.random());
+          setCheckSeed(Math.random());
+        }}
         disabled={isFighting || tickets < { easy: 0, medium: 1, hard: 2, impossible: 3 }[difficulty]}
         style={{ width: '100%', height: '4em', margin: '16px 0 16px 0 ' }}
       >
