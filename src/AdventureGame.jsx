@@ -431,13 +431,13 @@ const AdventureGame = () => {
         >
           {crystalTimer > 0 && (
             <div>
-              Crystal Boost: {Math.floor(crystalTimer / 60)}:
+              2x Drop rate: {Math.floor(crystalTimer / 60)}:
               {(crystalTimer % 60).toString().padStart(2, '0')}
             </div>
           )}
           {potionTimer > 0 && (
             <div>
-              Potion Effect: {Math.floor(potionTimer / 60)}:
+              2x Damage: {Math.floor(potionTimer / 60)}:
               {(potionTimer % 60).toString().padStart(2, '0')}
             </div>
           )}
