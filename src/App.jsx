@@ -1,11 +1,11 @@
 import './App.css'
 import './hover.css'
-import AdventureGame from './AdventureGame'
+import MiniRPG from './MiniRPG'
 
 function App() {
   return (
     <>
-      <AdventureGame />
+      <MiniRPG />
     </>
   );
 }

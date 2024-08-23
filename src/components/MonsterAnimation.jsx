@@ -28,6 +28,7 @@ const MonsterAnimation = ({ isAttacking, onAnimationEnd, monster, hitpoints, max
         width: '100px',
         height: '100px',
         margin: '20px auto',
+        marginBottom: '40px',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',

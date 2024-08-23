@@ -7,7 +7,7 @@ import Shop from './components/Shop'
 import Recycler from './components/Recycler'
 import './hover.css';
 
-const AdventureGame = () => {
+const MiniRPG = () => {
   const {
     inventory,
     equipment,
@@ -349,7 +349,6 @@ const AdventureGame = () => {
   const renderGame = () => (
     <div
       style={{
-        maxWidth: '400px',
         margin: '0 auto',
         padding: '20px',
         backgroundColor: '#f0f0f0',
@@ -361,30 +360,32 @@ const AdventureGame = () => {
         Mini RPG
       </h1>
 
-      <div
-        style={{
-          marginBottom: '16px',
-          display: 'flex',
-          justifyContent: 'space-between',
-        }}
-      >
-        {Object.entries(difficultyLevels).map(([key, { label, color }]) => (
-          <button
-            key={key}
-            onClick={() => {
-              setDifficulty(key);
-              setMonsterHitpoints(maxHP[key]);
-            }}
-            style={{
-              backgroundColor: difficulty === key ? color : 'transparent',
-              color: difficulty === key ? 'white' : 'black',
-              padding: '0.5em',
-              border: `1px solid ${color}`,
-            }}
-          >
-            {label}
-          </button>
-        ))}
+      <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+        <div
+          style={{
+            marginBottom: '16px',
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          {Object.entries(difficultyLevels).map(([key, { label, color }]) => (
+            <button
+              key={key}
+              onClick={() => {
+                setDifficulty(key);
+                setMonsterHitpoints(maxHP[key]);
+              }}
+              style={{
+                backgroundColor: difficulty === key ? color : 'transparent',
+                color: difficulty === key ? 'white' : 'black',
+                padding: '0.5em',
+                border: `1px solid ${color}`,
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <MonsterAnimation
@@ -402,47 +403,49 @@ const AdventureGame = () => {
           setCheckSeed(Math.random());
         }}
         disabled={isFighting || tickets < { easy: 0, medium: 1, hard: 2, impossible: 3 }[difficulty]}
-        style={{ width: '100%', height: '4em', margin: '16px 0 16px 0 ' }}
+        style={{ width: '100%', maxWidth: '500px', height: '4em', margin: '0 auto' }}
       >
         {isFighting ? 'Fighting...' : `Fight Monster (${tickets})`}
       </button>
 
       <div
         style={{
-          marginBottom: '10px',
+          margin: '10px',
           textAlign: 'center',
           fontStyle: 'italic',
+          fontSize: '0.8em',
         }}
       >
-        Accuracy: {(calculateWinRate() * 100).toFixed(2)}%
-        <br />
+        Accuracy: {(calculateWinRate() * 100).toFixed(2)}%,
         Drop rate: {calculateItemDropRate()}%
       </div>
 
-      {(crystalTimer > 0 || potionTimer > 0) && (
-        <div
-          style={{
-            marginBottom: '10px',
-            textAlign: 'center',
-            padding: '10px',
-            backgroundColor: '#80d3da',
-            borderRadius: '5px',
-          }}
-        >
-          {crystalTimer > 0 && (
-            <div>
-              2x Drop rate: {Math.floor(crystalTimer / 60)}:
-              {(crystalTimer % 60).toString().padStart(2, '0')}
-            </div>
-          )}
-          {potionTimer > 0 && (
-            <div>
-              2x Damage: {Math.floor(potionTimer / 60)}:
-              {(potionTimer % 60).toString().padStart(2, '0')}
-            </div>
-          )}
-        </div>
-      )}
+      {
+        (crystalTimer > 0 || potionTimer > 0) && (
+          <div
+            style={{
+              marginBottom: '10px',
+              textAlign: 'center',
+              padding: '10px',
+              backgroundColor: '#80d3da',
+              borderRadius: '5px',
+            }}
+          >
+            {crystalTimer > 0 && (
+              <div>
+                2x Drop rate: {Math.floor(crystalTimer / 60)}:
+                {(crystalTimer % 60).toString().padStart(2, '0')}
+              </div>
+            )}
+            {potionTimer > 0 && (
+              <div>
+                2x Damage: {Math.floor(potionTimer / 60)}:
+                {(potionTimer % 60).toString().padStart(2, '0')}
+              </div>
+            )}
+          </div>
+        )
+      }
 
       <div style={{ marginBottom: '30px' }}>
         <h3>Recently Obtained Items:</h3>
@@ -486,7 +489,7 @@ const AdventureGame = () => {
       >
         Version 1.5.0 - <a href='https://alan.computer'>alan.computer</a>
       </div>
-    </div>
+    </div >
   );
 
   const renderInventory = () => (
@@ -633,12 +636,12 @@ const AdventureGame = () => {
 
       {isDesktop ? (
         <>
-          <div style={{ width: '30%' }}>
+          <div style={{ width: '25%' }}>
             {renderInventory()}
             {renderShop()}
           </div>
-          <div style={{ width: '40%' }}>{renderGame()}</div>
-          <div style={{ width: '30%' }}>
+          <div style={{ width: '50%' }}>{renderGame()}</div>
+          <div style={{ width: '25%' }}>
             {renderEquipment()}
             {renderRecycler()}
           </div>
@@ -656,4 +659,4 @@ const AdventureGame = () => {
   );
 };
 
-export default AdventureGame;
+export default MiniRPG;
