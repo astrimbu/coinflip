@@ -358,7 +358,7 @@ const AdventureGame = () => {
       <h1
         style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}
       >
-        Adventure Game
+        Mini RPG
       </h1>
 
       <div
