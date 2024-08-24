@@ -8,6 +8,7 @@ import Recycler from './components/Recycler'
 import './hover.css';
 
 const MonsterAnimation = ({
+  isFighting,
   isAttacking,
   setIsAttacking,
   monster,
@@ -18,58 +19,124 @@ const MonsterAnimation = ({
   onMonsterClick,
   isClickable
 }) => {
+  const [fightPosition, setFightPosition] = useState(null);
   const monsterRef = useRef(null);
-  const sizeByMonster = { 'Goblin': '100px', 'Ogre': '150px', 'Demon': '220px', 'Dragon': '250px' };
+  const animationRef = useRef(null);
+  const currentPositionRef = useRef(0);
+  const facingRightRef = useRef(true);
+  const isDyingRef = useRef(false);
+
+  const sizeByMonster = {
+    'Goblin': '100px',
+    'Ogre': '150px',
+    'Demon': '220px',
+    'Dragon': '250px',
+  };
+
+  useEffect(() => {
+    if (!isFighting && !isDyingRef.current) {
+      const walkAnimation = () => {
+        const startPosition = currentPositionRef.current;
+        animationRef.current = monsterRef.current.animate(
+          [
+            { transform: `translateX(${startPosition}px)` },
+            { transform: `translateX(${startPosition - 100}px)` },
+            { transform: `translateX(${startPosition}px)` },
+            { transform: `translateX(${startPosition + 100}px)` },
+            { transform: `translateX(${startPosition}px)` },
+          ],
+          {
+            duration: 10000,
+            easing: 'linear',
+            iterations: Infinity,
+          }
+        );
+
+        const updatePosition = () => {
+          if (animationRef.current) {
+            const progress = animationRef.current.currentTime % 10000 / 10000;
+            let newPosition;
+            if (progress < 0.25) {
+              facingRightRef.current = false;
+              newPosition = startPosition - 400 * progress;
+            } else if (progress < 0.75) {
+              facingRightRef.current = true;
+              newPosition = startPosition - 100 + 400 * (progress - 0.25);
+            } else {
+              facingRightRef.current = false;
+              newPosition = startPosition + 100 - 400 * (progress - 0.75);
+            }
+            currentPositionRef.current = newPosition;
+            const img = monsterRef.current.children[1]
+            img.style.transform = `scaleX(${facingRightRef.current ? -1 : 1})`;
+            requestAnimationFrame(updatePosition);
+          }
+        };
+        requestAnimationFrame(updatePosition);
+      };
+
+      walkAnimation();
+    } else {
+      setFightPosition(currentPositionRef.current);
+      animationRef.current.pause();
+    }
+  }, [isFighting]);
 
   useEffect(() => {
     if (isAttacking) {
       let timeoutId;
-      const miss = () => {
+      const attackAnimation = (result) => {
+        const movementOffset = result ? 10 : 2;
         monsterRef.current.animate(
           [
-            { transform: 'translateX(0)' },
-            { transform: 'translateX(2px)' },
-            { transform: 'translateX(-2px)' },
-            { transform: 'translateX(0)' },
+            { transform: `translateX(${fightPosition}px)` },
+            { transform: `translateX(${fightPosition - movementOffset}px)` },
+            { transform: `translateX(${fightPosition}px)` },
           ],
           {
-            duration: 200,
-            easing: 'ease-in-out',
+            duration: 300,
+            easing: 'ease-out',
           }
         ).onfinish = () => {
           timeoutId = setTimeout(() => {
             setIsAttacking(false);
             handleAnimationEnd();
-          }, 600); // 300ms animation 300ms idle
+          }, 600);
         };
       };
-      const hit = () => {
-        monsterRef.current.animate(
-          [
-            { transform: 'translateX(0)' },
-            { transform: 'translateX(10px)' },
-            { transform: 'translateX(-10px)' },
-            { transform: 'translateX(0)' },
-          ],
-          {
-            duration: 200,
-            easing: 'ease-in-out',
-          }
-        ).onfinish = () => {
-          timeoutId = setTimeout(() => {
-            setIsAttacking(false);
-            handleAnimationEnd();
-          }, 600); // 300ms animation 300ms idle
-        };
-      };
-
-      if (result) {
-        hit();
-      } else {
-        miss();
-      }
+      attackAnimation(result);
+      return () => clearTimeout(timeoutId);
     }
-  }, [isAttacking, result]);
+  }, [isAttacking, result, setIsAttacking, handleAnimationEnd, fightPosition]);
+
+  useEffect(() => {
+    if (hitpoints <= 0) {
+      isDyingRef.current = true;
+      const deathAnimation = () => {
+        monsterRef.current.animate(
+          [
+            { transform: `translateX(${fightPosition}px) scaleX(${facingRightRef.current ? -1 : 1}) rotate(0deg)`, opacity: 1, offset: 0 },
+            { transform: `translateX(${fightPosition}px) scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.5 },
+            { transform: `translateX(${fightPosition}px) scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg) translateY(50px)`, opacity: 0, offset: 1 },
+          ],
+          {
+            duration: 1500,
+            easing: 'ease-in-out',
+            fill: 'forwards',
+          }
+        ).onfinish = () => {
+          setTimeout(() => {
+            isDyingRef.current = false;
+            // Callback to parent component to spawn a new monster
+            if (typeof onMonsterClick === 'function') {
+              onMonsterClick();
+            }
+          }, 500);
+        };
+      };
+      deathAnimation();
+    }
+  }, [hitpoints, fightPosition, onMonsterClick]);
 
   return (
     <div
@@ -88,16 +155,15 @@ const MonsterAnimation = ({
       }}
       onClick={isClickable ? onMonsterClick : undefined}
     >
-      <div style={{ width: '70px', height: '10px', backgroundColor: 'red', }}>
+      <div style={{ width: '50px', height: '8px', backgroundColor: 'red', }}>
         <div
           style={{
             width: `${(hitpoints / maxHP) * 100}%`,
-            height: '10px',
+            height: '8px',
             backgroundColor: 'green',
           }}
         />
       </div>
-
       <img
         src={new URL(`./assets/monsters/${monster.toLowerCase()}.png`, import.meta.url).href}
         alt={monster}
@@ -383,6 +449,7 @@ const MiniRPG = () => {
         setMonsterHitpoints((prevHp) => {
           const newHp = prevHp - damage;
           if (newHp <= 0) {
+            // TODO: Make room for death animation
             checkForItem();
             checkForPet();
             setTickets((prevTickets) => prevTickets + 10);
@@ -504,6 +571,7 @@ const MiniRPG = () => {
       </div>
 
       <MonsterAnimation
+        isFighting={isFighting}
         isAttacking={isAttacking}
         setIsAttacking={setIsAttacking}
         monster={difficultyLevels[difficulty].monster}
@@ -611,7 +679,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.3 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.4 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
