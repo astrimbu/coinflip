@@ -7,25 +7,58 @@ import Shop from './components/Shop'
 import Recycler from './components/Recycler'
 import './hover.css';
 
-const MonsterAnimation = ({ isAttacking, onAnimationEnd, monster, hitpoints, maxHP }) => {
+const MonsterAnimation = ({ isAttacking, setIsAttacking, monster, hitpoints, maxHP, handleAnimationEnd, result }) => {
   const monsterRef = useRef(null);
 
   useEffect(() => {
-    if (isAttacking && monsterRef.current) {
-      monsterRef.current.animate(
-        [
-          { transform: 'translateX(0)' },
-          { transform: 'translateX(10px)' },
-          { transform: 'translateX(-10px)' },
-          { transform: 'translateX(0)' },
-        ],
-        {
-          duration: 300,
-          easing: 'ease-in-out',
-        }
-      ).onfinish = onAnimationEnd;
+    if (isAttacking) {
+      let timeoutId;
+      const miss = () => {
+        monsterRef.current.animate(
+          [
+            { transform: 'translateX(0)' },
+            { transform: 'translateX(2px)' },
+            { transform: 'translateX(-2px)' },
+            { transform: 'translateX(0)' },
+          ],
+          {
+            duration: 200,
+            easing: 'ease-in-out',
+          }
+        ).onfinish = () => {
+          timeoutId = setTimeout(() => {
+            setIsAttacking(false);
+            handleAnimationEnd();
+          }, 600); // 300ms animation 300ms idle
+        };
+      };
+      const hit = () => {
+        monsterRef.current.animate(
+          [
+            { transform: 'translateX(0)' },
+            { transform: 'translateX(10px)' },
+            { transform: 'translateX(-10px)' },
+            { transform: 'translateX(0)' },
+          ],
+          {
+            duration: 200,
+            easing: 'ease-in-out',
+          }
+        ).onfinish = () => {
+          timeoutId = setTimeout(() => {
+            setIsAttacking(false);
+            handleAnimationEnd();
+          }, 600); // 300ms animation 300ms idle
+        };
+      };
+
+      if (result) {
+        hit();
+      } else {
+        miss();
+      }
     }
-  }, [isAttacking, onAnimationEnd]);
+  }, [isAttacking, result]);
 
   return (
     <div
@@ -77,15 +110,6 @@ const MiniRPG = () => {
     removeScrap,
   } = useInventoryManager();
 
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1200);
-  useEffect(() => {
-    const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 1200);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   const maxHP = {
     easy: 4,
     medium: 6,
@@ -114,11 +138,13 @@ const MiniRPG = () => {
   });
   const [checkSeed, setCheckSeed] = useState(Math.random());
   const [itemSeed, setItemSeed] = useState(Math.random());
+  const [result, setResult] = useState(false);
   const [isFighting, setIsFighting] = useState(false);
   const fightIntervalRef = useRef(null);
   const [isAttacking, setIsAttacking] = useState(false);
   const [monsterHitpoints, setMonsterHitpoints] = useState(maxHP[difficulty]);
   const [view, setView] = useState('game');
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1200);
   const [crystalTimer, setCrystalTimer] = useState(0);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
@@ -136,6 +162,14 @@ const MiniRPG = () => {
     hard: 1 / 1000,
     impossible: 1 / 1000,
   };
+
+  useEffect(() => { // Resize listener
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1200);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const getRarityColor = (rarity) => {
     switch (rarity) {
@@ -207,7 +241,7 @@ const MiniRPG = () => {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { // Crystal/Potion effect
     let interval;
     if (crystalTimer > 0 || potionTimer > 0) {
       interval = setInterval(() => {
@@ -310,10 +344,11 @@ const MiniRPG = () => {
     setIsFighting(true);
   };
 
-  useEffect(() => {
+  useEffect(() => { // Fight Monster effect
     const performAttack = () => {
       const adjustedRate = calculateWinRate();
       const result = Math.random() < adjustedRate;
+      setResult(result);
 
       setIsAttacking(true);
 
@@ -444,10 +479,12 @@ const MiniRPG = () => {
 
       <MonsterAnimation
         isAttacking={isAttacking}
-        onAnimationEnd={handleAnimationEnd}
+        setIsAttacking={setIsAttacking}
         monster={difficultyLevels[difficulty].monster}
         hitpoints={monsterHitpoints}
         maxHP={maxHP[difficulty]}
+        handleAnimationEnd={handleAnimationEnd}
+        result={result}
       />
 
       <button
@@ -483,18 +520,20 @@ const MiniRPG = () => {
               padding: '10px',
               backgroundColor: '#80d3da',
               borderRadius: '5px',
+              width: 'fit-content',
+              margin: '0 auto',
             }}
           >
             {crystalTimer > 0 && (
               <div>
-                2x Drop rate: {Math.floor(crystalTimer / 60)}:
-                {(crystalTimer % 60).toString().padStart(2, '0')}
+                Crystal ({Math.floor(crystalTimer / 60)}:
+                {(crystalTimer % 60).toString().padStart(2, '0')})
               </div>
             )}
             {potionTimer > 0 && (
               <div>
-                2x Damage: {Math.floor(potionTimer / 60)}:
-                {(potionTimer % 60).toString().padStart(2, '0')}
+                Potion ({Math.floor(potionTimer / 60)}:
+                {(potionTimer % 60).toString().padStart(2, '0')})
               </div>
             )}
           </div>
@@ -541,7 +580,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.1 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.2 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
