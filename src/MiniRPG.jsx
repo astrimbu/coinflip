@@ -7,8 +7,19 @@ import Shop from './components/Shop'
 import Recycler from './components/Recycler'
 import './hover.css';
 
-const MonsterAnimation = ({ isAttacking, setIsAttacking, monster, hitpoints, maxHP, handleAnimationEnd, result }) => {
+const MonsterAnimation = ({
+  isAttacking,
+  setIsAttacking,
+  monster,
+  hitpoints,
+  maxHP,
+  handleAnimationEnd,
+  result,
+  onMonsterClick,
+  isClickable
+}) => {
   const monsterRef = useRef(null);
+  const sizeByMonster = { 'Goblin': '100px', 'Ogre': '150px', 'Demon': '220px', 'Dragon': '250px' };
 
   useEffect(() => {
     if (isAttacking) {
@@ -64,24 +75,20 @@ const MonsterAnimation = ({ isAttacking, setIsAttacking, monster, hitpoints, max
     <div
       ref={monsterRef}
       style={{
-        width: '100px',
-        height: '100px',
+        width: sizeByMonster[monster],
+        height: sizeByMonster[monster],
         margin: '20px auto',
-        marginBottom: '40px',
+        marginBottom: '45px',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        cursor: isClickable ? 'pointer' : 'default',
+        gap: '20px',
       }}
+      onClick={isClickable ? onMonsterClick : undefined}
     >
-      <img
-        src={new URL(`./assets/monsters/${monster.toLowerCase()}.png`, import.meta.url).href}
-        alt={monster}
-        style={{
-          height: '100%',
-        }}
-      />
-      <div style={{ width: '100%', height: '10px', backgroundColor: 'red', marginTop: '10px' }}>
+      <div style={{ width: '70px', height: '10px', backgroundColor: 'red', }}>
         <div
           style={{
             width: `${(hitpoints / maxHP) * 100}%`,
@@ -90,6 +97,14 @@ const MonsterAnimation = ({ isAttacking, setIsAttacking, monster, hitpoints, max
           }}
         />
       </div>
+
+      <img
+        src={new URL(`./assets/monsters/${monster.toLowerCase()}.png`, import.meta.url).href}
+        alt={monster}
+        style={{
+          height: '100%',
+        }}
+      />
     </div>
   );
 };
@@ -120,7 +135,7 @@ const MiniRPG = () => {
     easy: { label: 'Easy', rate: 1 / 2, color: '#4CAF50', monster: 'Goblin' },
     medium: { label: 'Medium', rate: 1 / 6, color: '#3B88FF', monster: 'Ogre' },
     hard: { label: 'Hard', rate: 1 / 40, color: '#F44336', monster: 'Demon' },
-    impossible: { label: 'Impossible', rate: 1 / 128, color: '#000', monster: 'Dragon' },
+    impossible: { label: 'Impossible', rate: 1 / 300, color: '#000', monster: 'Dragon' },
   };
   const difficultyModifiers = { easy: 6, medium: 4, hard: 2, impossible: 1 };
   const rarityByDifficulty = {
@@ -150,6 +165,17 @@ const MiniRPG = () => {
   const [potionTimer, setPotionTimer] = useState(0);
   const [, setAnimationResult] = useState(null);
   const [tickets, setTickets] = useState(0);
+  const ticketCost = { easy: 0, medium: 1, hard: 2, impossible: 3 };
+  const isMonsterClickable = !isFighting && tickets >= ticketCost[difficulty];
+
+  const handleMonsterClick = () => {
+    if (isMonsterClickable) {
+      fightMonster();
+      setItemSeed(Math.random());
+      setCheckSeed(Math.random());
+    }
+  };
+
   const [pets, setPets] = useState({
     easy: 0,
     medium: 0,
@@ -485,19 +511,24 @@ const MiniRPG = () => {
         maxHP={maxHP[difficulty]}
         handleAnimationEnd={handleAnimationEnd}
         result={result}
+        onMonsterClick={handleMonsterClick}
+        isClickable={isMonsterClickable}
       />
 
-      <button
-        onClick={() => {
-          fightMonster();
-          setItemSeed(Math.random());
-          setCheckSeed(Math.random());
+      <div
+        style={{
+          margin: '10px',
+          textAlign: 'center',
+          fontSize: '1.2em',
         }}
-        disabled={isFighting || tickets < { easy: 0, medium: 1, hard: 2, impossible: 3 }[difficulty]}
-        style={{ width: '100%', maxWidth: '500px', height: '4em', margin: '0 auto' }}
       >
-        {isFighting ? 'Fighting...' : `Fight Monster (${tickets})`}
-      </button>
+        {isFighting
+          ? "Fighting..."
+          : (isMonsterClickable
+            ? `Click the ${difficultyLevels[difficulty].monster.toLowerCase()} to fight! (${tickets})`
+            : `Not enough tickets. (${tickets})`)
+        }
+      </div>
 
       <div
         style={{
@@ -580,7 +611,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.2 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.3 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
