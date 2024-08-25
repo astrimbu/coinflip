@@ -17,7 +17,6 @@ const MonsterAnimation = ({
   spawnNewMonster,
 }) => {
   const [animationState, setAnimationState] = useState('walking');
-  const [fightPosition, setFightPosition] = useState(null);
   const monsterRef = useRef(null);
   const walkAnimationRef = useRef(null);
   const fightAnimationRef = useRef(null);
@@ -35,7 +34,6 @@ const MonsterAnimation = ({
     if (animationState === 'walking') {
       startWalkingAnimation();
     } else if (animationState === 'fighting') {
-      setFightPosition(currentPositionRef.current);
       stopWalkingAnimation();
       startFightingAnimation();
     } else if (animationState === 'dying') {
@@ -141,19 +139,16 @@ const MonsterAnimation = ({
   const startDyingAnimation = () => {
     handleMonsterDied();
     const img = monsterRef.current.children[1];
-    const healthBar = monsterRef.current.children[0].children[0];
-
-    // Set health bar to 0 immediately
-    healthBar.style.width = '0%';
-    // healthBar.style.backgroundColor = 'red';
+    const healthBar = monsterRef.current.children[0];
+    const health = monsterRef.current.children[0].children[0];
 
     const dyingAnimation = img.animate(
       [
         { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(0deg)`, opacity: 1 },
-        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.1 },
+        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.2 },
         { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.8 },
-        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 0, offset: 0.80001 },
-        { transform: `scaleX(1) rotate(0deg)`, opacity: 0, offset: 0.999999999 },
+        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 0, offset: 0.9 },
+        { transform: `scaleX(1) rotate(0deg)`, opacity: 0, offset: 0.9999 },
         { transform: `scaleX(1) rotate(0deg)`, opacity: 1 },
       ],
       {
@@ -166,6 +161,32 @@ const MonsterAnimation = ({
       setAnimationState('dead');
       respawnMonster();
     };
+
+    const healthBarAnimation = healthBar.animate(
+      [
+        { opacity: 1, backgroundColor: 'red' },
+        { opacity: 1, offset: 0.8 },
+        { opacity: 0, offset: 0.8001 },
+        { opacity: 0, offset: 0.9999 },
+        { opacity: 1 },
+      ],
+      {
+        duration: 5000,
+        easing: 'ease-out',
+        fill: 'forwards',
+      }
+    );
+
+    const heathAnimation = health.animate(
+      [
+        { opacity: 0, },
+        { opacity: 0, offset: 0.9999 },
+        { opacity: 1, },
+      ],
+      {
+        duration: 5000,
+      }
+    )
   };
 
   const stopAllAnimations = () => {
@@ -739,7 +760,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.5 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.6 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
