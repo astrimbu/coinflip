@@ -141,18 +141,19 @@ const MonsterAnimation = ({
     const img = monsterRef.current.children[1];
     const healthBar = monsterRef.current.children[0];
     const health = monsterRef.current.children[0].children[0];
+    const DEATH_DURATION = 2000;
 
     const dyingAnimation = img.animate(
       [
         { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(0deg)`, opacity: 1 },
-        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.2 },
+        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.3 },
         { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.8 },
         { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 0, offset: 0.9 },
         { transform: `scaleX(1) rotate(0deg)`, opacity: 0, offset: 0.9999 },
         { transform: `scaleX(1) rotate(0deg)`, opacity: 1 },
       ],
       {
-        duration: 5000,
+        duration: DEATH_DURATION,
         easing: 'ease-out',
         fill: 'forwards',
       }
@@ -171,7 +172,7 @@ const MonsterAnimation = ({
         { opacity: 1 },
       ],
       {
-        duration: 5000,
+        duration: DEATH_DURATION,
         easing: 'ease-out',
         fill: 'forwards',
       }
@@ -184,7 +185,7 @@ const MonsterAnimation = ({
         { opacity: 1, },
       ],
       {
-        duration: 5000,
+        duration: DEATH_DURATION,
       }
     )
   };
@@ -760,7 +761,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.6 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.7 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
