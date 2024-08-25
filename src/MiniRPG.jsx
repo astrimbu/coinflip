@@ -8,23 +8,21 @@ import Recycler from './components/Recycler'
 import './hover.css';
 
 const MonsterAnimation = ({
-  isFighting,
-  isAttacking,
-  setIsAttacking,
   monster,
   hitpoints,
   maxHP,
-  handleAnimationEnd,
-  result,
   onMonsterClick,
-  isClickable
+  isClickable,
+  handleMonsterDied,
+  spawnNewMonster,
 }) => {
+  const [animationState, setAnimationState] = useState('walking');
   const [fightPosition, setFightPosition] = useState(null);
   const monsterRef = useRef(null);
-  const animationRef = useRef(null);
+  const walkAnimationRef = useRef(null);
+  const fightAnimationRef = useRef(null);
   const currentPositionRef = useRef(0);
   const facingRightRef = useRef(true);
-  const isDyingRef = useRef(false);
 
   const sizeByMonster = {
     'Goblin': '100px',
@@ -34,109 +32,166 @@ const MonsterAnimation = ({
   };
 
   useEffect(() => {
-    if (!isFighting && !isDyingRef.current) {
-      const walkAnimation = () => {
-        const startPosition = currentPositionRef.current;
-        animationRef.current = monsterRef.current.animate(
-          [
-            { transform: `translateX(${startPosition}px)` },
-            { transform: `translateX(${startPosition - 100}px)` },
-            { transform: `translateX(${startPosition}px)` },
-            { transform: `translateX(${startPosition + 100}px)` },
-            { transform: `translateX(${startPosition}px)` },
-          ],
-          {
-            duration: 10000,
-            easing: 'linear',
-            iterations: Infinity,
-          }
-        );
-
-        const updatePosition = () => {
-          if (animationRef.current) {
-            const progress = animationRef.current.currentTime % 10000 / 10000;
-            let newPosition;
-            if (progress < 0.25) {
-              facingRightRef.current = false;
-              newPosition = startPosition - 400 * progress;
-            } else if (progress < 0.75) {
-              facingRightRef.current = true;
-              newPosition = startPosition - 100 + 400 * (progress - 0.25);
-            } else {
-              facingRightRef.current = false;
-              newPosition = startPosition + 100 - 400 * (progress - 0.75);
-            }
-            currentPositionRef.current = newPosition;
-            const img = monsterRef.current.children[1]
-            img.style.transform = `scaleX(${facingRightRef.current ? -1 : 1})`;
-            requestAnimationFrame(updatePosition);
-          }
-        };
-        requestAnimationFrame(updatePosition);
-      };
-
-      walkAnimation();
-    } else {
+    if (animationState === 'walking') {
+      startWalkingAnimation();
+    } else if (animationState === 'fighting') {
       setFightPosition(currentPositionRef.current);
-      animationRef.current.pause();
+      stopWalkingAnimation();
+      startFightingAnimation();
+    } else if (animationState === 'dying') {
+      stopAllAnimations();
+      startDyingAnimation();
     }
-  }, [isFighting]);
+
+    return () => {
+      stopAllAnimations();
+    };
+  }, [animationState]);
 
   useEffect(() => {
-    if (isAttacking) {
-      let timeoutId;
-      const attackAnimation = (result) => {
-        const movementOffset = result ? 10 : 2;
-        monsterRef.current.animate(
+    if (hitpoints <= 0 && animationState !== 'dying' && animationState !== 'dead') {
+      setAnimationState('dying');
+    } else if (hitpoints > 0 && animationState === 'dead') {
+      setAnimationState('walking');
+    }
+  }, [hitpoints]);
+
+  const startWalkingAnimation = () => {
+    const startPosition = 0;
+    currentPositionRef.current = startPosition;
+
+    walkAnimationRef.current = monsterRef.current.animate(
+      [
+        { transform: `translateX(${startPosition}px)` },
+        { transform: `translateX(${startPosition - 100}px)` },
+        { transform: `translateX(${startPosition}px)` },
+        { transform: `translateX(${startPosition + 100}px)` },
+        { transform: `translateX(${startPosition}px)` },
+      ],
+      {
+        duration: 10000,
+        easing: 'linear',
+        iterations: Infinity,
+      }
+    );
+
+    const updatePosition = () => {
+      if (walkAnimationRef.current && animationState === 'walking') {
+        const progress = walkAnimationRef.current.currentTime % 10000 / 10000;
+        let newPosition;
+        if (progress < 0.25) {
+          facingRightRef.current = false;
+          newPosition = startPosition - 400 * progress;
+        } else if (progress < 0.75) {
+          facingRightRef.current = true;
+          newPosition = startPosition - 100 + 400 * (progress - 0.25);
+        } else {
+          facingRightRef.current = false;
+          newPosition = startPosition + 100 - 400 * (progress - 0.75);
+        }
+        currentPositionRef.current = newPosition;
+        const img = monsterRef.current.children[1];
+        img.style.transform = `scaleX(${facingRightRef.current ? -1 : 1})`;
+        requestAnimationFrame(updatePosition);
+      }
+    };
+    requestAnimationFrame(updatePosition);
+  };
+
+  const stopWalkingAnimation = () => {
+    if (walkAnimationRef.current) {
+      walkAnimationRef.current.pause();
+    }
+  };
+
+  const startFightingAnimation = () => {
+    const fp = currentPositionRef.current;
+    const fightAnimation = () => {
+      if (animationState === 'fighting') {
+        fightAnimationRef.current = monsterRef.current.animate(
           [
-            { transform: `translateX(${fightPosition}px)` },
-            { transform: `translateX(${fightPosition - movementOffset}px)` },
-            { transform: `translateX(${fightPosition}px)` },
+            { transform: `translateX(${fp}px) rotate(0deg)` },
+            { transform: `translateX(${fp - 5}px) rotate(-5deg)`, offset: 0.1 },
+            { transform: `translateX(${fp}px) rotate(0deg)`, offset: 0.2 },
+            { transform: `translateX(${fp + 5}px) rotate(5deg)`, offset: 0.3 },
+            { transform: `translateX(${fp}px) rotate(0deg)`, offset: 0.4 },
+            { transform: `translateX(${fp}px) rotate(0deg)` },
           ],
           {
-            duration: 300,
+            duration: 600,
             easing: 'ease-out',
           }
-        ).onfinish = () => {
-          timeoutId = setTimeout(() => {
-            setIsAttacking(false);
-            handleAnimationEnd();
-          }, 600);
-        };
-      };
-      attackAnimation(result);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isAttacking, result, setIsAttacking, handleAnimationEnd, fightPosition]);
-
-  useEffect(() => {
-    if (hitpoints <= 0) {
-      isDyingRef.current = true;
-      const deathAnimation = () => {
-        monsterRef.current.animate(
-          [
-            { transform: `translateX(${fightPosition}px) scaleX(${facingRightRef.current ? -1 : 1}) rotate(0deg)`, opacity: 1, offset: 0 },
-            { transform: `translateX(${fightPosition}px) scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.5 },
-            { transform: `translateX(${fightPosition}px) scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg) translateY(50px)`, opacity: 0, offset: 1 },
-          ],
-          {
-            duration: 1500,
-            easing: 'ease-in-out',
-            fill: 'forwards',
+        );
+        fightAnimationRef.current.onfinish = () => {
+          if (animationState === 'fighting') {
+            requestAnimationFrame(fightAnimation);
           }
-        ).onfinish = () => {
-          setTimeout(() => {
-            isDyingRef.current = false;
-            // Callback to parent component to spawn a new monster
-            if (typeof onMonsterClick === 'function') {
-              onMonsterClick();
-            }
-          }, 500);
         };
-      };
-      deathAnimation();
+      }
+    };
+    fightAnimation();
+  };
+
+  const stopFightingAnimation = () => {
+    if (fightAnimationRef.current) {
+      fightAnimationRef.current.cancel();
     }
-  }, [hitpoints, fightPosition, onMonsterClick]);
+  };
+
+  const startDyingAnimation = () => {
+    handleMonsterDied();
+    const img = monsterRef.current.children[1];
+    const healthBar = monsterRef.current.children[0].children[0];
+
+    // Set health bar to 0 immediately
+    healthBar.style.width = '0%';
+    // healthBar.style.backgroundColor = 'red';
+
+    const dyingAnimation = img.animate(
+      [
+        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(0deg)`, opacity: 1 },
+        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.1 },
+        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.8 },
+        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 0, offset: 0.80001 },
+        { transform: `scaleX(1) rotate(0deg)`, opacity: 0, offset: 0.999999999 },
+        { transform: `scaleX(1) rotate(0deg)`, opacity: 1 },
+      ],
+      {
+        duration: 5000,
+        easing: 'ease-out',
+        fill: 'forwards',
+      }
+    );
+    dyingAnimation.onfinish = () => {
+      setAnimationState('dead');
+      respawnMonster();
+    };
+  };
+
+  const stopAllAnimations = () => {
+    stopWalkingAnimation();
+    stopFightingAnimation();
+  };
+
+  const respawnMonster = () => {
+    stopAllAnimations();
+    const div = monsterRef.current;
+    div.style.opacity = '1';
+    const img = monsterRef.current.children[1];
+    img.style.opacity = '1';
+    img.style.transform = 'scaleX(1) rotate(0deg)';
+    currentPositionRef.current = 0;
+    facingRightRef.current = true;
+    setAnimationState('walking');
+    spawnNewMonster();
+  };
+
+  const handleClick = () => {
+    if (isClickable && animationState === 'walking') {
+      setAnimationState('fighting');
+      onMonsterClick();
+    }
+  };
 
   return (
     <div
@@ -150,10 +205,10 @@ const MonsterAnimation = ({
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        cursor: isClickable ? 'pointer' : 'default',
+        cursor: isClickable && animationState === 'walking' ? 'pointer' : 'default',
         gap: '20px',
       }}
-      onClick={isClickable ? onMonsterClick : undefined}
+      onClick={handleClick}
     >
       <div style={{ width: '50px', height: '8px', backgroundColor: 'red', }}>
         <div
@@ -161,6 +216,7 @@ const MonsterAnimation = ({
             width: `${(hitpoints / maxHP) * 100}%`,
             height: '8px',
             backgroundColor: 'green',
+            transition: 'width 0.3s ease-out',
           }}
         />
       </div>
@@ -223,6 +279,7 @@ const MiniRPG = () => {
   const [isFighting, setIsFighting] = useState(false);
   const fightIntervalRef = useRef(null);
   const [isAttacking, setIsAttacking] = useState(false);
+  const [isDying, setIsDying] = useState(false);
   const [monsterHitpoints, setMonsterHitpoints] = useState(maxHP[difficulty]);
   const [view, setView] = useState('game');
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1200);
@@ -431,9 +488,23 @@ const MiniRPG = () => {
     if (tickets < ticketCost) {
       return;
     }
-
     setTickets((prevTickets) => prevTickets - ticketCost);
     setIsFighting(true);
+  };
+
+  const spawnNewMonster = () => {
+    setIsDying(false);
+    setMonsterHitpoints(maxHP[difficulty]);
+  };
+
+  const handleMonsterDied = () => {
+    setIsFighting(false);
+    setIsAttacking(false);
+    setMonsterHitpoints(0);
+    checkForItem();
+    checkForPet();
+    setTickets((prevTickets) => prevTickets + 10);
+    spawnNewMonster();
   };
 
   useEffect(() => { // Fight Monster effect
@@ -450,11 +521,7 @@ const MiniRPG = () => {
           const newHp = prevHp - damage;
           if (newHp <= 0) {
             // TODO: Make room for death animation
-            checkForItem();
-            checkForPet();
-            setTickets((prevTickets) => prevTickets + 10);
-            setIsFighting(false);
-            return maxHP[difficulty];
+            setIsDying(true);
           }
           return newHp;
         });
@@ -484,10 +551,6 @@ const MiniRPG = () => {
 
     return () => clearInterval(fightIntervalRef.current);
   }, [isFighting, difficulty]);
-
-  const handleAnimationEnd = () => {
-    setIsAttacking(false);
-  };
 
   const renderPets = () =>
     (pets.easy > 0 ||
@@ -571,16 +634,13 @@ const MiniRPG = () => {
       </div>
 
       <MonsterAnimation
-        isFighting={isFighting}
-        isAttacking={isAttacking}
-        setIsAttacking={setIsAttacking}
         monster={difficultyLevels[difficulty].monster}
         hitpoints={monsterHitpoints}
         maxHP={maxHP[difficulty]}
-        handleAnimationEnd={handleAnimationEnd}
-        result={result}
         onMonsterClick={handleMonsterClick}
         isClickable={isMonsterClickable}
+        handleMonsterDied={handleMonsterDied}
+        spawnNewMonster={spawnNewMonster}
       />
 
       <div
@@ -679,7 +739,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.4 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.5 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
