@@ -4,3 +4,21 @@ html {
 html::-webkit-scrollbar {
   display: none;
 }
+
+@keyframes flipLeft {
+  0% {
+    transform: scaleX(-1);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes flipRight {
+  0% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(-1);
+  }
+}

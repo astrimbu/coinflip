@@ -89,7 +89,13 @@ const MonsterAnimation = ({
         }
         currentPositionRef.current = newPosition;
         const img = monsterRef.current.children[1];
-        img.style.transform = `scaleX(${facingRightRef.current ? -1 : 1})`;
+
+        if (facingRightRef.current) {
+          img.style.animation = 'flipRight 0.1s forwards';
+        } else {
+          img.style.animation = 'flipLeft 0.1s forwards';
+        }
+
         requestAnimationFrame(updatePosition);
       }
     };
@@ -145,12 +151,11 @@ const MonsterAnimation = ({
 
     const dyingAnimation = img.animate(
       [
-        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(0deg)`, opacity: 1 },
-        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.3 },
-        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 1, offset: 0.8 },
-        { transform: `scaleX(${facingRightRef.current ? -1 : 1}) rotate(90deg)`, opacity: 0, offset: 0.9 },
-        { transform: `scaleX(1) rotate(0deg)`, opacity: 0, offset: 0.9999 },
-        { transform: `scaleX(1) rotate(0deg)`, opacity: 1 },
+        { transform: `rotate(0deg)`, opacity: 1 },
+        { transform: `rotate(90deg)`, opacity: 1, offset: 0.3 },
+        { transform: `rotate(90deg)`, opacity: 1, offset: 0.8 },
+        { transform: `rotate(90deg)`, opacity: 0, offset: 0.9 },
+        { transform: `rotate(0deg)`, opacity: 0, offset: 0.9999 },
       ],
       {
         duration: DEATH_DURATION,
@@ -169,7 +174,6 @@ const MonsterAnimation = ({
         { opacity: 1, offset: 0.8 },
         { opacity: 0, offset: 0.8001 },
         { opacity: 0, offset: 0.9999 },
-        { opacity: 1 },
       ],
       {
         duration: DEATH_DURATION,
@@ -182,7 +186,6 @@ const MonsterAnimation = ({
       [
         { opacity: 0, },
         { opacity: 0, offset: 0.9999 },
-        { opacity: 1, },
       ],
       {
         duration: DEATH_DURATION,
@@ -200,12 +203,15 @@ const MonsterAnimation = ({
     const div = monsterRef.current;
     div.style.opacity = '1';
     const img = monsterRef.current.children[1];
-    img.style.opacity = '1';
-    img.style.transform = 'scaleX(1) rotate(0deg)';
+    img.style.transform = 'rotate(0deg)';
     currentPositionRef.current = 0;
-    facingRightRef.current = true;
+    facingRightRef.current = false;
     setAnimationState('walking');
     spawnNewMonster();
+
+    setTimeout(() => {
+      img.style.transform = 'rotate(0deg)';
+    }, 0);
   };
 
   const handleClick = () => {
@@ -761,7 +767,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.7 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.8 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
