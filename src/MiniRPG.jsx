@@ -279,7 +279,7 @@ const MiniRPG = () => {
     easy: 4,
     medium: 6,
     hard: 10,
-    impossible: 16,
+    impossible: 34,
   };
   const difficultyLevels = {
     easy: { label: 'Easy', rate: 1 / 2, color: '#4CAF50', monster: 'Goblin' },
@@ -544,7 +544,8 @@ const MiniRPG = () => {
       setIsAttacking(true);
 
       if (result) {
-        const damage = potionTimer > 0 ? 2 : 1;
+        const damageMultiplier = potionTimer > 0 ? 2 : 1;
+        const damage = 1 + Math.floor(calculateTotalStats() / 10) * damageMultiplier;
         setMonsterHitpoints((prevHp) => {
           const newHp = prevHp - damage;
           if (newHp <= 0) {
@@ -624,7 +625,39 @@ const MiniRPG = () => {
       style={{
         margin: '0 auto',
         padding: '20px',
-        backgroundColor: '#f0f0f0',
+        background: 'radial-gradient(circle at 50% 50%, #f0f0f0 0%, #d9d9d9 60%, #b0b0b0 100%)',
+        border: '3px solid #aaa',
+        borderRadius: '15px',
+        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.5)',
+        position: 'relative',
+        overflow: 'hidden',
+        animation: 'float 3s ease-in-out infinite',
+        '&::before': {
+          content: "''",
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          right: '0',
+          bottom: '0',
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
+          borderRadius: '15px',
+          zIndex: '0',
+          opacity: '0.5',
+          animation: 'shine 2s infinite linear',
+        },
+        '&::after': {
+          content: "''",
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          width: '400%',
+          height: '400%',
+          background: 'conic-gradient(from 180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%)',
+          borderRadius: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: '1',
+          animation: 'rotate 10s linear infinite',
+        },
       }}
     >
       <h1
@@ -767,7 +800,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.8 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.9 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
