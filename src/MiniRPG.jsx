@@ -318,6 +318,17 @@ const MiniRPG = () => {
   const [tickets, setTickets] = useState(0);
   const ticketCost = { easy: 0, medium: 1, hard: 2, impossible: 3 };
   const isMonsterClickable = !isFighting && tickets >= ticketCost[difficulty];
+  const [level, setLevel] = useState(1);
+  const [experience, setExperience] = useState(0);
+
+  const experienceToNextLevel = (currentLevel) => Math.floor(100 * Math.pow(1.5, currentLevel - 1));
+
+  const difficultyExperience = {
+    easy: 10,
+    medium: 25,
+    hard: 50,
+    impossible: 100,
+  };
 
   const handleMonsterClick = () => {
     if (isMonsterClickable) {
@@ -532,6 +543,18 @@ const MiniRPG = () => {
     checkForItem();
     checkForPet();
     setTickets((prevTickets) => prevTickets + 10);
+
+    const expGained = difficultyExperience[difficulty];
+    setExperience((prevExp) => {
+      const newExp = prevExp + expGained;
+      const expNeeded = experienceToNextLevel(level);
+      if (newExp >= expNeeded) {
+        setLevel((prevLevel) => prevLevel + 1);
+        return newExp - expNeeded;
+      }
+      return newExp;
+    });
+
     spawnNewMonster();
   };
 
@@ -620,6 +643,26 @@ const MiniRPG = () => {
       </div>
     );
 
+  const renderLevelAndExperience = () => (
+    <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+      <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '5px' }}>
+        Level {level}
+      </div>
+      <div style={{ width: '100%', backgroundColor: 'rgb(16 13 16)', borderRadius: '5px', overflow: 'hidden' }}>
+        <div
+          style={{
+            width: `${(experience / experienceToNextLevel(level)) * 100}%`,
+            height: '8px',
+            backgroundColor: 'rgb(253 247 206)',
+          }}
+        />
+      </div>
+      <div style={{ fontSize: '12px', marginTop: '5px' }}>
+        {experience} / {experienceToNextLevel(level)} XP
+      </div>
+    </div>
+  );
+
   const renderGame = () => (
     <div
       style={{
@@ -665,6 +708,8 @@ const MiniRPG = () => {
       >
         Mini RPG
       </h1>
+
+      {renderLevelAndExperience()}
 
       <div style={{ maxWidth: '400px', margin: '0 auto' }}>
         <div
@@ -800,7 +845,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.9 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.10 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
