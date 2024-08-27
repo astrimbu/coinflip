@@ -790,18 +790,34 @@ const MiniRPG = () => {
               borderRadius: '5px',
               width: 'fit-content',
               margin: '0 auto',
+              display: 'flex',
+              gap: '10px',
             }}
           >
             {crystalTimer > 0 && (
-              <div>
-                Crystal ({Math.floor(crystalTimer / 60)}:
-                {(crystalTimer % 60).toString().padStart(2, '0')})
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <img
+                  src={getItemUrl('crystal', 'Crystal')}
+                  alt="Crystal"
+                  style={{ width: '20px', height: '20px' }}
+                />
+                <span>
+                  {Math.floor(crystalTimer / 60)}:
+                  {(crystalTimer % 60).toString().padStart(2, '0')}
+                </span>
               </div>
             )}
             {potionTimer > 0 && (
-              <div>
-                Potion ({Math.floor(potionTimer / 60)}:
-                {(potionTimer % 60).toString().padStart(2, '0')})
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <img
+                  src={getItemUrl('potion', 'Potion')}
+                  alt="Potion"
+                  style={{ width: '20px', height: '20px' }}
+                />
+                <span>
+                  {Math.floor(potionTimer / 60)}:
+                  {(potionTimer % 60).toString().padStart(2, '0')}
+                </span>
               </div>
             )}
           </div>
@@ -848,7 +864,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.11 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.12 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
@@ -1019,5 +1035,6 @@ const MiniRPG = () => {
     </div>
   );
 };
+
 
 export default MiniRPG;

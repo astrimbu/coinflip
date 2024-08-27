@@ -108,6 +108,8 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
               justifyContent: 'center',
             }}
             onClick={() => handleClick(flattenedItems, index)}
+            onMouseEnter={() => setHoveredItem(flattenedItems[index])}
+            onMouseLeave={() => setHoveredItem(null)}
           >
             {flattenedItems[index] && (
               <>
@@ -122,10 +124,6 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
                     flattenedItems[index].name
                   }
                   style={{}}
-                  onMouseEnter={() =>
-                    setHoveredItem(flattenedItems[index].name)
-                  }
-                  onMouseLeave={() => setHoveredItem(null)}
                 />
                 {hoveredItem === flattenedItems[index] && (
                   <div
@@ -139,6 +137,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
                       padding: '5px',
                       borderRadius: '3px',
                       whiteSpace: 'nowrap',
+                      zIndex: 1000,
                     }}
                   >
                     {`${flattenedItems[index].name} (${flattenedItems[index].rarity})`}

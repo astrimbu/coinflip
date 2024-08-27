@@ -1,8 +1,60 @@
 /* eslint-disable react/prop-types */
+import { useState } from 'react';
+
 const Shop = ({ gold, inventoryFull, onPurchase }) => {
+  const [hoveredItem, setHoveredItem] = useState(null);
+
   function getItemUrl(name) {
     return new URL(`../assets/items/${name}.png`, import.meta.url).href;
   }
+
+  const renderShopItem = (itemName, price, description) => (
+    <label
+      htmlFor={`buy-${itemName.toLowerCase()}`}
+      className='shop-label'
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        marginTop: '20px',
+        backgroundColor: '#d5d5d5',
+        padding: '10px',
+        position: 'relative',
+      }}
+      onMouseEnter={() => setHoveredItem(itemName)}
+      onMouseLeave={() => setHoveredItem(null)}
+    >
+      <div>
+        <img src={getItemUrl(itemName.toLowerCase())} alt={itemName} />
+        <p style={{ margin: '0' }}>{`${itemName} (${price} Gold)`}</p>
+      </div>
+      <button
+        id={`buy-${itemName.toLowerCase()}`}
+        onClick={() => onPurchase(itemName)}
+        disabled={gold < price || (itemName === 'Crystal' && inventoryFull)}
+      >
+        Buy
+      </button>
+      {hoveredItem === itemName && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '100%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            color: 'white',
+            padding: '5px',
+            borderRadius: '3px',
+            whiteSpace: 'nowrap',
+            zIndex: 1000,
+          }}
+        >
+          {description}
+        </div>
+      )}
+    </label>
+  );
 
   return (
     <div
@@ -12,54 +64,8 @@ const Shop = ({ gold, inventoryFull, onPurchase }) => {
       }}
     >
       <h2 style={{ marginTop: 0 }}>Shop</h2>
-      <label
-        htmlFor='buy-crystal'
-        className='shop-label'
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-evenly',
-          marginTop: '20px',
-          backgroundColor: '#d5d5d5',
-          padding: '10px',
-        }}
-      >
-        <div>
-          {<img src={getItemUrl('crystal')} alt='Crystal' />}
-          <p style={{ margin: '0' }}>Crystal (1 Gold)</p>
-        </div>
-        <button
-          id='buy-crystal'
-          onClick={() => onPurchase('Crystal')}
-          disabled={gold < 1 || inventoryFull}
-        >
-          Buy
-        </button>
-      </label>
-      <label
-        htmlFor='buy-potion'
-        className='shop-label'
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-evenly',
-          marginTop: '20px',
-          backgroundColor: '#d5d5d5',
-          padding: '10px',
-        }}
-      >
-        <div>
-          {<img src={getItemUrl('potion')} alt='Potion' />}
-          <p style={{ margin: '0' }}>Potion (1 Gold)</p>
-        </div>
-        <button
-          id='buy-potion'
-          onClick={() => onPurchase('Potion')}
-          disabled={gold < 1}
-        >
-          Buy
-        </button>
-      </label>
+      {renderShopItem('Crystal', 1, '2x drop rate, 5:00')}
+      {renderShopItem('Potion', 1, '2x damage, 2:00')}
     </div>
   );
 };
