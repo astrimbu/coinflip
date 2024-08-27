@@ -433,12 +433,13 @@ const MiniRPG = () => {
       <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '5px' }}>
         Level {level}
       </div>
-      <div style={{ width: '100%', backgroundColor: 'rgb(16 13 16)', borderRadius: '5px', overflow: 'hidden' }}>
+      <div style={{ width: '100%', backgroundColor: 'rgb(50, 50, 50)', borderRadius: '5px', overflow: 'hidden' }}>
         <div
           style={{
             width: `${(experience / experienceToNextLevel(level)) * 100}%`,
             height: '8px',
-            backgroundColor: 'rgb(253 247 206)',
+            backgroundColor: 'rgb(200, 180, 0)',
+            border: '2px solid rgba(0, 0, 0, 0.5)',
           }}
         />
       </div>
@@ -614,7 +615,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.12 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.13 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
