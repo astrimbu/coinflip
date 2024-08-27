@@ -339,10 +339,10 @@ const MiniRPG = () => {
   };
 
   const [pets, setPets] = useState({
-    easy: 0,
-    medium: 0,
-    hard: 0,
-    impossible: 0,
+    easy: { count: 0, kc: [] },
+    medium: { count: 0, kc: [] },
+    hard: { count: 0, kc: [] },
+    impossible: { count: 0, kc: [] },
   });
   const petDropRates = {
     easy: 1 / 1000,
@@ -350,6 +350,12 @@ const MiniRPG = () => {
     hard: 1 / 1000,
     impossible: 1 / 1000,
   };
+  const [killCount, setKillCount] = useState({
+    easy: 0,
+    medium: 0,
+    hard: 0,
+    impossible: 0,
+  });
 
   useEffect(() => { // Resize listener
     const handleResize = () => {
@@ -475,7 +481,10 @@ const MiniRPG = () => {
     if (checkSeed < dropRate) {
       setPets((prevPets) => ({
         ...prevPets,
-        [difficulty]: prevPets[difficulty] + 1,
+        [difficulty]: {
+          count: prevPets[difficulty].count + 1,
+          kc: [...prevPets[difficulty].kc, killCount[difficulty] + 1],
+        },
       }));
     }
   };
@@ -543,6 +552,10 @@ const MiniRPG = () => {
     checkForItem();
     checkForPet();
     setTickets((prevTickets) => prevTickets + 10);
+    setKillCount((prevKillCount) => ({
+      ...prevKillCount,
+      [difficulty]: prevKillCount[difficulty] + 1,
+    }));
 
     const expGained = difficultyExperience[difficulty];
     setExperience((prevExp) => {
@@ -604,11 +617,13 @@ const MiniRPG = () => {
     return () => clearInterval(fightIntervalRef.current);
   }, [isFighting, difficulty]);
 
+  const [hoveredPet, setHoveredPet] = useState(null);
+
   const renderPets = () =>
-    (pets.easy > 0 ||
-      pets.medium > 0 ||
-      pets.hard > 0 ||
-      pets.impossible > 0) && (
+    (pets.easy.count > 0 ||
+      pets.medium.count > 0 ||
+      pets.hard.count > 0 ||
+      pets.impossible.count > 0) && (
       <div
         style={{
           marginBottom: '16px',
@@ -619,13 +634,15 @@ const MiniRPG = () => {
       >
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           {Object.entries(pets)
-            .filter(([, count]) => count > 0)
-            .map(([key, count]) => (
-              <div key={key} style={{ textAlign: 'center', margin: '0 auto' }}>
+            .filter(([, { count }]) => count > 0)
+            .map(([key, { count, kc }]) => (
+              <div key={key} style={{ textAlign: 'center', margin: '0 auto', position: 'relative' }}>
                 <img
                   src={`${getItemUrl('pet', key)}`}
                   alt={`${difficultyLevels[key].label} Pet`}
-                  style={{}}
+                  style={{ width: '50px', height: '50px' }}
+                  onMouseEnter={() => setHoveredPet(key)}
+                  onMouseLeave={() => setHoveredPet(null)}
                 />
                 <div
                   style={{
@@ -636,6 +653,24 @@ const MiniRPG = () => {
                 >
                   x{count}
                 </div>
+                {hoveredPet === key && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '100%',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      backgroundColor: 'rgba(0,0,0,0.8)',
+                      color: 'white',
+                      padding: '5px',
+                      borderRadius: '3px',
+                      whiteSpace: 'nowrap',
+                      zIndex: 1000,
+                    }}
+                  >
+                    {`KC: ${kc.join(', ')}`}
+                  </div>
+                )}
               </div>
             ))}
         </div>
@@ -668,39 +703,7 @@ const MiniRPG = () => {
       style={{
         margin: '0 auto',
         padding: '20px',
-        background: 'radial-gradient(circle at 50% 50%, #f0f0f0 0%, #d9d9d9 60%, #b0b0b0 100%)',
-        border: '3px solid #aaa',
-        borderRadius: '15px',
-        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.5)',
-        position: 'relative',
-        overflow: 'hidden',
-        animation: 'float 3s ease-in-out infinite',
-        '&::before': {
-          content: "''",
-          position: 'absolute',
-          top: '0',
-          left: '0',
-          right: '0',
-          bottom: '0',
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
-          borderRadius: '15px',
-          zIndex: '0',
-          opacity: '0.5',
-          animation: 'shine 2s infinite linear',
-        },
-        '&::after': {
-          content: "''",
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          width: '400%',
-          height: '400%',
-          background: 'conic-gradient(from 180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 70%)',
-          borderRadius: '50%',
-          transform: 'translate(-50%, -50%)',
-          zIndex: '1',
-          animation: 'rotate 10s linear infinite',
-        },
+        background: '#f0f0f0',
       }}
     >
       <h1
@@ -845,7 +848,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.10 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.11 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
