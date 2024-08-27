@@ -6,7 +6,7 @@ import MonsterAnimation from './components/MonsterAnimation'
 import WornEquipment from './components/WornEquipment'
 import Shop from './components/Shop'
 import Recycler from './components/Recycler'
-import './hover.css';
+import './styles.css';
 
 
 const MiniRPG = () => {
