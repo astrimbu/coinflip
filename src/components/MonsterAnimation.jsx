@@ -118,7 +118,7 @@ const MonsterAnimation = ({
             { transform: `translateX(${fp}px) rotate(0deg)` },
           ],
           {
-            duration: 600,
+            duration: 1200,
             easing: 'ease-out',
           }
         );

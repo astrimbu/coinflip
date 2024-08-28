@@ -75,9 +75,9 @@ const MiniRPG = () => {
 
   const difficultyExperience = {
     easy: 10,
-    medium: 25,
-    hard: 50,
-    impossible: 100,
+    medium: 50,
+    hard: 100,
+    impossible: 200,
   };
 
   const handleMonsterClick = () => {
@@ -226,6 +226,37 @@ const MiniRPG = () => {
     addItem(itemName, { name: itemName, rarity, stat: getRarityStat(rarity) });
   };
 
+  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
+  const isSoundEnabledRef = useRef(true);
+  const attack1Sound = useRef(new Audio(new URL('./assets/sounds/attack1.ogg', import.meta.url).href));
+  const attack2Sound = useRef(new Audio(new URL('./assets/sounds/attack2.mp3', import.meta.url).href));
+  const getPetSound = useRef(new Audio(new URL('./assets/sounds/getPet.ogg', import.meta.url).href));
+  const fireworksSound = useRef(new Audio(new URL('./assets/sounds/fireworks.ogg', import.meta.url).href));
+
+  useEffect(() => {
+    isSoundEnabledRef.current = isSoundEnabled;
+    fireworksSound.current.volume = 0.1;
+  }, [isSoundEnabled]);
+
+  const playSound = (sound) => {
+    if (isSoundEnabledRef.current) {
+      sound.currentTime = 0;
+      sound.play().catch(error => console.error("Error playing sound:", error));
+    }
+  };
+
+  const playAttackSound = (result) => {
+    playSound(result ? attack2Sound.current : attack1Sound.current);
+  };
+
+  const playPetSound = () => {
+    playSound(getPetSound.current);
+  };
+
+  const playLevelUpSound = () => {
+    playSound(fireworksSound.current);
+  };
+
   const checkForPet = () => {
     const dropRate = petDropRates[difficulty];
     if (checkSeed < dropRate) {
@@ -236,6 +267,7 @@ const MiniRPG = () => {
           kc: [...prevPets[difficulty].kc, killCount[difficulty] + 1],
         },
       }));
+      playPetSound();
     }
   };
 
@@ -312,6 +344,7 @@ const MiniRPG = () => {
       const expNeeded = experienceToNextLevel(level);
       if (newExp >= expNeeded) {
         setLevel((prevLevel) => prevLevel + 1);
+        playLevelUpSound();
         return newExp - expNeeded;
       }
       return newExp;
@@ -333,6 +366,7 @@ const MiniRPG = () => {
       setResult(result);
 
       setIsAttacking(true);
+      playAttackSound(result);
 
       if (result) {
         const damageMultiplier = potionTimerRef.current > 0 ? 2 : 1;
@@ -363,7 +397,7 @@ const MiniRPG = () => {
 
     if (isFighting) {
       performAttack();
-      fightIntervalRef.current = setInterval(performAttack, 600);
+      fightIntervalRef.current = setInterval(performAttack, 1200);
     } else {
       clearInterval(fightIntervalRef.current);
     }
@@ -608,6 +642,10 @@ const MiniRPG = () => {
 
       {renderPets()}
 
+      <button onClick={toggleSound}>
+        {isSoundEnabled ? '🔇' : '🔊'}
+      </button>
+
       <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
         <p>Notice: Any resemblance to actual games is purely coincidental.</p>
       </div>
@@ -620,7 +658,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.15 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.16 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
@@ -726,6 +764,10 @@ const MiniRPG = () => {
       onExchange={handleExchange}
     />
   );
+
+  const toggleSound = () => {
+    setIsSoundEnabled(prev => !prev);
+  };
 
   return (
     <div
