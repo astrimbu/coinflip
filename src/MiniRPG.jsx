@@ -490,7 +490,7 @@ const MiniRPG = () => {
   const renderGame = () => (
     <div
       style={{
-        maxWidth: '1200px',
+        maxWidth: '1000px',
         width: '100%',
         margin: '0 auto',
         padding: '20px',
@@ -498,8 +498,25 @@ const MiniRPG = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        position: 'relative',
       }}
     >
+      <button
+        onClick={toggleSound}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          background: 'none',
+          border: 'none',
+          fontSize: '24px',
+          cursor: 'pointer',
+          padding: '0',
+        }}
+      >
+        {isSoundEnabled ? '🔊' : '🔇'}
+      </button>
+
       {renderLevelAndExperience()}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '20px' }}>
@@ -533,9 +550,6 @@ const MiniRPG = () => {
                   {label}
                 </button>
               ))}
-              <button onClick={toggleSound}>
-                {isSoundEnabled ? '🔇' : '🔊'}
-              </button>
             </div>
           </div>
 
@@ -662,7 +676,7 @@ const MiniRPG = () => {
               color: '#666',
             }}
           >
-            Version 1.6.0 - <a href='https://alan.computer'>alan.computer</a>
+            Version 1.6.1 - <a href='https://alan.computer'>alan.computer</a>
           </div>
         </div>
         <div style={{ width: '30%', maxWidth: '200px' }}>

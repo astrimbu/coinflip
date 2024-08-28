@@ -85,7 +85,6 @@ const Recycler = ({
 
   return (
     <div style={{ padding: '10px', backgroundColor: '#f0f0f0', fontSize: '0.9em' }}>
-      <h2 style={{ margin: '0 0 10px', fontSize: '1.2em' }}>Recycler</h2>
       <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px' }}>
         <h3 style={{ margin: '0 0 5px', fontSize: '1em' }}>Select items to recycle:</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', gap: '2px' }}>
