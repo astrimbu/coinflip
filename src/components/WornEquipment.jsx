@@ -52,15 +52,14 @@ const WornEquipment = ({ equipment, onUnequip }) => {
       <div>
         <div
           style={{
-            width: '50px',
-            height: '50px',
+            width: '40px',
+            height: '40px',
             position: 'relative',
             margin: '0 auto',
             outline: equipment[slot]
-              ? `3px solid 
-                ${getRarityColor(equipment[slot].rarity)}`
-              : '2px solid #888',
-            outlineOffset: '-2px',
+              ? `2px solid ${getRarityColor(equipment[slot].rarity)}`
+              : '1px solid #888',
+            outlineOffset: '-1px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -74,7 +73,7 @@ const WornEquipment = ({ equipment, onUnequip }) => {
             <img
               src={getItemUrl(equipment[slot].name, equipment[slot].rarity)}
               alt={`${equipment[slot].rarity} ${equipment[slot].name}`}
-              style={{}}
+              style={{ maxWidth: '80%', maxHeight: '80%' }}
             />
           )}
           {hoveredItem === equipment[slot] && equipment[slot] && (
@@ -106,7 +105,8 @@ const WornEquipment = ({ equipment, onUnequip }) => {
         margin: '0 auto',
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '4px',
+        gap: '2px',
+        width: '130px',
       }}
     >
       <div style={{ gridColumn: '2' }}>{renderSlot('Hat')}</div>
@@ -119,8 +119,8 @@ const WornEquipment = ({ equipment, onUnequip }) => {
       <div style={{ gridColumn: '2' }}>{renderSlot('Boots')}</div>
       <div style={{ gridColumn: '3' }}>{renderSlot('Ring')}</div>
 
-      <div style={{ gridColumn: '1 / span 3' }}>
-        <h3>Total Stats: {calculateTotalStats()}</h3>
+      <div style={{ gridColumn: '1 / span 3', textAlign: 'center', fontSize: '14px' }}>
+        <h3 style={{ margin: '5px 0' }}>Total Stats: {calculateTotalStats()}</h3>
       </div>
     </div>
   );

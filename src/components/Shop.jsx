@@ -4,34 +4,28 @@ import { useState } from 'react';
 const Shop = ({ gold, inventoryFull, onPurchase }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
-  function getItemUrl(name) {
-    return new URL(`../assets/items/${name}.png`, import.meta.url).href;
-  }
+  const getItemUrl = (name) => new URL(`../assets/items/${name}.png`, import.meta.url).href;
 
   const renderShopItem = (itemName, price, description) => (
-    <label
-      htmlFor={`buy-${itemName.toLowerCase()}`}
-      className='shop-label'
+    <div
       style={{
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-evenly',
-        marginTop: '20px',
+        justifyContent: 'space-between',
+        marginTop: '10px',
         backgroundColor: '#d5d5d5',
-        padding: '10px',
+        padding: '5px',
         position: 'relative',
       }}
       onMouseEnter={() => setHoveredItem(itemName)}
       onMouseLeave={() => setHoveredItem(null)}
     >
-      <div>
-        <img src={getItemUrl(itemName.toLowerCase())} alt={itemName} />
-        <p style={{ margin: '0' }}>{`${itemName} (${price} Gold)`}</p>
-      </div>
+      <img src={getItemUrl(itemName.toLowerCase())} alt={itemName} style={{ width: '24px', height: '24px' }} />
+      <span>{`${itemName} (${price}G)`}</span>
       <button
-        id={`buy-${itemName.toLowerCase()}`}
         onClick={() => onPurchase(itemName)}
         disabled={gold < price || (itemName === 'Crystal' && inventoryFull)}
+        style={{ padding: '2px 5px' }}
       >
         Buy
       </button>
@@ -44,26 +38,21 @@ const Shop = ({ gold, inventoryFull, onPurchase }) => {
             transform: 'translateX(-50%)',
             backgroundColor: 'rgba(0,0,0,0.8)',
             color: 'white',
-            padding: '5px',
+            padding: '3px',
             borderRadius: '3px',
             whiteSpace: 'nowrap',
             zIndex: 1000,
+            fontSize: '0.8em',
           }}
         >
           {description}
         </div>
       )}
-    </label>
+    </div>
   );
 
   return (
-    <div
-      style={{
-        padding: '20px',
-        backgroundColor: '#f0f0f0',
-      }}
-    >
-      <h2 style={{ marginTop: 0 }}>Shop</h2>
+    <div style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>
       {renderShopItem('Crystal', 1, '2x drop rate, 5:00')}
       {renderShopItem('Potion', 1, '2x damage, 2:00')}
     </div>

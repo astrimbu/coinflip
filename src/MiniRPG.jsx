@@ -60,7 +60,7 @@ const MiniRPG = () => {
   const [isDying, setIsDying] = useState(false);
   const [monsterHitpoints, setMonsterHitpoints] = useState(maxHP[difficulty]);
   const [view, setView] = useState('game');
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1200);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 800);
   const [crystalTimer, setCrystalTimer] = useState(0);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
@@ -109,7 +109,7 @@ const MiniRPG = () => {
 
   useEffect(() => { // Resize listener
     const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 1200);
+      setIsDesktop(window.innerWidth >= 800);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -467,7 +467,7 @@ const MiniRPG = () => {
     );
 
   const renderLevelAndExperience = () => (
-    <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+    <div style={{ width: '80%', maxWidth: '800px', marginBottom: '20px', textAlign: 'center' }}>
       <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '5px' }}>
         Level {level}
       </div>
@@ -475,7 +475,7 @@ const MiniRPG = () => {
         <div
           style={{
             width: `${(experience / experienceToNextLevel(level)) * 100}%`,
-            height: '8px',
+            height: '5px',
             backgroundColor: 'rgb(200, 180, 0)',
             border: '2px solid rgba(0, 0, 0, 0.5)',
           }}
@@ -490,187 +490,191 @@ const MiniRPG = () => {
   const renderGame = () => (
     <div
       style={{
+        maxWidth: '1200px',
+        width: '100%',
         margin: '0 auto',
         padding: '20px',
         background: '#f0f0f0',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
     >
-      <h1
-        style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '16px' }}
-      >
-        Mini RPG
-      </h1>
-
       {renderLevelAndExperience()}
 
-      <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-        <div
-          style={{
-            marginBottom: '16px',
-            display: 'flex',
-            justifyContent: 'space-between',
-          }}
-        >
-          {Object.entries(difficultyLevels).map(([key, { label, color }]) => (
-            <button
-              key={key}
-              onClick={() => {
-                setDifficulty(key);
-                setMonsterHitpoints(maxHP[key]);
-              }}
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '20px' }}>
+        <div style={{ width: '30%', maxWidth: '200px' }}>
+          {renderInventory()}
+          {renderShop()}
+        </div>
+        <div style={{ width: '38%' }}>
+          <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+            <div
               style={{
-                backgroundColor: difficulty === key ? color : 'transparent',
-                color: difficulty === key ? 'white' : 'black',
-                padding: '0.5em',
-                border: `1px solid ${color}`,
+                marginBottom: '16px',
+                display: 'flex',
+                justifyContent: 'space-between',
               }}
             >
-              {label}
-            </button>
-          ))}
-          <button onClick={toggleSound}>
-            {isSoundEnabled ? '🔇' : '🔊'}
-          </button>
-        </div>
-      </div>
+              {Object.entries(difficultyLevels).map(([key, { label, color }]) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setDifficulty(key);
+                    setMonsterHitpoints(maxHP[key]);
+                  }}
+                  style={{
+                    backgroundColor: difficulty === key ? color : 'transparent',
+                    color: difficulty === key ? 'white' : 'black',
+                    padding: '0.5em',
+                    border: `1px solid ${color}`,
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+              <button onClick={toggleSound}>
+                {isSoundEnabled ? '🔇' : '🔊'}
+              </button>
+            </div>
+          </div>
 
-      <MonsterAnimation
-        monster={difficultyLevels[difficulty].monster}
-        hitpoints={monsterHitpoints}
-        maxHP={maxHP[difficulty]}
-        onMonsterClick={handleMonsterClick}
-        isClickable={isMonsterClickable}
-        handleMonsterDied={handleMonsterDied}
-        spawnNewMonster={spawnNewMonster}
-        experienceGained={difficultyExperience[difficulty]}
-      />
+          <MonsterAnimation
+            monster={difficultyLevels[difficulty].monster}
+            hitpoints={monsterHitpoints}
+            maxHP={maxHP[difficulty]}
+            onMonsterClick={handleMonsterClick}
+            isClickable={isMonsterClickable}
+            handleMonsterDied={handleMonsterDied}
+            spawnNewMonster={spawnNewMonster}
+            experienceGained={difficultyExperience[difficulty]}
+          />
 
-      <div
-        style={{
-          margin: '10px',
-          textAlign: 'center',
-          fontSize: '1.2em',
-        }}
-      >
-        {isFighting
-          ? "Fighting..."
-          : (isMonsterClickable
-            ? `Click the ${difficultyLevels[difficulty].monster.toLowerCase()} to fight! (${tickets})`
-            : `Not enough tickets. (${tickets})`)
-        }
-      </div>
-
-      <div
-        style={{
-          margin: '10px',
-          textAlign: 'center',
-          fontStyle: 'italic',
-          fontSize: '0.8em',
-        }}
-      >
-        Accuracy: {(calculateWinRate() * 100).toFixed(2)}%,
-        Drop rate: {calculateItemDropRate()}%
-      </div>
-
-      {
-        (crystalTimer > 0 || potionTimer > 0) && (
           <div
             style={{
-              marginBottom: '10px',
+              margin: '10px',
               textAlign: 'center',
-              padding: '10px',
-              backgroundColor: '#80d3da',
-              borderRadius: '5px',
-              width: 'fit-content',
-              margin: '0 auto',
-              display: 'flex',
-              gap: '10px',
+              fontSize: '1.2em',
             }}
           >
-            {crystalTimer > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <img
-                  src={getItemUrl('crystal', 'Crystal')}
-                  alt="Crystal"
-                  style={{ width: '20px', height: '20px' }}
-                />
-                <span>
-                  {Math.floor(crystalTimer / 60)}:
-                  {(crystalTimer % 60).toString().padStart(2, '0')}
-                </span>
-              </div>
-            )}
-            {potionTimer > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <img
-                  src={getItemUrl('potion', 'Potion')}
-                  alt="Potion"
-                  style={{ width: '20px', height: '20px' }}
-                />
-                <span>
-                  {Math.floor(potionTimer / 60)}:
-                  {(potionTimer % 60).toString().padStart(2, '0')}
-                </span>
-              </div>
-            )}
+            {isFighting
+              ? "Fighting..."
+              : (isMonsterClickable
+                ? `Click the ${difficultyLevels[difficulty].monster.toLowerCase()} to fight! (${tickets})`
+                : `Not enough tickets. (${tickets})`)
+            }
           </div>
-        )
-      }
 
-      <div style={{ marginBottom: '30px' }}>
-        <h3>Recently Obtained Items:</h3>
-        {recentItems.length > 0 ? (
-          <ul style={{ listStyleType: 'none', padding: 0 }}>
-            {recentItems.map((item, index) => (
-              <li
-                key={index}
+          <div
+            style={{
+              margin: '10px',
+              textAlign: 'center',
+              fontStyle: 'italic',
+              fontSize: '0.8em',
+            }}
+          >
+            Accuracy: {(calculateWinRate() * 100).toFixed(2)}%,
+            Drop rate: {calculateItemDropRate()}%
+          </div>
+
+          {
+            (crystalTimer > 0 || potionTimer > 0) && (
+              <div
                 style={{
-                  color: `${getRarityColor(item.rarity)}`,
-                  textShadow: '1px 1px #000',
-                  borderRadius: '4px',
-                  textDecoration: item.missed ? 'line-through' : 'none',
+                  marginBottom: '10px',
+                  textAlign: 'center',
+                  padding: '10px',
+                  backgroundColor: '#80d3da',
+                  borderRadius: '5px',
+                  width: 'fit-content',
+                  margin: '0 auto',
+                  display: 'flex',
+                  gap: '10px',
                 }}
               >
-                {item.count ? `${item.count} ` : ''}
-                {item.rarity ? `${item.rarity} ` : ''}
-                {item.name}
-                {item.count > 1 ? 's' : ''}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No items obtained yet.</p>
-        )}
-      </div>
+                {crystalTimer > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <img
+                      src={getItemUrl('crystal', 'Crystal')}
+                      alt="Crystal"
+                      style={{ width: '20px', height: '20px' }}
+                    />
+                    <span>
+                      {Math.floor(crystalTimer / 60)}:
+                      {(crystalTimer % 60).toString().padStart(2, '0')}
+                    </span>
+                  </div>
+                )}
+                {potionTimer > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <img
+                      src={getItemUrl('potion', 'Potion')}
+                      alt="Potion"
+                      style={{ width: '20px', height: '20px' }}
+                    />
+                    <span>
+                      {Math.floor(potionTimer / 60)}:
+                      {(potionTimer % 60).toString().padStart(2, '0')}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )
+          }
 
-      {renderPets()}
+          <div style={{ marginBottom: '30px' }}>
+            <h3>Recently Obtained Items:</h3>
+            {recentItems.length > 0 ? (
+              <ul style={{ listStyleType: 'none', padding: 0 }}>
+                {recentItems.map((item, index) => (
+                  <li
+                    key={index}
+                    style={{
+                      color: `${getRarityColor(item.rarity)}`,
+                      textShadow: '1px 1px #000',
+                      borderRadius: '4px',
+                      textDecoration: item.missed ? 'line-through' : 'none',
+                    }}
+                  >
+                    {item.count ? `${item.count} ` : ''}
+                    {item.rarity ? `${item.rarity} ` : ''}
+                    {item.name}
+                    {item.count > 1 ? 's' : ''}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No items obtained yet.</p>
+            )}
+          </div>
 
-      <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
-        <p>Notice: Any resemblance to actual games is purely coincidental.</p>
-      </div>
+          {renderPets()}
 
-      <div
-        style={{
-          marginTop: '20px',
-          textAlign: 'center',
-          fontSize: '12px',
-          color: '#666',
-        }}
-      >
-        Version 1.5.16 - <a href='https://alan.computer'>alan.computer</a>
+          <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
+            <p>Notice: Any resemblance to actual games is purely coincidental.</p>
+          </div>
+
+          <div
+            style={{
+              marginTop: '20px',
+              textAlign: 'center',
+              fontSize: '12px',
+              color: '#666',
+            }}
+          >
+            Version 1.6.0 - <a href='https://alan.computer'>alan.computer</a>
+          </div>
+        </div>
+        <div style={{ width: '30%', maxWidth: '200px' }}>
+          {renderEquipment()}
+          {renderRecycler()}
+        </div>
       </div>
-    </div >
+    </div>
   );
 
   const renderInventory = () => (
-    <div
-      style={{
-        backgroundColor: '#f0f0f0',
-        padding: '20px',
-        marginBottom: '20px',
-      }}
-    >
-      <h3>Inventory</h3>
+    <div>
       <InventoryGrid
         items={inventory}
         onEquip={equipItem}
@@ -680,55 +684,8 @@ const MiniRPG = () => {
     </div>
   );
 
-  const renderEquipment = () => {
-    const hasFullUniqueSet = Object.values(equipment).every(
-      (item) => item && item.rarity === 'Unique'
-    );
-    return (
-      <div
-        style={{
-          backgroundColor: hasFullUniqueSet ? '#444' : '#f0f0f0',
-          padding: '20px',
-          marginBottom: '20px',
-        }}
-      >
-        <h3>Equipment</h3>
-        <WornEquipment
-          equipment={equipment}
-          onUnequip={unequipItem}
-          fullUnique={hasFullUniqueSet}
-        />
-      </div>
-    );
-  };
-
-  const renderCharacter = () => (
-    <div
-      style={{
-        maxWidth: '420px',
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        backgroundColor: '#f0f0f0',
-      }}
-    >
-      <div style={{ width: '55%' }}>
-        <h3>Inventory</h3>
-        <InventoryGrid
-          items={inventory}
-          onEquip={equipItem}
-          onUsePotion={usePotion}
-        />
-      </div>
-      <div style={{ width: '45%', backgroundColor: '#ccc' }}>
-        <h3>Equipment</h3>
-        <WornEquipment equipment={equipment} onUnequip={unequipItem} />
-      </div>
-    </div>
-  );
-
   const renderShop = () => (
-    <>
+    <div style={{ marginTop: '20px' }}>
       <Shop
         gold={inventory.Gold}
         inventoryFull={inventoryFull}
@@ -751,87 +708,79 @@ const MiniRPG = () => {
           Purchase successful!
         </div>
       )}
-    </>
+    </div>
   );
 
+  const renderEquipment = () => {
+    const hasFullUniqueSet = Object.values(equipment).every(
+      (item) => item && item.rarity === 'Unique'
+    );
+    return (
+      <div
+        style={{
+          backgroundColor: hasFullUniqueSet ? '#444' : 'transparent',
+        }}
+      >
+        <WornEquipment
+          equipment={equipment}
+          onUnequip={unequipItem}
+          fullUnique={hasFullUniqueSet}
+        />
+      </div>
+    );
+  };
+
   const renderRecycler = () => (
-    <Recycler
-      inventory={inventory}
-      inventoryFull={inventoryFull}
-      scrap={scrap}
-      onRecycle={handleRecycle}
-      onExchange={handleExchange}
-    />
+    <div style={{ marginTop: '20px' }}>
+      <Recycler
+        inventory={inventory}
+        inventoryFull={inventoryFull}
+        scrap={scrap}
+        onRecycle={handleRecycle}
+        onExchange={handleExchange}
+      />
+    </div>
   );
 
   const toggleSound = () => {
     setIsSoundEnabled(prev => !prev);
   };
 
+  const renderMobileView = () => (
+    <div style={{ width: '100%', textAlign: 'center', padding: '20px', color: '#f0f0f0' }}>
+      <MonsterAnimation
+        monster={difficultyLevels[difficulty].monster}
+        hitpoints={monsterHitpoints}
+        maxHP={maxHP[difficulty]}
+        onMonsterClick={handleMonsterClick}
+        isClickable={isMonsterClickable}
+        handleMonsterDied={handleMonsterDied}
+        spawnNewMonster={spawnNewMonster}
+        experienceGained={difficultyExperience[difficulty]}
+      />
+      <p style={{ marginTop: '20px', fontSize: '16px' }}>
+        Support for small screens coming soon™
+      </p>
+    </div>
+  );
+
   return (
     <div
       style={{
-        width: isDesktop ? '100%' : '420px',
+        width: isDesktop ? '100%' : '100%',
         margin: '0 auto',
-        display: isDesktop ? 'flex' : 'block',
+        display: 'flex',
         justifyContent: 'center',
         gap: '20px',
       }}
     >
-      {!isDesktop && (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginBottom: '20px',
-          }}
-        >
-          <button
-            onClick={() => setView('game')}
-            style={{ marginRight: '10px' }}
-          >
-            Game
-          </button>
-          <button
-            onClick={() => setView('character')}
-            style={{ marginRight: '10px' }}
-          >
-            Character
-          </button>
-          <button
-            onClick={() => setView('recycler')}
-            style={{ marginRight: '10px' }}
-          >
-            Recycler
-          </button>
-          <button onClick={() => setView('shop')}>Shop</button>
-        </div>
-      )}
-
       {isDesktop ? (
-        <>
-          <div style={{ width: '25%' }}>
-            {renderInventory()}
-            {renderShop()}
-          </div>
-          <div style={{ width: '50%' }}>{renderGame()}</div>
-          <div style={{ width: '25%' }}>
-            {renderEquipment()}
-            {renderRecycler()}
-          </div>
-        </>
+        renderGame()
       ) : (
-        <>
-          {view === 'game' && renderGame()}
-          {view === 'character' && renderCharacter()}
-          {view === 'shop' && renderShop()}
-          {view === 'recycler' && renderRecycler()}
-        </>
+        renderMobileView()
       )}
-
     </div>
   );
 };
-
 
 export default MiniRPG;

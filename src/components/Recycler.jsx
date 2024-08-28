@@ -84,131 +84,48 @@ const Recycler = ({
     );
 
   return (
-    <div style={{ padding: 0, backgroundColor: '#f0f0f0' }}>
-      <h2 style={{ paddingTop: '20px' }}>Recycler</h2>
-      <div style={{ backgroundColor: '#d5d5d5', padding: '10px 0' }}>
-        <h3 style={{ margin: '0' }}>Select items to recycle:</h3>
-        <div style={{ display: 'flex' }}>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(4, 50px)',
-              gridGap: '4px',
-              margin: '0 auto',
-              alignItems: 'center',
-            }}
-          >
-            {recyclableItems.map((item, index) => (
-              <label
-                key={index}
-                htmlFor={'recycling' + index}
-                style={{
-                  border: `2px solid ${getRarityColor(item.rarity)}`,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <input
-                  id={'recycling' + index}
-                  type='checkbox'
-                  checked={selectedItems.includes(item)}
-                  style={{}}
-                  onChange={() => {
-                    if (selectedItems.includes(item)) {
-                      setSelectedItems(selectedItems.filter((i) => i !== item));
-                    } else {
-                      setSelectedItems([...selectedItems, item]);
-                    }
-                  }}
-                />
-                <img
-                  src={getItemUrl(
-                    item.name.toLowerCase(),
-                    item.rarity.toLowerCase()
-                  )}
-                  alt={item.rarity + ' ' + item.name}
-                  style={{}}
-                />
-              </label>
-            ))}
-          </div>
+    <div style={{ padding: '10px', backgroundColor: '#f0f0f0', fontSize: '0.9em' }}>
+      <h2 style={{ margin: '0 0 10px', fontSize: '1.2em' }}>Recycler</h2>
+      <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px' }}>
+        <h3 style={{ margin: '0 0 5px', fontSize: '1em' }}>Select items to recycle:</h3>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', gap: '2px' }}>
+          {recyclableItems.map((item, index) => (
+            <label key={index} htmlFor={'recycling' + index} style={{ border: `1px solid ${getRarityColor(item.rarity)}`, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <input
+                id={'recycling' + index}
+                type='checkbox'
+                checked={selectedItems.includes(item)}
+                onChange={() => setSelectedItems(selectedItems.includes(item) ? selectedItems.filter(i => i !== item) : [...selectedItems, item])}
+                style={{ margin: 0, width: '20px', height: '20px' }}
+              />
+              <img src={getItemUrl(item.name.toLowerCase(), item.rarity.toLowerCase())} alt={`${item.rarity} ${item.name}`} style={{ width: '20px', height: '20px' }} />
+            </label>
+          ))}
         </div>
         <div style={{ marginTop: '5px' }}>
-          <button
-            onClick={handleRecycle}
-            style={{ margin: '0 10px' }}
-            disabled={selectedItems.length === 0}
-          >
-            Recycle
-          </button>
-          <button
-            onClick={handleRecycleAll}
-            style={{ margin: '0 10px' }}
-            disabled={recyclableItems.length === 0}
-          >
-            Recycle All
-          </button>
+          <button onClick={handleRecycle} disabled={selectedItems.length === 0} style={{ marginRight: '5px', padding: '2px 5px', fontSize: '0.8em' }}>Recycle</button>
+          <button onClick={handleRecycleAll} disabled={recyclableItems.length === 0} style={{ padding: '2px 5px', fontSize: '0.8em' }}>Recycle All</button>
         </div>
       </div>
-      <div style={{ backgroundColor: '#d5d5d5', padding: '10px 0' }}>
+      <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px' }}>
         {Object.entries(scrap).map(([rarity, count]) => (
-          <span
-            key={rarity}
-            style={{
-              padding: '0 0.3em',
-              margin: '0 5px',
-              borderRadius: '4px',
-              fontSize: '2em',
-              fontWeight: '1000',
-              color: `${getRarityColor(rarity)}`,
-              backgroundColor: '#f0f0f0',
-            }}
-          >
+          <span key={rarity} style={{ padding: '0 0.2em', margin: '0 2px', borderRadius: '2px', fontSize: '1.2em', fontWeight: 'bold', color: getRarityColor(rarity), backgroundColor: '#f0f0f0' }}>
             {count}
           </span>
         ))}
       </div>
-      <div style={{ marginTop: '20px' }}>
-        <h3>Exchange Scrap:</h3>
-        <div
-          style={{
-            display: 'flex',
-            gap: '10px',
-            justifyContent: 'center',
-            marginBottom: 0,
-          }}
-        >
-          <select
-            value={exchangeRarity}
-            onChange={(e) => setExchangeRarity(e.target.value)}
-            style={{
-              padding: '5px',
-              borderRadius: '3px',
-              backgroundColor: getRarityColor(exchangeRarity),
-              color: 'white',
-            }}
-          >
-            {Object.keys(scrap).map((rarity) => (
-              <option
-                key={rarity}
-                value={rarity}
-                style={{ backgroundColor: getRarityColor(rarity) }}
-              >
-                {rarity}
-              </option>
+      <div>
+        <h3 style={{ margin: '0 0 5px', fontSize: '1em' }}>Exchange Scrap:</h3>
+        <div style={{ display: 'flex', gap: '5px', justifyContent: 'center', marginBottom: '5px' }}>
+          <select value={exchangeRarity} onChange={(e) => setExchangeRarity(e.target.value)} style={{ padding: '2px', borderRadius: '2px', backgroundColor: getRarityColor(exchangeRarity), color: 'white', fontSize: '0.8em' }}>
+            {Object.keys(scrap).map(rarity => (
+              <option key={rarity} value={rarity} style={{ backgroundColor: getRarityColor(rarity) }}>{rarity}</option>
             ))}
           </select>
-          <select
-            value={exchangeItem}
-            onChange={(e) => setExchangeItem(e.target.value)}
-            style={{ padding: '5px', borderRadius: '3px' }}
-          >
+          <select value={exchangeItem} onChange={(e) => setExchangeItem(e.target.value)} style={{ padding: '2px', borderRadius: '2px', fontSize: '0.8em' }}>
             <option value=''>Select item type</option>
-            {validEquipmentTypes.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
+            {validEquipmentTypes.map(type => (
+              <option key={type} value={type}>{type}</option>
             ))}
           </select>
         </div>
@@ -216,24 +133,18 @@ const Recycler = ({
           onClick={handleExchange}
           disabled={scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull}
           style={{
-            padding: '5px 10px',
-            marginTop: '10px',
-            backgroundColor:
-              scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull
-                ? '#aaa'
-                : '#4CAF50',
+            padding: '2px 5px',
+            backgroundColor: scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull ? '#aaa' : '#4CAF50',
             color: 'white',
             border: 'none',
-            borderRadius: '3px',
-            cursor:
-              scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull
-                ? 'not-allowed'
-                : 'pointer',
+            borderRadius: '2px',
+            cursor: scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull ? 'not-allowed' : 'pointer',
+            fontSize: '0.8em'
           }}
         >
           Exchange
         </button>
-        <p style={{ paddingBottom: '20px' }}>Cost: 2 {exchangeRarity} scrap</p>
+        <p style={{ margin: '5px 0 0', fontSize: '0.8em' }}>Cost: 2 {exchangeRarity} scrap</p>
       </div>
     </div>
   );

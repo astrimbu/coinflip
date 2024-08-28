@@ -45,7 +45,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
     <div
       data-testid='Inventory'
       style={{
-        width: '200px',
+        width: '160px',
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
@@ -58,51 +58,54 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
           display: 'flex',
           justifyContent: 'space-between',
           width: '100%',
-          marginBottom: '10px',
+          marginBottom: '5px',
         }}
       >
         <div
           data-testid='Gold'
           style={{
-            border: '2px solid #aaa',
-            padding: '5px',
+            border: '1px solid #aaa',
+            padding: '2px',
             textAlign: 'center',
+            fontSize: '12px',
           }}
         >
-          <img src={getItemUrl('gold')} alt='Gold' /> {items.Gold}
+          <img src={getItemUrl('gold')} alt='Gold' style={{ width: '25px', height: '25px' }} /> {items.Gold}
         </div>
         <div
           style={{
-            border: '2px solid #aaa',
-            padding: '5px',
+            border: '1px solid #aaa',
+            padding: '2px',
             textAlign: 'center',
             cursor: items.Potion > 0 ? 'pointer' : 'default',
             opacity: items.Potion > 0 ? 1 : 0.5,
+            fontSize: '12px',
           }}
           onClick={() => items.Potion > 0 && onUsePotion()}
         >
-          <img src={getItemUrl('potion')} alt='Potion' /> {items.Potion}
+          <img src={getItemUrl('potion')} alt='Potion' style={{ width: '25px', height: '25px' }} /> {items.Potion}
         </div>
       </div>
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 50px)',
-          gridGap: '9px',
+          gridTemplateColumns: 'repeat(4, 38px)',
+          gap: '2px',
+          width: '160px',
         }}
       >
         {[...Array(16)].map((_, index) => (
           <div
             key={index}
             style={{
-              width: '50px',
-              height: '50px',
-              border: '3px solid #ccc',
+              width: '38px',
+              height: '38px',
+              border: '1px solid #ccc',
               position: 'relative',
               outline: flattenedItems[index]
-                ? `3px solid ${getRarityColor(flattenedItems[index].rarity)}`
+                ? `2px solid ${getRarityColor(flattenedItems[index].rarity)}`
                 : 'none',
-              outlineOffset: '-3px',
+              outlineOffset: '-1px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -123,7 +126,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
                     ' ' +
                     flattenedItems[index].name
                   }
-                  style={{}}
+                  style={{ maxWidth: '80%', maxHeight: '80%' }}
                 />
                 {hoveredItem === flattenedItems[index] && (
                   <div
@@ -149,7 +152,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
         ))}
       </div>
       {flattenedItems.length >= 16 && (
-        <p style={{ margin: '10px 0 0 0' }}>Inventory is full</p>
+        <p style={{ margin: '5px 0 0 0', fontSize: '12px' }}>Inventory is full</p>
       )}
     </div>
   );
