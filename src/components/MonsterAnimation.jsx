@@ -263,12 +263,12 @@ const MonsterAnimation = ({
             transform: 'translate(-50%, -50%)',
             fontSize: '16px',
             fontWeight: 'bold',
-            color: '#FFD700',
-            textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+            color: '#f0f0f0',
+            textShadow: '1px 1px black, 0 0 5px rgba(0,0,0,0.5)',
             animation: 'floatUp 3s forwards',
           }}
         >
-          +{experienceGained}XP
+          +{experienceGained}xp
         </div>
       )}
     </div>
