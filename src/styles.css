@@ -25,3 +25,14 @@ html::-webkit-scrollbar {
     transform: scaleX(-1);
   }
 }
+
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -350%);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -730%);
+  }
+}

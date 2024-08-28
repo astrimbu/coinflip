@@ -64,7 +64,7 @@ const MiniRPG = () => {
   const [crystalTimer, setCrystalTimer] = useState(0);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
-  const [, setAnimationResult] = useState(null);
+  const [animationResult, setAnimationResult] = useState(null);
   const [tickets, setTickets] = useState(0);
   const ticketCost = { easy: 0, medium: 1, hard: 2, impossible: 3 };
   const isMonsterClickable = !isFighting && tickets >= ticketCost[difficulty];
@@ -501,6 +501,7 @@ const MiniRPG = () => {
         isClickable={isMonsterClickable}
         handleMonsterDied={handleMonsterDied}
         spawnNewMonster={spawnNewMonster}
+        experienceGained={difficultyExperience[difficulty]}
       />
 
       <div
@@ -615,7 +616,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.13 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.14 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );

@@ -9,8 +9,10 @@ const MonsterAnimation = ({
   isClickable,
   handleMonsterDied,
   spawnNewMonster,
+  experienceGained,
 }) => {
   const [animationState, setAnimationState] = useState('walking');
+  const [showExperience, setShowExperience] = useState(false);
   const monsterRef = useRef(null);
   const walkAnimationRef = useRef(null);
   const fightAnimationRef = useRef(null);
@@ -184,7 +186,10 @@ const MonsterAnimation = ({
       {
         duration: DEATH_DURATION,
       }
-    )
+    );
+
+    setShowExperience(true);
+    setTimeout(() => setShowExperience(false), DEATH_DURATION);
   };
 
   const stopAllAnimations = () => {
@@ -249,6 +254,23 @@ const MonsterAnimation = ({
           height: '100%',
         }}
       />
+      {showExperience && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            color: '#FFD700',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+            animation: 'floatUp 3s forwards',
+          }}
+        >
+          +{experienceGained}XP
+        </div>
+      )}
     </div>
   );
 };

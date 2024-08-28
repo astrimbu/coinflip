@@ -1,5 +1,5 @@
 import './App.css'
-import './hover.css'
+import './styles.css'
 import MiniRPG from './MiniRPG'
 
 function App() {
