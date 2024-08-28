@@ -528,6 +528,9 @@ const MiniRPG = () => {
               {label}
             </button>
           ))}
+          <button onClick={toggleSound}>
+            {isSoundEnabled ? '🔇' : '🔊'}
+          </button>
         </div>
       </div>
 
@@ -641,10 +644,6 @@ const MiniRPG = () => {
       </div>
 
       {renderPets()}
-
-      <button onClick={toggleSound}>
-        {isSoundEnabled ? '🔇' : '🔊'}
-      </button>
 
       <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
         <p>Notice: Any resemblance to actual games is purely coincidental.</p>
