@@ -276,7 +276,6 @@ const MiniRPG = () => {
         const stat = getRarityStat(rarity);
         newItem = { name: randomItem, rarity, stat };
         addItem(randomItem, newItem);
-        //  newItem.missed = true;
       }
     }
   };
@@ -321,6 +320,12 @@ const MiniRPG = () => {
     spawnNewMonster();
   };
 
+  const potionTimerRef = useRef(potionTimer);
+
+  useEffect(() => {
+    potionTimerRef.current = potionTimer;
+  }, [potionTimer]);
+
   useEffect(() => { // Fight Monster effect
     const performAttack = () => {
       const adjustedRate = calculateWinRate();
@@ -330,12 +335,11 @@ const MiniRPG = () => {
       setIsAttacking(true);
 
       if (result) {
-        const damageMultiplier = potionTimer > 0 ? 2 : 1;
-        const damage = 1 + Math.floor(calculateTotalStats() / 10) * damageMultiplier;
+        const damageMultiplier = potionTimerRef.current > 0 ? 2 : 1;
+        const damage = (1 + Math.floor(calculateTotalStats() / 10)) * damageMultiplier;
         setMonsterHitpoints((prevHp) => {
           const newHp = prevHp - damage;
           if (newHp <= 0) {
-            // TODO: Make room for death animation
             setIsDying(true);
           }
           return newHp;
@@ -616,7 +620,7 @@ const MiniRPG = () => {
           color: '#666',
         }}
       >
-        Version 1.5.14 - <a href='https://alan.computer'>alan.computer</a>
+        Version 1.5.15 - <a href='https://alan.computer'>alan.computer</a>
       </div>
     </div >
   );
