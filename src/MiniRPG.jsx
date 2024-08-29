@@ -70,6 +70,7 @@ const MiniRPG = () => {
   const isMonsterClickable = !isFighting && tickets >= ticketCost[difficulty];
   const [level, setLevel] = useState(1);
   const [experience, setExperience] = useState(0);
+  const [recycleMode, setRecycleMode] = useState(false);
 
   const experienceToNextLevel = (currentLevel) => Math.floor(100 * Math.pow(1.5, currentLevel - 1));
 
@@ -219,6 +220,11 @@ const MiniRPG = () => {
 
   const handleRecycle = (items) => {
     recycleItems(items);
+  };
+
+  const toggleRecycleMode = () => {
+    setRecycleMode(!recycleMode);
+    document.body.style.cursor = recycleMode ? 'default' : 'grab';
   };
 
   const handleExchange = (rarity, itemName) => {
@@ -676,7 +682,7 @@ const MiniRPG = () => {
               color: '#666',
             }}
           >
-            Version 1.6.1 - <a href='https://alan.computer'>alan.computer</a>
+            Version 1.6.2 - <a href='https://alan.computer'>alan.computer</a>
           </div>
         </div>
         <div style={{ width: '30%', maxWidth: '200px' }}>
@@ -694,6 +700,8 @@ const MiniRPG = () => {
         onEquip={equipItem}
         onUsePotion={usePotion}
         onUseCrystal={useCrystal}
+        onRecycle={handleRecycle}
+        recycleMode={recycleMode}
       />
     </div>
   );
@@ -745,13 +753,15 @@ const MiniRPG = () => {
   };
 
   const renderRecycler = () => (
-    <div style={{ marginTop: '20px' }}>
+    <div>
       <Recycler
         inventory={inventory}
         inventoryFull={inventoryFull}
         scrap={scrap}
         onRecycle={handleRecycle}
         onExchange={handleExchange}
+        recycleMode={recycleMode}
+        toggleRecycleMode={toggleRecycleMode}
       />
     </div>
   );

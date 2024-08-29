@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
 
-const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
+const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
   const getRarityColor = (rarity) => {
@@ -29,7 +29,9 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
 
   const handleClick = (flattenedItems, index) => {
     if (!flattenedItems[index]) return;
-    if (flattenedItems[index].name === 'Crystal') {
+    if (recycleMode) {
+      onRecycle([flattenedItems[index]]);
+    } else if (flattenedItems[index].name === 'Crystal') {
       onUseCrystal(flattenedItems[index]);
     } else {
       onEquip(flattenedItems[index], flattenedItems[index].name);
@@ -109,6 +111,8 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              backgroundColor: recycleMode && flattenedItems[index] ? 'rgba(255, 0, 0, 0.5)' : 'transparent',
+              cursor: recycleMode && flattenedItems[index] ? 'grab' : 'pointer',
             }}
             onClick={() => handleClick(flattenedItems, index)}
             onMouseEnter={() => setHoveredItem(flattenedItems[index])}

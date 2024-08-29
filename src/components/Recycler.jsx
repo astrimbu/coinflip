@@ -7,10 +7,12 @@ const Recycler = ({
   scrap,
   onRecycle,
   onExchange,
+  recycleMode,
+  toggleRecycleMode,
 }) => {
-  const [selectedItems, setSelectedItems] = useState([]);
   const [exchangeRarity, setExchangeRarity] = useState('Common');
   const [exchangeItem, setExchangeItem] = useState('');
+
   const validEquipmentTypes = [
     'Hat',
     'Cape',
@@ -86,25 +88,22 @@ const Recycler = ({
   return (
     <div style={{ padding: '10px', backgroundColor: '#f0f0f0', fontSize: '0.9em' }}>
       <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px' }}>
-        <h3 style={{ margin: '0 0 5px', fontSize: '1em' }}>Select items to recycle:</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(40px, 1fr))', gap: '2px' }}>
-          {recyclableItems.map((item, index) => (
-            <label key={index} htmlFor={'recycling' + index} style={{ border: `1px solid ${getRarityColor(item.rarity)}`, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <input
-                id={'recycling' + index}
-                type='checkbox'
-                checked={selectedItems.includes(item)}
-                onChange={() => setSelectedItems(selectedItems.includes(item) ? selectedItems.filter(i => i !== item) : [...selectedItems, item])}
-                style={{ margin: 0, width: '20px', height: '20px' }}
-              />
-              <img src={getItemUrl(item.name.toLowerCase(), item.rarity.toLowerCase())} alt={`${item.rarity} ${item.name}`} style={{ width: '20px', height: '20px' }} />
-            </label>
-          ))}
-        </div>
-        <div style={{ marginTop: '5px' }}>
-          <button onClick={handleRecycle} disabled={selectedItems.length === 0} style={{ marginRight: '5px', padding: '2px 5px', fontSize: '0.8em' }}>Recycle</button>
-          <button onClick={handleRecycleAll} disabled={recyclableItems.length === 0} style={{ padding: '2px 5px', fontSize: '0.8em' }}>Recycle All</button>
-        </div>
+        <button
+          onClick={toggleRecycleMode}
+          style={{
+            padding: '5px 10px',
+            backgroundColor: recycleMode ? '#ff4444' : '#4CAF50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '3px',
+            cursor: 'pointer',
+          }}
+        >
+          {recycleMode ? 'Cancel Recycle' : 'Start Recycling'}
+        </button>
+      </div>
+      <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px' }}>
+        <button onClick={handleRecycleAll} disabled={recyclableItems.length === 0} style={{ padding: '2px 5px', fontSize: '0.8em' }}>Recycle All</button>
       </div>
       <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px' }}>
         {Object.entries(scrap).map(([rarity, count]) => (
