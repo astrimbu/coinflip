@@ -60,7 +60,7 @@ const MiniRPG = () => {
   const [isDying, setIsDying] = useState(false);
   const [monsterHitpoints, setMonsterHitpoints] = useState(maxHP[difficulty]);
   const [view, setView] = useState('game');
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 800);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 750);
   const [crystalTimer, setCrystalTimer] = useState(0);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
@@ -110,7 +110,7 @@ const MiniRPG = () => {
 
   useEffect(() => { // Resize listener
     const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 800);
+      setIsDesktop(window.innerWidth >= 750);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -365,6 +365,8 @@ const MiniRPG = () => {
     potionTimerRef.current = potionTimer;
   }, [potionTimer]);
 
+  const [lastAttack, setLastAttack] = useState({ damage: null, id: null });
+
   useEffect(() => { // Fight Monster effect
     const performAttack = () => {
       const adjustedRate = calculateWinRate();
@@ -374,9 +376,13 @@ const MiniRPG = () => {
       setIsAttacking(true);
       playAttackSound(result);
 
+      const damage = result
+        ? (1 + Math.floor(calculateTotalStats() / 10)) * (potionTimerRef.current > 0 ? 2 : 1)
+        : 0;
+
+      setLastAttack({ damage, id: Date.now() });
+
       if (result) {
-        const damageMultiplier = potionTimerRef.current > 0 ? 2 : 1;
-        const damage = (1 + Math.floor(calculateTotalStats() / 10)) * damageMultiplier;
         setMonsterHitpoints((prevHp) => {
           const newHp = prevHp - damage;
           if (newHp <= 0) {
@@ -496,7 +502,7 @@ const MiniRPG = () => {
   const renderGame = () => (
     <div
       style={{
-        maxWidth: '1000px',
+        maxWidth: '900px',
         width: '100%',
         margin: '0 auto',
         padding: '20px',
@@ -568,6 +574,7 @@ const MiniRPG = () => {
             handleMonsterDied={handleMonsterDied}
             spawnNewMonster={spawnNewMonster}
             experienceGained={difficultyExperience[difficulty]}
+            lastAttack={lastAttack}
           />
 
           <div
@@ -682,7 +689,7 @@ const MiniRPG = () => {
               color: '#666',
             }}
           >
-            Version 1.6.3 - <a href='https://alan.computer'>alan.computer</a>
+            Version 1.6.4 - <a href='https://alan.computer'>alan.computer</a>
           </div>
         </div>
         <div style={{ width: '30%', maxWidth: '200px' }}>
@@ -781,6 +788,7 @@ const MiniRPG = () => {
         handleMonsterDied={handleMonsterDied}
         spawnNewMonster={spawnNewMonster}
         experienceGained={difficultyExperience[difficulty]}
+        lastAttack={lastAttack}
       />
       <p style={{ marginTop: '20px', fontSize: '16px' }}>
         Support for small screens coming soon™

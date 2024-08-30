@@ -10,6 +10,7 @@ const MonsterAnimation = ({
   handleMonsterDied,
   spawnNewMonster,
   experienceGained,
+  lastAttack,
 }) => {
   const [animationState, setAnimationState] = useState('walking');
   const [showExperience, setShowExperience] = useState(false);
@@ -18,6 +19,7 @@ const MonsterAnimation = ({
   const fightAnimationRef = useRef(null);
   const currentPositionRef = useRef(0);
   const facingRightRef = useRef(true);
+  const [hitsplats, setHitsplats] = useState([]);
 
   const sizeByMonster = {
     'Goblin': '100px',
@@ -49,6 +51,12 @@ const MonsterAnimation = ({
       setAnimationState('walking');
     }
   }, [hitpoints]);
+
+  useEffect(() => {
+    if (lastAttack.id !== null) {
+      addHitsplat(lastAttack.damage);
+    }
+  }, [lastAttack]);
 
   const startWalkingAnimation = () => {
     const startPosition = 0;
@@ -213,6 +221,22 @@ const MonsterAnimation = ({
     }, 0);
   };
 
+  const addHitsplat = (damage) => {
+    const newHitsplat = {
+      id: Date.now(),
+      damage,
+      position: {
+        left: Math.random() * 80 + 10,
+        top: Math.random() * 80 + 10,
+      },
+      isMiss: damage === 0,
+    };
+    setHitsplats(prev => [...prev, newHitsplat]);
+    setTimeout(() => {
+      setHitsplats(prev => prev.filter(h => h.id !== newHitsplat.id));
+    }, 1000);
+  };
+
   const handleClick = () => {
     if (isClickable && animationState === 'walking') {
       setAnimationState('fighting');
@@ -271,6 +295,25 @@ const MonsterAnimation = ({
           +{experienceGained}xp
         </div>
       )}
+      {hitsplats.map(hitsplat => (
+        <div
+          key={hitsplat.id}
+          style={{
+            position: 'absolute',
+            left: `${hitsplat.position.left}%`,
+            top: `${hitsplat.position.top}%`,
+            backgroundColor: hitsplat.isMiss ? 'blue' : 'red',
+            color: 'white',
+            padding: '4px 8px',
+            borderRadius: '50%',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            animation: 'fadeOutUp 1s forwards',
+          }}
+        >
+          {hitsplat.damage}
+        </div>
+      ))}
     </div>
   );
 };
