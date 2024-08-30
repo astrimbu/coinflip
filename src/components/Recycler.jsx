@@ -87,7 +87,7 @@ const Recycler = ({
 
   return (
     <div style={{ padding: '10px', backgroundColor: '#f0f0f0', fontSize: '0.9em' }}>
-      <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px' }}>
+      <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <button
           onClick={toggleRecycleMode}
           style={{
@@ -97,13 +97,24 @@ const Recycler = ({
             border: 'none',
             borderRadius: '3px',
             cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
-          {recycleMode ? 'Cancel Recycle' : 'Start Recycling'}
+          <img
+            src={new URL('../assets/items/hammer.png', import.meta.url).href}
+            alt="Recycle"
+            style={{ width: '20px', height: '20px' }}
+          />
+          {recycleMode ? 'Cancel' : ''}
         </button>
-      </div>
-      <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px' }}>
-        <button onClick={handleRecycleAll} disabled={recyclableItems.length === 0} style={{ padding: '2px 5px', fontSize: '0.8em' }}>Recycle All</button>
+        <button
+          onClick={handleRecycleAll}
+          disabled={recyclableItems.length === 0}
+          style={{ padding: '5px 10px', fontSize: '0.9em', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px', cursor: recyclableItems.length === 0 ? 'not-allowed' : 'pointer' }}
+        >
+          Recycle All
+        </button>
       </div>
       <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px' }}>
         {Object.entries(scrap).map(([rarity, count]) => (
