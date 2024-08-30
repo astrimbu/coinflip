@@ -26,32 +26,18 @@ const MiniRPG = () => {
     removeScrap,
   } = useInventoryManager();
 
-  const maxHP = {
-    easy: 4,
-    medium: 6,
-    hard: 10,
-    impossible: 34,
+  const monsterTypes = {
+    Goblin: { label: 'Goblin', rate: 1 / 2, maxHP: 4, modifier: 6, rarity: 'Common', experience: 10, ticketCost: 0 },
+    Ogre: { label: 'Ogre', rate: 1 / 6, maxHP: 6, modifier: 4, rarity: 'Magic', experience: 50, ticketCost: 1 },
+    Demon: { label: 'Demon', rate: 1 / 40, maxHP: 10, modifier: 2, rarity: 'Rare', experience: 100, ticketCost: 2 },
+    Dragon: { label: 'Dragon', rate: 1 / 300, maxHP: 34, modifier: 1, rarity: 'Unique', experience: 200, ticketCost: 3 },
   };
-  const difficultyLevels = {
-    easy: { label: 'Easy', rate: 1 / 2, monster: 'Goblin' },
-    medium: { label: 'Medium', rate: 1 / 6, monster: 'Ogre' },
-    hard: { label: 'Hard', rate: 1 / 40, monster: 'Demon' },
-    impossible: { label: 'Impossible', rate: 1 / 300, monster: 'Dragon' },
-  };
-  const difficultyModifiers = { easy: 6, medium: 4, hard: 2, impossible: 1 };
-  const rarityByDifficulty = {
-    easy: 'Common',
-    medium: 'Magic',
-    hard: 'Rare',
-    impossible: 'Unique',
-  };
-  const [difficulty, setDifficulty] = useState('easy');
-  const [, setScores] = useState({
-    easy: { fights: 0, wins: 0 },
-    medium: { fights: 0, wins: 0 },
-    hard: { fights: 0, wins: 0 },
-    impossible: { fights: 0, wins: 0 },
-  });
+
+  const [currentMonster, setCurrentMonster] = useState('Goblin');
+  const [scores, setScores] = useState(
+    Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, { fights: 0, wins: 0 }]))
+  );
+
   const [checkSeed, setCheckSeed] = useState(Math.random());
   const [itemSeed, setItemSeed] = useState(Math.random());
   const [result, setResult] = useState(false);
@@ -59,7 +45,7 @@ const MiniRPG = () => {
   const fightIntervalRef = useRef(null);
   const [isAttacking, setIsAttacking] = useState(false);
   const [isDying, setIsDying] = useState(false);
-  const [monsterHitpoints, setMonsterHitpoints] = useState(maxHP[difficulty]);
+  const [monsterHitpoints, setMonsterHitpoints] = useState(monsterTypes[currentMonster].maxHP);
   const [view, setView] = useState('game');
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 750);
   const [crystalTimer, setCrystalTimer] = useState(0);
@@ -67,20 +53,12 @@ const MiniRPG = () => {
   const [potionTimer, setPotionTimer] = useState(0);
   const [animationResult, setAnimationResult] = useState(null);
   const [tickets, setTickets] = useState(0);
-  const ticketCost = { easy: 0, medium: 1, hard: 2, impossible: 3 };
-  const isMonsterClickable = !isFighting && tickets >= ticketCost[difficulty];
+  const isMonsterClickable = !isFighting && tickets >= monsterTypes[currentMonster].ticketCost;
   const [level, setLevel] = useState(1);
   const [experience, setExperience] = useState(0);
   const [recycleMode, setRecycleMode] = useState(false);
 
   const experienceToNextLevel = (currentLevel) => Math.floor(100 * Math.pow(1.5, currentLevel - 1));
-
-  const difficultyExperience = {
-    easy: 10,
-    medium: 50,
-    hard: 100,
-    impossible: 200,
-  };
 
   const handleMonsterClick = () => {
     if (isMonsterClickable) {
@@ -90,24 +68,13 @@ const MiniRPG = () => {
     }
   };
 
-  const [pets, setPets] = useState({
-    easy: { count: 0, kc: [] },
-    medium: { count: 0, kc: [] },
-    hard: { count: 0, kc: [] },
-    impossible: { count: 0, kc: [] },
-  });
-  const petDropRates = {
-    easy: 1 / 1000,
-    medium: 1 / 1000,
-    hard: 1 / 1000,
-    impossible: 1 / 1000,
-  };
-  const [killCount, setKillCount] = useState({
-    easy: 0,
-    medium: 0,
-    hard: 0,
-    impossible: 0,
-  });
+  const [pets, setPets] = useState(
+    Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, { count: 0, kc: [] }]))
+  );
+  const petDropRates = Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, 1 / 1000]));
+  const [killCount, setKillCount] = useState(
+    Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, 0]))
+  );
 
   useEffect(() => { // Resize listener
     const handleResize = () => {
@@ -179,13 +146,13 @@ const MiniRPG = () => {
   const calculateWinRate = () => {
     const totalStats = calculateTotalStats();
     const statBonus = Math.floor(totalStats / 6) + totalStats * 0.1;
-    const baseRate = difficultyLevels[difficulty].rate;
+    const baseRate = monsterTypes[currentMonster].rate;
     return Math.min(baseRate * Math.pow(2, statBonus), 1);
   };
 
   const calculateItemDropRate = () => {
     const baseChance = 0.1;
-    const modifier = difficultyModifiers[difficulty];
+    const modifier = monsterTypes[currentMonster].modifier;
     return (baseChance * modifier * (crystalTimer > 0 ? 2 : 1) * 100).toFixed(
       2
     );
@@ -237,13 +204,13 @@ const MiniRPG = () => {
   };
 
   const checkForPet = () => {
-    const dropRate = petDropRates[difficulty];
+    const dropRate = petDropRates[currentMonster];
     if (checkSeed < dropRate) {
       setPets((prevPets) => ({
         ...prevPets,
-        [difficulty]: {
-          count: prevPets[difficulty].count + 1,
-          kc: [...prevPets[difficulty].kc, killCount[difficulty] + 1],
+        [currentMonster]: {
+          count: prevPets[currentMonster].count + 1,
+          kc: [...prevPets[currentMonster].kc, killCount[currentMonster] + 1],
         },
       }));
       playPetSound();
@@ -252,7 +219,7 @@ const MiniRPG = () => {
 
   const checkForItem = () => {
     const baseChance = 0.1;
-    const modifier = difficultyModifiers[difficulty];
+    const modifier = monsterTypes[currentMonster].modifier;
     const itemChance = baseChance * modifier * (crystalTimer > 0 ? 2 : 1);
 
     if (checkSeed < itemChance) {
@@ -270,15 +237,15 @@ const MiniRPG = () => {
         'Potion',
       ];
       const randomItem = items[Math.floor(itemSeed * items.length)];
-      const rarity = rarityByDifficulty[difficulty];
+      const rarity = monsterTypes[currentMonster].rarity;
 
       let newItem;
       const extraItems = {
-        easy: 1,
-        medium: 2,
-        hard: 3,
-        impossible: 4,
-      }[difficulty];
+        Goblin: 1,
+        Ogre: 2,
+        Demon: 3,
+        Dragon: 4,
+      }[currentMonster];
 
       if (randomItem === 'Gold' || randomItem === 'Potion') {
         updateCurrency(randomItem, extraItems);
@@ -292,7 +259,7 @@ const MiniRPG = () => {
   };
 
   const fightMonster = () => {
-    const ticketCost = { easy: 0, medium: 1, hard: 2, impossible: 3 }[difficulty];
+    const ticketCost = monsterTypes[currentMonster].ticketCost;
     if (tickets < ticketCost) {
       return;
     }
@@ -302,7 +269,7 @@ const MiniRPG = () => {
 
   const spawnNewMonster = () => {
     setIsDying(false);
-    setMonsterHitpoints(maxHP[difficulty]);
+    setMonsterHitpoints(monsterTypes[currentMonster].maxHP);
   };
 
   const handleMonsterDied = () => {
@@ -314,10 +281,10 @@ const MiniRPG = () => {
     setTickets((prevTickets) => prevTickets + 10);
     setKillCount((prevKillCount) => ({
       ...prevKillCount,
-      [difficulty]: prevKillCount[difficulty] + 1,
+      [currentMonster]: prevKillCount[currentMonster] + 1,
     }));
 
-    const expGained = difficultyExperience[difficulty];
+    const expGained = monsterTypes[currentMonster].experience;
     setExperience((prevExp) => {
       const newExp = prevExp + expGained;
       const expNeeded = experienceToNextLevel(level);
@@ -371,9 +338,9 @@ const MiniRPG = () => {
 
         setScores((prevScores) => ({
           ...prevScores,
-          [difficulty]: {
-            fights: prevScores[difficulty].fights + 1,
-            wins: prevScores[difficulty].wins + (result ? 1 : 0),
+          [currentMonster]: {
+            fights: prevScores[currentMonster].fights + 1,
+            wins: prevScores[currentMonster].wins + (result ? 1 : 0),
           },
         }));
 
@@ -388,15 +355,15 @@ const MiniRPG = () => {
     }
 
     return () => clearInterval(fightIntervalRef.current);
-  }, [isFighting, difficulty]);
+  }, [isFighting, currentMonster]);
 
   const [hoveredPet, setHoveredPet] = useState(null);
 
   const renderPets = () =>
-    (pets.easy.count > 0 ||
-      pets.medium.count > 0 ||
-      pets.hard.count > 0 ||
-      pets.impossible.count > 0) && (
+    (pets.Goblin.count > 0 ||
+      pets.Ogre.count > 0 ||
+      pets.Demon.count > 0 ||
+      pets.Dragon.count > 0) && (
       <div
         style={{
           marginBottom: '16px',
@@ -408,25 +375,25 @@ const MiniRPG = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
           {Object.entries(pets)
             .filter(([, { count }]) => count > 0)
-            .map(([key, { count, kc }]) => (
-              <div key={key} style={{ textAlign: 'center', margin: '0 auto', position: 'relative' }}>
+            .map(([monster, { count, kc }]) => (
+              <div key={monster} style={{ textAlign: 'center', margin: '0 auto', position: 'relative' }}>
                 <img
-                  src={`${getItemUrl('pet', key)}`}
-                  alt={`${difficultyLevels[key].label} Pet`}
+                  src={`${getItemUrl('pet', monster)}`}
+                  alt={`${monsterTypes[monster].label} Pet`}
                   style={{ width: '50px', height: '50px' }}
-                  onMouseEnter={() => setHoveredPet(key)}
+                  onMouseEnter={() => setHoveredPet(monster)}
                   onMouseLeave={() => setHoveredPet(null)}
                 />
                 <div
                   style={{
                     fontSize: '10px',
                     fontWeight: 'bold',
-                    color: `${getColor(null, key)}`,
+                    color: `${getColor(null, monsterTypes[monster].rarity)}`,
                   }}
                 >
                   x{count}
                 </div>
-                {hoveredPet === key && (
+                {hoveredPet === monster && (
                   <div
                     style={{
                       position: 'absolute',
@@ -518,18 +485,18 @@ const MiniRPG = () => {
                 justifyContent: 'space-between',
               }}
             >
-              {Object.entries(difficultyLevels).map(([key, { label }]) => (
+              {Object.entries(monsterTypes).map(([monster, { label, rarity }]) => (
                 <button
-                  key={key}
+                  key={monster}
                   onClick={() => {
-                    setDifficulty(key);
-                    setMonsterHitpoints(maxHP[key]);
+                    setCurrentMonster(monster);
+                    setMonsterHitpoints(monsterTypes[monster].maxHP);
                   }}
                   style={{
-                    backgroundColor: difficulty === key ? getColor(null, key) : 'transparent',
-                    color: difficulty === key ? 'white' : 'black',
+                    backgroundColor: currentMonster === monster ? getColor(rarity) : 'transparent',
+                    color: currentMonster === monster ? 'white' : 'black',
                     padding: '0.5em',
-                    border: `1px solid ${getColor(null, key)}`,
+                    border: `1px solid ${getColor(rarity)}`,
                   }}
                 >
                   {label}
@@ -539,14 +506,14 @@ const MiniRPG = () => {
           </div>
 
           <MonsterAnimation
-            monster={difficultyLevels[difficulty].monster}
+            monster={currentMonster}
             hitpoints={monsterHitpoints}
-            maxHP={maxHP[difficulty]}
+            maxHP={monsterTypes[currentMonster].maxHP}
             onMonsterClick={handleMonsterClick}
             isClickable={isMonsterClickable}
             handleMonsterDied={handleMonsterDied}
             spawnNewMonster={spawnNewMonster}
-            experienceGained={difficultyExperience[difficulty]}
+            experienceGained={monsterTypes[currentMonster].experience}
             lastAttack={lastAttack}
           />
 
@@ -560,7 +527,7 @@ const MiniRPG = () => {
             {isFighting
               ? "Fighting..."
               : (isMonsterClickable
-                ? `Click the ${difficultyLevels[difficulty].monster.toLowerCase()} to fight! (${tickets})`
+                ? `Click the ${currentMonster.toLowerCase()} to fight! (${tickets})`
                 : `Not enough tickets. (${tickets})`)
             }
           </div>
@@ -662,7 +629,7 @@ const MiniRPG = () => {
               color: '#666',
             }}
           >
-            Version 1.6.5 - <a href='https://alan.computer'>alan.computer</a>
+            Version 1.7.0 - <a href='https://alan.computer'>alan.computer</a>
           </div>
         </div>
         <div style={{ width: '30%', maxWidth: '200px' }}>
@@ -753,14 +720,14 @@ const MiniRPG = () => {
   const renderMobileView = () => (
     <div style={{ width: '100%', textAlign: 'center', padding: '20px', color: '#f0f0f0' }}>
       <MonsterAnimation
-        monster={difficultyLevels[difficulty].monster}
+        monster={currentMonster}
         hitpoints={monsterHitpoints}
-        maxHP={maxHP[difficulty]}
+        maxHP={monsterTypes[currentMonster].maxHP}
         onMonsterClick={handleMonsterClick}
         isClickable={isMonsterClickable}
         handleMonsterDied={handleMonsterDied}
         spawnNewMonster={spawnNewMonster}
-        experienceGained={difficultyExperience[difficulty]}
+        experienceGained={monsterTypes[currentMonster].experience}
         lastAttack={lastAttack}
       />
       <p style={{ marginTop: '20px', fontSize: '16px' }}>

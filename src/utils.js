@@ -1,12 +1,12 @@
-export const getColor = (rarity, difficulty) => {
+export const getColor = (rarity) => {
     const colors = {
-      Common: '#4CAF50', easy: '#4CAF50',
-      Magic: '#3B88FF', medium: '#3B88FF',
-      Rare: '#F44336', hard: '#F44336',
-      Unique: '#000', impossible: '#000',
+      Common: '#4CAF50',
+      Magic: '#3B88FF',
+      Rare: '#F44336',
+      Unique: '#000',
       Crystal: '#80d3da',
     };
-    return colors[rarity] || colors[difficulty] || '#000000';
+    return colors[rarity] || '#000000';
 };
 
 export const getRarityStat = (rarity) => {
