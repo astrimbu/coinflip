@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
+import { getColor } from '../utils';
 
 const WornEquipment = ({ equipment, onUnequip }) => {
   const slots = [
@@ -13,21 +14,6 @@ const WornEquipment = ({ equipment, onUnequip }) => {
     'Boots',
     'Ring',
   ];
-
-  const getRarityColor = (rarity) => {
-    switch (rarity) {
-      case 'Common':
-        return '#4CAF50';
-      case 'Magic':
-        return '#3B88FF';
-      case 'Rare':
-        return '#F44336';
-      case 'Unique':
-        return '#000';
-      default:
-        return '#ccc';
-    }
-  };
 
   function getItemUrl(name, rarity) {
     name = name.toLowerCase();
@@ -57,7 +43,7 @@ const WornEquipment = ({ equipment, onUnequip }) => {
             position: 'relative',
             margin: '0 auto',
             outline: equipment[slot]
-              ? `2px solid ${getRarityColor(equipment[slot].rarity)}`
+              ? `2px solid ${getColor(equipment[slot].rarity)}`
               : '1px solid #888',
             outlineOffset: '-1px',
             display: 'flex',

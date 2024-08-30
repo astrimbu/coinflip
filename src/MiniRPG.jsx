@@ -6,6 +6,7 @@ import MonsterAnimation from './components/MonsterAnimation'
 import WornEquipment from './components/WornEquipment'
 import Shop from './components/Shop'
 import Recycler from './components/Recycler'
+import { getColor, getRarityStat } from './utils';
 import './styles.css';
 
 
@@ -32,10 +33,10 @@ const MiniRPG = () => {
     impossible: 34,
   };
   const difficultyLevels = {
-    easy: { label: 'Easy', rate: 1 / 2, color: '#4CAF50', monster: 'Goblin' },
-    medium: { label: 'Medium', rate: 1 / 6, color: '#3B88FF', monster: 'Ogre' },
-    hard: { label: 'Hard', rate: 1 / 40, color: '#F44336', monster: 'Demon' },
-    impossible: { label: 'Impossible', rate: 1 / 300, color: '#000', monster: 'Dragon' },
+    easy: { label: 'Easy', rate: 1 / 2, monster: 'Goblin' },
+    medium: { label: 'Medium', rate: 1 / 6, monster: 'Ogre' },
+    hard: { label: 'Hard', rate: 1 / 40, monster: 'Demon' },
+    impossible: { label: 'Impossible', rate: 1 / 300, monster: 'Dragon' },
   };
   const difficultyModifiers = { easy: 6, medium: 4, hard: 2, impossible: 1 };
   const rarityByDifficulty = {
@@ -116,34 +117,6 @@ const MiniRPG = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const getRarityColor = (rarity) => {
-    switch (rarity) {
-      case 'Common':
-        return '#4CAF50';
-      case 'Magic':
-        return '#3B88FF';
-      case 'Rare':
-        return '#F44336';
-      case 'Unique':
-        return '#000';
-      default:
-        return '#ccc';
-    }
-  };
-  const getRarityStat = (rarity) => {
-    switch (rarity) {
-      case 'Common':
-        return 1;
-      case 'Magic':
-        return 2;
-      case 'Rare':
-        return 3;
-      case 'Unique':
-        return 5;
-      default:
-        return 0;
-    }
-  };
   function getItemUrl(name, rarity) {
     if (name === 'crystal' || name === 'potion' || name === 'gold') {
       return new URL(`./assets/items/${name}.png`, import.meta.url).href;
@@ -448,7 +421,7 @@ const MiniRPG = () => {
                   style={{
                     fontSize: '10px',
                     fontWeight: 'bold',
-                    color: `${difficultyLevels[key].color}`,
+                    color: `${getColor(null, key)}`,
                   }}
                 >
                   x{count}
@@ -545,7 +518,7 @@ const MiniRPG = () => {
                 justifyContent: 'space-between',
               }}
             >
-              {Object.entries(difficultyLevels).map(([key, { label, color }]) => (
+              {Object.entries(difficultyLevels).map(([key, { label }]) => (
                 <button
                   key={key}
                   onClick={() => {
@@ -553,10 +526,10 @@ const MiniRPG = () => {
                     setMonsterHitpoints(maxHP[key]);
                   }}
                   style={{
-                    backgroundColor: difficulty === key ? color : 'transparent',
+                    backgroundColor: difficulty === key ? getColor(null, key) : 'transparent',
                     color: difficulty === key ? 'white' : 'black',
                     padding: '0.5em',
-                    border: `1px solid ${color}`,
+                    border: `1px solid ${getColor(null, key)}`,
                   }}
                 >
                   {label}
@@ -657,7 +630,7 @@ const MiniRPG = () => {
                   <li
                     key={index}
                     style={{
-                      color: `${getRarityColor(item.rarity)}`,
+                      color: `${getColor(item.rarity)}`,
                       textShadow: '1px 1px #000',
                       borderRadius: '4px',
                       textDecoration: item.missed ? 'line-through' : 'none',
@@ -689,7 +662,7 @@ const MiniRPG = () => {
               color: '#666',
             }}
           >
-            Version 1.6.4 - <a href='https://alan.computer'>alan.computer</a>
+            Version 1.6.5 - <a href='https://alan.computer'>alan.computer</a>
           </div>
         </div>
         <div style={{ width: '30%', maxWidth: '200px' }}>

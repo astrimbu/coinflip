@@ -1,23 +1,9 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
+import { getColor } from '../utils';
 
 const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
-
-  const getRarityColor = (rarity) => {
-    switch (rarity) {
-      case 'Common':
-        return '#4CAF50';
-      case 'Magic':
-        return '#3B88FF';
-      case 'Rare':
-        return '#F44336';
-      case 'Unique':
-        return '#000';
-      default:
-        return '#888';
-    }
-  };
 
   function getItemUrl(name, rarity) {
     if (name === 'crystal' || name === 'potion' || name === 'gold') {
@@ -47,7 +33,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
     <div
       data-testid='Inventory'
       style={{
-        width: '160px',
+        width: '174px',
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
@@ -58,55 +44,61 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
       <div
         style={{
           display: 'flex',
-          justifyContent: 'space-between',
-          width: '100%',
-          marginBottom: '5px',
+          width: '172px', // Set to match the overall width
+          marginBottom: '2px',
+          gap: '4px', // Matches the grid gap
         }}
       >
         <div
           data-testid='Gold'
           style={{
-            border: '1px solid #aaa',
-            padding: '2px',
-            textAlign: 'center',
+            width: '86px', // (174px - 2px gap) / 2
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            outlineOffset: '-1px',
             fontSize: '12px',
           }}
         >
-          <img src={getItemUrl('gold')} alt='Gold' style={{ width: '25px', height: '25px' }} /> {items.Gold}
+          <img src={getItemUrl('gold')} alt='Gold' style={{ width: '25px', height: '25px', marginRight: '5px' }} /> {items.Gold}
         </div>
         <div
           style={{
-            border: '1px solid #aaa',
-            padding: '2px',
-            textAlign: 'center',
+            width: '86px', // (174px - 2px gap) / 2
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            outlineOffset: '-1px',
             cursor: items.Potion > 0 ? 'pointer' : 'default',
             opacity: items.Potion > 0 ? 1 : 0.5,
             fontSize: '12px',
           }}
           onClick={() => items.Potion > 0 && onUsePotion()}
         >
-          <img src={getItemUrl('potion')} alt='Potion' style={{ width: '25px', height: '25px' }} /> {items.Potion}
+          <img src={getItemUrl('potion')} alt='Potion' style={{ width: '25px', height: '25px', marginRight: '5px' }} /> {items.Potion}
         </div>
       </div>
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 38px)',
-          gap: '2px',
-          width: '160px',
+          gridTemplateColumns: 'repeat(4, 1fr)', // Kept at 4 columns
+          gap: '2px', // Matches WornEquipment
+          width: '174px', // Adjusted to accommodate 4 items with gaps
+          justifyItems: 'center',
         }}
       >
         {[...Array(16)].map((_, index) => (
           <div
             key={index}
             style={{
-              width: '38px',
-              height: '38px',
-              border: '1px solid #ccc',
+              width: '40px', // Matches WornEquipment
+              height: '40px', // Matches WornEquipment
               position: 'relative',
               outline: flattenedItems[index]
-                ? `2px solid ${getRarityColor(flattenedItems[index].rarity)}`
-                : 'none',
+                ? `2px solid ${getColor(flattenedItems[index].rarity)}`
+                : '1px solid #888', // Matches WornEquipment
               outlineOffset: '-1px',
               display: 'flex',
               alignItems: 'center',
