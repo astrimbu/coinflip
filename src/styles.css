@@ -47,3 +47,12 @@ html::-webkit-scrollbar {
     transform: translateY(-20px);
   }
 }
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}

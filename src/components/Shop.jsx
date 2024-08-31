@@ -12,10 +12,11 @@ const Shop = ({ gold, inventoryFull, onPurchase }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginTop: '10px',
+        margin: '10px',
         backgroundColor: '#d5d5d5',
-        padding: '5px',
+        padding: '20px',
         position: 'relative',
+        gap: '10px',
       }}
       onMouseEnter={() => setHoveredItem(itemName)}
       onMouseLeave={() => setHoveredItem(null)}
@@ -25,7 +26,7 @@ const Shop = ({ gold, inventoryFull, onPurchase }) => {
       <button
         onClick={() => onPurchase(itemName)}
         disabled={gold < price || (itemName === 'Crystal' && inventoryFull)}
-        style={{ padding: '2px 5px' }}
+        style={{ padding: '10px' }}
       >
         Buy
       </button>
@@ -52,7 +53,13 @@ const Shop = ({ gold, inventoryFull, onPurchase }) => {
   );
 
   return (
-    <div style={{ padding: '10px', backgroundColor: '#f0f0f0' }}>
+    <div style={{
+      backgroundColor: '#f0f0f0',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+    }}>
       {renderShopItem('Crystal', 1, '2x drop rate, 5:00')}
       {renderShopItem('Potion', 1, '2x damage, 2:00')}
     </div>

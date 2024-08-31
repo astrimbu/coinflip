@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import useInventoryManager from './useInventoryManager';
 import InventoryGrid from './components/InventoryGrid'
 import MonsterAnimation from './components/MonsterAnimation'
@@ -48,6 +48,7 @@ const MiniRPG = () => {
   const [monsterHitpoints, setMonsterHitpoints] = useState(monsterTypes[currentMonster].maxHP);
   const [view, setView] = useState('game');
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 750);
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [crystalTimer, setCrystalTimer] = useState(0);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
@@ -79,6 +80,7 @@ const MiniRPG = () => {
   useEffect(() => { // Resize listener
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 750);
+      setWindowHeight(window.innerHeight);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -419,7 +421,7 @@ const MiniRPG = () => {
     );
 
   const renderLevelAndExperience = () => (
-    <div style={{ width: '80%', maxWidth: '800px', marginBottom: '20px', textAlign: 'center' }}>
+    <div style={{ width: '80%', maxWidth: '800px', margin: '10px', textAlign: 'center' }}>
       <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '5px' }}>
         Level {level}
       </div>
@@ -445,7 +447,6 @@ const MiniRPG = () => {
         maxWidth: '900px',
         width: '100%',
         margin: '0 auto',
-        padding: '20px',
         background: '#f0f0f0',
         display: 'flex',
         flexDirection: 'column',
@@ -474,7 +475,6 @@ const MiniRPG = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '20px' }}>
         <div style={{ width: '30%', maxWidth: '200px' }}>
           {renderInventory()}
-          {renderShop()}
         </div>
         <div style={{ width: '38%' }}>
           <div style={{ maxWidth: '400px', margin: '0 auto' }}>
@@ -589,17 +589,31 @@ const MiniRPG = () => {
             )
           }
 
-          <div style={{ marginBottom: '30px' }}>
-            <h3>Recently Obtained Items:</h3>
-            {recentItems.length > 0 ? (
-              <ul style={{ listStyleType: 'none', padding: 0 }}>
-                {recentItems.map((item, index) => (
-                  <li
+          <div
+            style={{
+              marginBottom: '30px',
+              width: '100%',
+              maxWidth: '400px',
+              overflow: 'hidden',
+              padding: '5px 0',
+            }}
+          >
+            <div
+              style={{
+                whiteSpace: 'nowrap',
+                animation: 'marquee 20s linear infinite',
+                fontFamily: 'Courier, monospace',
+                fontSize: '14px',
+                fontWeight: 'bold',
+              }}
+            >
+              {recentItems.length > 0 ? (
+                recentItems.map((item, index) => (
+                  <span
                     key={index}
                     style={{
                       color: `${getColor(item.rarity)}`,
-                      textShadow: '1px 1px #000',
-                      borderRadius: '4px',
+                      marginRight: '20px',
                       textDecoration: item.missed ? 'line-through' : 'none',
                     }}
                   >
@@ -607,12 +621,12 @@ const MiniRPG = () => {
                     {item.rarity ? `${item.rarity} ` : ''}
                     {item.name}
                     {item.count > 1 ? 's' : ''}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No items obtained yet.</p>
-            )}
+                  </span>
+                ))
+              ) : (
+                <span>No items obtained yet.</span>
+              )}
+            </div>
           </div>
 
           {renderPets()}
@@ -629,12 +643,11 @@ const MiniRPG = () => {
               color: '#666',
             }}
           >
-            Version 1.7.0 - <a href='https://alan.computer'>alan.computer</a>
+            Version 1.8.0 - <a href='https://alan.computer'>alan.computer</a>
           </div>
         </div>
         <div style={{ width: '30%', maxWidth: '200px' }}>
           {renderEquipment()}
-          {renderRecycler()}
         </div>
       </div>
     </div>
@@ -654,7 +667,9 @@ const MiniRPG = () => {
   );
 
   const renderShop = () => (
-    <div style={{ marginTop: '20px' }}>
+    <div style={{
+      minHeight: '70vh',
+    }}>
       <Shop
         gold={inventory.Gold}
         inventoryFull={inventoryFull}
@@ -700,7 +715,9 @@ const MiniRPG = () => {
   };
 
   const renderRecycler = () => (
-    <div>
+    <div style={{
+      minHeight: '70vh',
+    }}>
       <Recycler
         inventory={inventory}
         inventoryFull={inventoryFull}
@@ -709,7 +726,45 @@ const MiniRPG = () => {
         onExchange={handleExchange}
         recycleMode={recycleMode}
         toggleRecycleMode={toggleRecycleMode}
+        equipment={equipment}
+        onUnequip={unequipItem}
       />
+    </div>
+  );
+
+  const renderBank = () => (
+    <div style={{
+      minHeight: '70vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#f0f0f0',
+      padding: '20px',
+    }}>
+      <div style={{ fontSize: '48px', marginBottom: '20px' }}>
+        🏦💰💵🪙
+      </div>
+      <h2>Bank</h2>
+      <p style={{ fontSize: '24px', fontStyle: 'italic', color: '#666' }}>Coming soon™️</p>
+    </div>
+  );
+
+  const renderPond = () => (
+    <div style={{
+      minHeight: '70vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#f0f0f0',
+      padding: '20px',
+    }}>
+      <div style={{ fontSize: '48px', marginBottom: '20px' }}>
+        🎣🐟🌊🚣
+      </div>
+      <h2>Pond</h2>
+      <p style={{ fontSize: '24px', fontStyle: 'italic', color: '#666' }}>Coming soon™️</p>
     </div>
   );
 
@@ -736,23 +791,177 @@ const MiniRPG = () => {
     </div>
   );
 
-  return (
-    <div
-      style={{
-        width: isDesktop ? '100%' : '100%',
-        margin: '0 auto',
-        display: 'flex',
-        justifyContent: 'center',
+  const [currentLocation, setCurrentLocation] = useState('game');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const goToTown = useCallback(() => {
+    if (!isFighting) {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentLocation('town');
+        setIsTransitioning(false);
+      }, 300);
+    }
+  }, [isFighting]);
+
+  const goToLocation = useCallback((location) => {
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentLocation(location);
+      setIsTransitioning(false);
+    }, 300);
+  }, []);
+
+  const renderTown = () => (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '20px',
+      backgroundColor: '#f0f0f0',
+      minHeight: '70vh',
+    }}>
+      <h2>Welcome to Town</h2>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
         gap: '20px',
-      }}
-    >
-      {isDesktop ? (
-        renderGame()
-      ) : (
-        renderMobileView()
-      )}
+        marginTop: '20px',
+      }}>
+        {[
+          { name: 'Recycler', image: '🔄' },
+          { name: 'Shop', image: '🛒' },
+          { name: 'Bank', image: '🏦' },
+          { name: 'Pond', image: '🎣' },
+          { name: 'Monster', image: '👹' },
+        ].map((service) => (
+          <div
+            key={service.name}
+            onClick={() => goToLocation(service.name.toLowerCase() === 'monster' ? 'game' : service.name.toLowerCase())}
+            style={{
+              width: '150px',
+              height: '150px',
+              backgroundColor: service.name === 'Monster' ? '#4CAF50' : '#ddd',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              cursor: 'pointer',
+              borderRadius: '10px',
+              transition: 'background-color 0.3s, transform 0.3s',
+              transform: service.name === 'Monster' ? 'scale(1.1)' : 'scale(1)',
+              boxShadow: service.name === 'Monster' ? '0 0 15px rgba(0,0,0,0.2)' : 'none',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = service.name === 'Monster' ? '#45a049' : '#ccc';
+              e.currentTarget.style.transform = service.name === 'Monster' ? 'scale(1.15)' : 'scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = service.name === 'Monster' ? '#4CAF50' : '#ddd';
+              e.currentTarget.style.transform = service.name === 'Monster' ? 'scale(1.1)' : 'scale(1)';
+            }}
+          >
+            <div style={{ fontSize: '48px' }}>{service.image}</div>
+            <div style={{ color: service.name === 'Monster' ? 'white' : 'black', fontWeight: service.name === 'Monster' ? 'bold' : 'normal' }}>
+              {service.name}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderCurrentLocation = () => {
+    const content = (() => {
+      switch (currentLocation) {
+        case 'town':
+          return renderTown();
+        case 'recycler':
+          return renderRecycler();
+        case 'shop':
+          return renderShop();
+        case 'bank':
+          return renderBank();
+        case 'pond':
+          return renderPond();
+        default:
+          return renderGame();
+      }
+    })();
+
+    return (
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: '900px',
+        margin: '0 auto',
+        background: '#f0f0f0',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}>
+        {content}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '20px',
+            left: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+          }}
+        >
+          <h3 style={{
+            margin: '0 0 10px 0',
+            padding: '5px 10px',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            color: 'white',
+            borderRadius: '5px',
+          }}>
+            Current: {currentLocation.charAt(0).toUpperCase() + currentLocation.slice(1)}
+          </h3>
+          <button
+            onClick={goToTown}
+            disabled={isFighting || currentLocation === 'town'}
+            style={{
+              padding: '20px',
+              fontSize: '24px',
+              backgroundColor: isFighting || currentLocation === 'town' ? '#ccc' : '#4CAF50',
+              color: isFighting || currentLocation === 'town' ? '#888' : 'white',
+              border: 'none',
+              borderRadius: '10px',
+              cursor: isFighting || currentLocation === 'town' ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <span style={{ marginRight: '10px' }}>🏠</span>
+            {currentLocation === 'town' ? 'In Town' : 'Go to Town'}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div style={{
+      width: '100%',
+      height: windowHeight > 500 ? '100vh' : 'auto',
+      justifyContent: windowHeight > 500 ? 'center' : 'flex-start',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      margin: '0 auto',
+      gap: '20px',
+      position: 'relative',
+      transition: 'opacity 0.3s',
+      opacity: isTransitioning ? 0 : 1,
+    }}>
+      {isDesktop ? renderCurrentLocation() : renderMobileView()}
     </div>
   );
 };
+
 
 export default MiniRPG;

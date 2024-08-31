@@ -44,15 +44,15 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
       <div
         style={{
           display: 'flex',
-          width: '172px', // Set to match the overall width
+          width: '172px',
           marginBottom: '2px',
-          gap: '4px', // Matches the grid gap
+          gap: '4px',
         }}
       >
         <div
           data-testid='Gold'
           style={{
-            width: '86px', // (174px - 2px gap) / 2
+            width: '86px',
             height: '40px',
             display: 'flex',
             alignItems: 'center',
@@ -65,7 +65,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
         </div>
         <div
           style={{
-            width: '86px', // (174px - 2px gap) / 2
+            width: '86px',
             height: '40px',
             display: 'flex',
             alignItems: 'center',
@@ -83,9 +83,9 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)', // Kept at 4 columns
-          gap: '2px', // Matches WornEquipment
-          width: '174px', // Adjusted to accommodate 4 items with gaps
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: '2px',
+          width: '174px',
           justifyItems: 'center',
         }}
       >
@@ -93,12 +93,12 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
           <div
             key={index}
             style={{
-              width: '40px', // Matches WornEquipment
-              height: '40px', // Matches WornEquipment
+              width: '40px',
+              height: '40px',
               position: 'relative',
               outline: flattenedItems[index]
                 ? `2px solid ${getColor(flattenedItems[index].rarity)}`
-                : '1px solid #888', // Matches WornEquipment
+                : '1px solid #888',
               outlineOffset: '-1px',
               display: 'flex',
               alignItems: 'center',
