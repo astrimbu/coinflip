@@ -27,7 +27,6 @@ const Area = ({ children, monster }) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: '10px',
         overflow: 'hidden',
         position: 'relative',
       }}

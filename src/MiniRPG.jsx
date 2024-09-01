@@ -422,22 +422,44 @@ const MiniRPG = () => {
     );
 
   const renderLevelAndExperience = () => (
-    <div style={{ width: '80%', maxWidth: '800px', margin: '10px', textAlign: 'center' }}>
-      <div style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '5px' }}>
-        Level {level}
-      </div>
-      <div style={{ width: '100%', backgroundColor: 'rgb(50, 50, 50)', borderRadius: '5px', overflow: 'hidden' }}>
+    <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+      <div style={{
+        width: '100%',
+        backgroundColor: 'rgb(50, 50, 50)',
+        overflow: 'hidden',
+        position: 'relative',
+        height: '14px'
+      }}>
         <div
           style={{
             width: `${(experience / experienceToNextLevel(level)) * 100}%`,
-            height: '5px',
+            height: '100%',
             backgroundColor: 'rgb(200, 180, 0)',
-            border: '2px solid rgba(0, 0, 0, 0.5)',
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            zIndex: 1
           }}
         />
-      </div>
-      <div style={{ fontSize: '12px', marginTop: '5px' }}>
-        {experience} / {experienceToNextLevel(level)} XP
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'stretch',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '100%',
+          padding: '0 5px',
+          zIndex: 2
+        }}>
+          <div style={{ fontSize: '10px', fontWeight: 'bold', color: 'white' }}>
+            Lv.{level}
+          </div>
+          <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'white' }}>
+            {experience} / {experienceToNextLevel(level)} XP
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -471,17 +493,31 @@ const MiniRPG = () => {
         {isSoundEnabled ? '🔊' : '🔇'}
       </button>
 
-      {renderLevelAndExperience()}
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
         <div style={{ width: '25%', maxWidth: '200px' }}>
           {renderInventory()}
+
         </div>
         <div style={{ width: '50%' }}>
-          <div style={{ maxWidth: '400px', margin: '0 auto' }}>
+          <Area monster={currentMonster}>
+            <MonsterAnimation
+              monster={currentMonster}
+              hitpoints={monsterHitpoints}
+              maxHP={monsterTypes[currentMonster].maxHP}
+              onMonsterClick={handleMonsterClick}
+              isClickable={isMonsterClickable}
+              handleMonsterDied={handleMonsterDied}
+              spawnNewMonster={spawnNewMonster}
+              experienceGained={monsterTypes[currentMonster].experience}
+              lastAttack={lastAttack}
+            />
+          </Area>
+          {renderLevelAndExperience()}
+          {renderPets()}
+          <div style={{ maxWidth: '250px', margin: '0 auto' }}>
             <div
               style={{
-                marginBottom: '16px',
+                margin: '10px',
                 display: 'flex',
                 justifyContent: 'space-between',
               }}
@@ -496,8 +532,14 @@ const MiniRPG = () => {
                   style={{
                     backgroundColor: currentMonster === monster ? getColor(rarity) : 'transparent',
                     color: currentMonster === monster ? 'white' : 'black',
-                    padding: '0.5em',
+                    padding: '2px 4px',
                     border: `1px solid ${getColor(rarity)}`,
+                    borderRadius: '0',
+                    fontSize: '1em',
+                    lineHeight: '1.2em',
+                    minWidth: '40px',
+                    textAlign: 'center',
+                    cursor: 'pointer',
                   }}
                 >
                   {label}
@@ -505,48 +547,6 @@ const MiniRPG = () => {
               ))}
             </div>
           </div>
-
-          <Area monster={currentMonster}>
-            <MonsterAnimation
-              monster={currentMonster}
-              hitpoints={monsterHitpoints}
-              maxHP={monsterTypes[currentMonster].maxHP}
-              onMonsterClick={handleMonsterClick}
-              isClickable={isMonsterClickable}
-              handleMonsterDied={handleMonsterDied}
-              spawnNewMonster={spawnNewMonster}
-              experienceGained={monsterTypes[currentMonster].experience}
-              lastAttack={lastAttack}
-            />
-          </Area>
-
-          <div
-            style={{
-              margin: '10px',
-              textAlign: 'center',
-              fontSize: '1.2em',
-            }}
-          >
-            {isFighting
-              ? "Fighting..."
-              : (isMonsterClickable
-                ? `Click the ${currentMonster.toLowerCase()} to fight! (${tickets})`
-                : `Not enough tickets. (${tickets})`)
-            }
-          </div>
-
-          <div
-            style={{
-              margin: '10px',
-              textAlign: 'center',
-              fontStyle: 'italic',
-              fontSize: '0.8em',
-            }}
-          >
-            Accuracy: {(calculateWinRate() * 100).toFixed(2)}%,
-            Drop rate: {calculateItemDropRate()}%
-          </div>
-
           {
             (crystalTimer > 0 || potionTimer > 0) && (
               <div
@@ -591,66 +591,20 @@ const MiniRPG = () => {
               </div>
             )
           }
-
-          <div
-            style={{
-              marginBottom: '30px',
-              width: '100%',
-              maxWidth: '400px',
-              overflow: 'hidden',
-              padding: '5px 0',
-            }}
-          >
-            <div
-              style={{
-                whiteSpace: 'nowrap',
-                animation: 'marquee 20s linear infinite',
-                fontFamily: 'Courier, monospace',
-                fontSize: '14px',
-                fontWeight: 'bold',
-              }}
-            >
-              {recentItems.length > 0 ? (
-                recentItems.map((item, index) => (
-                  <span
-                    key={index}
-                    style={{
-                      color: `${getColor(item.rarity)}`,
-                      marginRight: '20px',
-                      textDecoration: item.missed ? 'line-through' : 'none',
-                    }}
-                  >
-                    {item.count ? `${item.count} ` : ''}
-                    {item.rarity ? `${item.rarity} ` : ''}
-                    {item.name}
-                    {item.count > 1 ? 's' : ''}
-                  </span>
-                ))
-              ) : (
-                <span>No items obtained yet.</span>
-              )}
-            </div>
-          </div>
-
-          {renderPets()}
-
-          <div style={{ marginTop: '16px', fontSize: '12px', color: '#666' }}>
-            <p>Notice: Any resemblance to actual games is purely coincidental.</p>
-          </div>
-
-          <div
-            style={{
-              marginTop: '20px',
-              textAlign: 'center',
-              fontSize: '12px',
-              color: '#666',
-            }}
-          >
-            Version 1.8.1 - <a href='https://alan.computer'>alan.computer</a>
-          </div>
         </div>
         <div style={{ width: '25%', maxWidth: '200px' }}>
           {renderEquipment()}
+          <div
+            style={{
+              margin: '10px',
+              textAlign: 'center',
+              fontStyle: 'italic',
+              fontSize: '0.8em',
+            }}
+          >
+            Accuracy: {(calculateWinRate() * 100).toFixed(2)}% <br />
+            Drop rate: {calculateItemDropRate()}%
+          </div>
         </div>
       </div>
     </div>
@@ -671,7 +625,7 @@ const MiniRPG = () => {
 
   const renderShop = () => (
     <div style={{
-      minHeight: '70vh',
+      minHeight: '400px',
     }}>
       <Shop
         gold={inventory.Gold}
@@ -719,7 +673,7 @@ const MiniRPG = () => {
 
   const renderRecycler = () => (
     <div style={{
-      minHeight: '70vh',
+      minHeight: '400px',
     }}>
       <Recycler
         inventory={inventory}
@@ -737,13 +691,12 @@ const MiniRPG = () => {
 
   const renderBank = () => (
     <div style={{
-      minHeight: '70vh',
+      minHeight: '400px',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: '#f0f0f0',
-      padding: '20px',
     }}>
       <div style={{ fontSize: '48px', marginBottom: '20px' }}>
         🏦💰💵🪙
@@ -755,13 +708,12 @@ const MiniRPG = () => {
 
   const renderPond = () => (
     <div style={{
-      minHeight: '70vh',
+      minHeight: '400px',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: '#f0f0f0',
-      padding: '20px',
     }}>
       <div style={{ fontSize: '48px', marginBottom: '20px' }}>
         🎣🐟🌊🚣
@@ -822,11 +774,9 @@ const MiniRPG = () => {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      padding: '20px',
       backgroundColor: '#f0f0f0',
-      minHeight: '70vh',
+      minHeight: '400px',
     }}>
-      <h2>Welcome to Town</h2>
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
@@ -846,7 +796,7 @@ const MiniRPG = () => {
             style={{
               width: '150px',
               height: '150px',
-              backgroundColor: service.name === 'Monster' ? '#4CAF50' : '#ddd',
+              backgroundColor: service.name === 'Monster' ? '#CD5C5C' : '#ddd',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
@@ -858,11 +808,11 @@ const MiniRPG = () => {
               boxShadow: service.name === 'Monster' ? '0 0 15px rgba(0,0,0,0.2)' : 'none',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = service.name === 'Monster' ? '#45a049' : '#ccc';
+              e.currentTarget.style.backgroundColor = service.name === 'Monster' ? '#A52A2A' : '#bbb';
               e.currentTarget.style.transform = service.name === 'Monster' ? 'scale(1.15)' : 'scale(1.05)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = service.name === 'Monster' ? '#4CAF50' : '#ddd';
+              e.currentTarget.style.backgroundColor = service.name === 'Monster' ? '#CD5C5C' : '#ddd';
               e.currentTarget.style.transform = service.name === 'Monster' ? 'scale(1.1)' : 'scale(1)';
             }}
           >
@@ -916,35 +866,22 @@ const MiniRPG = () => {
             alignItems: 'flex-start',
           }}
         >
-          <h3 style={{
-            margin: '0 0 10px 0',
-            padding: '5px 10px',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            color: 'white',
-            borderRadius: '5px',
-          }}>
-            Current: {currentLocation.charAt(0).toUpperCase() + currentLocation.slice(1)}
-          </h3>
           <button
-            onClick={currentLocation === 'town' ? () => goToLocation('game') : goToTown}
-            disabled={isFighting}
+            onClick={goToTown}
+            disabled={isFighting || currentLocation === 'town'}
             style={{
-              padding: '20px',
+              padding: '10px',
               fontSize: '24px',
-              backgroundColor: isFighting ? '#ccc' : '#4CAF50',
-              color: isFighting ? '#888' : 'white',
+              backgroundColor: isFighting || currentLocation === 'town' ? '#ccc' : '#4CAF50',
               border: 'none',
               borderRadius: '10px',
-              cursor: isFighting ? 'not-allowed' : 'pointer',
+              cursor: isFighting || currentLocation === 'town' ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <span style={{ marginRight: '10px' }}>
-              {currentLocation === 'town' ? '👹' : '🏠'}
-            </span>
-            {currentLocation === 'town' ? 'Fight' : 'Town'}
+            🏠
           </button>
         </div>
       </div>
@@ -966,6 +903,18 @@ const MiniRPG = () => {
       opacity: isTransitioning ? 0 : 1,
     }}>
       {isDesktop ? renderCurrentLocation() : renderMobileView()}
+      <div
+        style={{
+          marginTop: '20px',
+          textAlign: 'center',
+          fontSize: '12px',
+          fontFamily: 'monospace',
+          color: '#b0b0b0',
+        }}
+      >
+        v1.8.2 - <a href='https://alan.computer'
+          style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
+      </div>
     </div>
   );
 };
