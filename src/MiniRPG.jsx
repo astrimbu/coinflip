@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef, useCallback } from 'react';
 import useInventoryManager from './useInventoryManager';
+import Area from './components/Area';
 import InventoryGrid from './components/InventoryGrid'
 import MonsterAnimation from './components/MonsterAnimation'
 import WornEquipment from './components/WornEquipment'
@@ -473,10 +474,10 @@ const MiniRPG = () => {
       {renderLevelAndExperience()}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '20px' }}>
-        <div style={{ width: '30%', maxWidth: '200px' }}>
+        <div style={{ width: '25%', maxWidth: '200px' }}>
           {renderInventory()}
         </div>
-        <div style={{ width: '38%' }}>
+        <div style={{ width: '50%' }}>
           <div style={{ maxWidth: '400px', margin: '0 auto' }}>
             <div
               style={{
@@ -505,17 +506,19 @@ const MiniRPG = () => {
             </div>
           </div>
 
-          <MonsterAnimation
-            monster={currentMonster}
-            hitpoints={monsterHitpoints}
-            maxHP={monsterTypes[currentMonster].maxHP}
-            onMonsterClick={handleMonsterClick}
-            isClickable={isMonsterClickable}
-            handleMonsterDied={handleMonsterDied}
-            spawnNewMonster={spawnNewMonster}
-            experienceGained={monsterTypes[currentMonster].experience}
-            lastAttack={lastAttack}
-          />
+          <Area monster={currentMonster}>
+            <MonsterAnimation
+              monster={currentMonster}
+              hitpoints={monsterHitpoints}
+              maxHP={monsterTypes[currentMonster].maxHP}
+              onMonsterClick={handleMonsterClick}
+              isClickable={isMonsterClickable}
+              handleMonsterDied={handleMonsterDied}
+              spawnNewMonster={spawnNewMonster}
+              experienceGained={monsterTypes[currentMonster].experience}
+              lastAttack={lastAttack}
+            />
+          </Area>
 
           <div
             style={{
@@ -643,10 +646,10 @@ const MiniRPG = () => {
               color: '#666',
             }}
           >
-            Version 1.8.0 - <a href='https://alan.computer'>alan.computer</a>
+            Version 1.8.1 - <a href='https://alan.computer'>alan.computer</a>
           </div>
         </div>
-        <div style={{ width: '30%', maxWidth: '200px' }}>
+        <div style={{ width: '25%', maxWidth: '200px' }}>
           {renderEquipment()}
         </div>
       </div>
@@ -774,17 +777,19 @@ const MiniRPG = () => {
 
   const renderMobileView = () => (
     <div style={{ width: '100%', textAlign: 'center', padding: '20px', color: '#f0f0f0' }}>
-      <MonsterAnimation
-        monster={currentMonster}
-        hitpoints={monsterHitpoints}
-        maxHP={monsterTypes[currentMonster].maxHP}
-        onMonsterClick={handleMonsterClick}
-        isClickable={isMonsterClickable}
-        handleMonsterDied={handleMonsterDied}
-        spawnNewMonster={spawnNewMonster}
-        experienceGained={monsterTypes[currentMonster].experience}
-        lastAttack={lastAttack}
-      />
+      <Area monster={currentMonster}>
+        <MonsterAnimation
+          monster={currentMonster}
+          hitpoints={monsterHitpoints}
+          maxHP={monsterTypes[currentMonster].maxHP}
+          onMonsterClick={handleMonsterClick}
+          isClickable={isMonsterClickable}
+          handleMonsterDied={handleMonsterDied}
+          spawnNewMonster={spawnNewMonster}
+          experienceGained={monsterTypes[currentMonster].experience}
+          lastAttack={lastAttack}
+        />
+      </Area>
       <p style={{ marginTop: '20px', fontSize: '16px' }}>
         Support for small screens coming soon™
       </p>
@@ -921,23 +926,25 @@ const MiniRPG = () => {
             Current: {currentLocation.charAt(0).toUpperCase() + currentLocation.slice(1)}
           </h3>
           <button
-            onClick={goToTown}
-            disabled={isFighting || currentLocation === 'town'}
+            onClick={currentLocation === 'town' ? () => goToLocation('game') : goToTown}
+            disabled={isFighting}
             style={{
               padding: '20px',
               fontSize: '24px',
-              backgroundColor: isFighting || currentLocation === 'town' ? '#ccc' : '#4CAF50',
-              color: isFighting || currentLocation === 'town' ? '#888' : 'white',
+              backgroundColor: isFighting ? '#ccc' : '#4CAF50',
+              color: isFighting ? '#888' : 'white',
               border: 'none',
               borderRadius: '10px',
-              cursor: isFighting || currentLocation === 'town' ? 'not-allowed' : 'pointer',
+              cursor: isFighting ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}
           >
-            <span style={{ marginRight: '10px' }}>🏠</span>
-            {currentLocation === 'town' ? 'In Town' : 'Go to Town'}
+            <span style={{ marginRight: '10px' }}>
+              {currentLocation === 'town' ? '👹' : '🏠'}
+            </span>
+            {currentLocation === 'town' ? 'Fight' : 'Town'}
           </button>
         </div>
       </div>
