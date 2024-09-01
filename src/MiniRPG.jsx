@@ -10,6 +10,7 @@ import Recycler from './components/Recycler'
 import { getColor, getRarityStat } from './utils';
 import './styles.css';
 
+const MIN_HEIGHT_VIEW = '300px';
 
 const MiniRPG = () => {
   const {
@@ -28,10 +29,10 @@ const MiniRPG = () => {
   } = useInventoryManager();
 
   const monsterTypes = {
-    Goblin: { label: 'Goblin', rate: 1 / 2, maxHP: 4, modifier: 6, rarity: 'Common', experience: 10, ticketCost: 0 },
-    Ogre: { label: 'Ogre', rate: 1 / 6, maxHP: 6, modifier: 4, rarity: 'Magic', experience: 50, ticketCost: 1 },
-    Demon: { label: 'Demon', rate: 1 / 40, maxHP: 10, modifier: 2, rarity: 'Rare', experience: 100, ticketCost: 2 },
-    Dragon: { label: 'Dragon', rate: 1 / 300, maxHP: 34, modifier: 1, rarity: 'Unique', experience: 200, ticketCost: 3 },
+    Goblin: { label: 'Goblin', rate: 1 / 2, maxHP: 4, modifier: 6, rarity: 'Common', experience: 10, ticketCost: 0, order: 0 },
+    Ogre: { label: 'Ogre', rate: 1 / 6, maxHP: 6, modifier: 4, rarity: 'Magic', experience: 50, ticketCost: 1, order: 1 },
+    Demon: { label: 'Demon', rate: 1 / 40, maxHP: 10, modifier: 2, rarity: 'Rare', experience: 100, ticketCost: 2, order: 2 },
+    Dragon: { label: 'Dragon', rate: 1 / 300, maxHP: 34, modifier: 1, rarity: 'Unique', experience: 200, ticketCost: 3, order: 3 },
   };
 
   const [currentMonster, setCurrentMonster] = useState('Goblin');
@@ -464,8 +465,24 @@ const MiniRPG = () => {
     </div>
   );
 
+  const navigateMonster = (direction) => {
+    const currentOrder = monsterTypes[currentMonster].order;
+    const monsterCount = Object.keys(monsterTypes).length;
+    let newOrder;
+
+    if (direction === 'left') {
+      newOrder = (currentOrder - 1 + monsterCount) % monsterCount;
+    } else {
+      newOrder = (currentOrder + 1) % monsterCount;
+    }
+
+    const newMonster = Object.keys(monsterTypes).find(monster => monsterTypes[monster].order === newOrder);
+    setCurrentMonster(newMonster);
+    setMonsterHitpoints(monsterTypes[newMonster].maxHP);
+  };
+
   const renderGame = () => (
-    <div
+    <div id='renderGame'
       style={{
         maxWidth: '900px',
         width: '100%',
@@ -494,11 +511,49 @@ const MiniRPG = () => {
       </button>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-        <div style={{ width: '25%', maxWidth: '200px' }}>
+        <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
           {renderInventory()}
-
         </div>
-        <div style={{ width: '50%' }}>
+        <div style={{ width: '50%', position: 'relative' }}>
+          {(crystalTimer > 0 || potionTimer > 0) && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '10px',
+                left: '10px',
+                display: 'flex',
+                gap: '10px',
+                zIndex: 10,
+              }}
+            >
+              {crystalTimer > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <img
+                    src={getItemUrl('crystal', 'Crystal')}
+                    alt="Crystal"
+                    style={{ width: '20px', height: '20px' }}
+                  />
+                  <span style={{ fontSize: '12px', fontWeight: 'bold' }}>
+                    {Math.floor(crystalTimer / 60)}:
+                    {(crystalTimer % 60).toString().padStart(2, '0')}
+                  </span>
+                </div>
+              )}
+              {potionTimer > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <img
+                    src={getItemUrl('potion', 'Potion')}
+                    alt="Potion"
+                    style={{ width: '20px', height: '20px' }}
+                  />
+                  <span style={{ fontSize: '12px', fontWeight: 'bold' }}>
+                    {Math.floor(potionTimer / 60)}:
+                    {(potionTimer % 60).toString().padStart(2, '0')}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
           <Area monster={currentMonster}>
             <MonsterAnimation
               monster={currentMonster}
@@ -511,88 +566,67 @@ const MiniRPG = () => {
               experienceGained={monsterTypes[currentMonster].experience}
               lastAttack={lastAttack}
             />
+            {currentMonster !== 'Goblin' && ( // Navigation arrow
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                left: '10px',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+              }}>
+                <button
+                  onClick={() => navigateMonster('left')}
+                  style={{
+                    fontSize: '36px',
+                    fontFamily: 'monospace',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    border: 'none',
+                    background: 'transparent',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    padding: '0',
+                  }}
+                >
+                  ←
+                </button>
+              </div>
+            )}
+            {currentMonster !== 'Dragon' && ( // Navigation arrow
+              <div style={{
+                position: 'absolute',
+                top: '50%',
+                right: '10px',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+              }}>
+                <button
+                  onClick={() => navigateMonster('right')}
+                  style={{
+                    fontSize: '36px',
+                    fontFamily: 'monospace',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    border: 'none',
+                    background: 'transparent',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontWeight: 'bold',
+                    padding: '0',
+                  }}
+                >
+                  →
+                </button>
+              </div>
+            )}
           </Area>
           {renderLevelAndExperience()}
           {renderPets()}
-          <div style={{ maxWidth: '250px', margin: '0 auto' }}>
-            <div
-              style={{
-                margin: '10px',
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}
-            >
-              {Object.entries(monsterTypes).map(([monster, { label, rarity }]) => (
-                <button
-                  key={monster}
-                  onClick={() => {
-                    setCurrentMonster(monster);
-                    setMonsterHitpoints(monsterTypes[monster].maxHP);
-                  }}
-                  style={{
-                    backgroundColor: currentMonster === monster ? getColor(rarity) : 'transparent',
-                    color: currentMonster === monster ? 'white' : 'black',
-                    padding: '2px 4px',
-                    border: `1px solid ${getColor(rarity)}`,
-                    borderRadius: '0',
-                    fontSize: '1em',
-                    lineHeight: '1.2em',
-                    minWidth: '40px',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-          {
-            (crystalTimer > 0 || potionTimer > 0) && (
-              <div
-                style={{
-                  marginBottom: '10px',
-                  textAlign: 'center',
-                  padding: '10px',
-                  backgroundColor: '#80d3da',
-                  borderRadius: '5px',
-                  width: 'fit-content',
-                  margin: '0 auto',
-                  display: 'flex',
-                  gap: '10px',
-                }}
-              >
-                {crystalTimer > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <img
-                      src={getItemUrl('crystal', 'Crystal')}
-                      alt="Crystal"
-                      style={{ width: '20px', height: '20px' }}
-                    />
-                    <span>
-                      {Math.floor(crystalTimer / 60)}:
-                      {(crystalTimer % 60).toString().padStart(2, '0')}
-                    </span>
-                  </div>
-                )}
-                {potionTimer > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <img
-                      src={getItemUrl('potion', 'Potion')}
-                      alt="Potion"
-                      style={{ width: '20px', height: '20px' }}
-                    />
-                    <span>
-                      {Math.floor(potionTimer / 60)}:
-                      {(potionTimer % 60).toString().padStart(2, '0')}
-                    </span>
-                  </div>
-                )}
-              </div>
-            )
-          }
         </div>
-        <div style={{ width: '25%', maxWidth: '200px' }}>
+        <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
           {renderEquipment()}
           <div
             style={{
@@ -625,7 +659,7 @@ const MiniRPG = () => {
 
   const renderShop = () => (
     <div style={{
-      minHeight: '400px',
+      minHeight: MIN_HEIGHT_VIEW,
     }}>
       <Shop
         gold={inventory.Gold}
@@ -673,7 +707,7 @@ const MiniRPG = () => {
 
   const renderRecycler = () => (
     <div style={{
-      minHeight: '400px',
+      minHeight: MIN_HEIGHT_VIEW,
     }}>
       <Recycler
         inventory={inventory}
@@ -691,7 +725,7 @@ const MiniRPG = () => {
 
   const renderBank = () => (
     <div style={{
-      minHeight: '400px',
+      minHeight: MIN_HEIGHT_VIEW,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -708,7 +742,7 @@ const MiniRPG = () => {
 
   const renderPond = () => (
     <div style={{
-      minHeight: '400px',
+      minHeight: MIN_HEIGHT_VIEW,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -743,7 +777,7 @@ const MiniRPG = () => {
         />
       </Area>
       <p style={{ marginTop: '20px', fontSize: '16px' }}>
-        Support for small screens coming soon™
+        No support for mobile devices yet.
       </p>
     </div>
   );
@@ -775,7 +809,7 @@ const MiniRPG = () => {
       flexDirection: 'column',
       alignItems: 'center',
       backgroundColor: '#f0f0f0',
-      minHeight: '400px',
+      minHeight: MIN_HEIGHT_VIEW,
     }}>
       <div style={{
         display: 'grid',
@@ -794,8 +828,8 @@ const MiniRPG = () => {
             key={service.name}
             onClick={() => goToLocation(service.name.toLowerCase() === 'monster' ? 'game' : service.name.toLowerCase())}
             style={{
-              width: '150px',
-              height: '150px',
+              width: '100px',
+              height: '100px',
               backgroundColor: service.name === 'Monster' ? '#CD5C5C' : '#ddd',
               display: 'flex',
               flexDirection: 'column',
@@ -845,7 +879,7 @@ const MiniRPG = () => {
     })();
 
     return (
-      <div style={{
+      <div id='game' style={{
         position: 'relative',
         width: '100%',
         maxWidth: '900px',
@@ -912,7 +946,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.2 - <a href='https://alan.computer'
+        v1.8.3 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>
