@@ -468,6 +468,7 @@ const MiniRPG = () => {
               }}>
                 <button
                   onClick={() => navigateMonster('left')}
+                  disabled={isFighting}
                   style={{
                     fontSize: '50px',
                     fontFamily: 'monospace',
@@ -476,10 +477,11 @@ const MiniRPG = () => {
                     alignItems: 'center',
                     border: 'none',
                     background: 'transparent',
-                    color: 'white',
-                    cursor: 'pointer',
+                    color: isFighting ? '#a9a9a9' : 'white',
+                    cursor: isFighting ? 'not-allowed' : 'pointer',
                     fontWeight: 'bold',
                     padding: '0',
+                    opacity: isFighting ? 0.5 : 1,
                   }}
                 >
                   ←
@@ -496,6 +498,7 @@ const MiniRPG = () => {
               }}>
                 <button
                   onClick={() => navigateMonster('right')}
+                  disabled={isFighting}
                   style={{
                     fontSize: '50px',
                     fontFamily: 'monospace',
@@ -504,10 +507,11 @@ const MiniRPG = () => {
                     alignItems: 'center',
                     border: 'none',
                     background: 'transparent',
-                    color: 'white',
-                    cursor: 'pointer',
+                    color: isFighting ? '#a9a9a9' : 'white',
+                    cursor: isFighting ? 'not-allowed' : 'pointer',
                     fontWeight: 'bold',
                     padding: '0',
+                    opacity: isFighting ? 0.5 : 1,
                   }}
                 >
                   →
@@ -646,7 +650,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.6 - <a href='https://alan.computer'
+        v1.8.7 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>
