@@ -92,14 +92,14 @@ const MonsterAnimation = ({
           newPosition = startPosition + 100 - 400 * (progress - 0.75);
         }
         currentPositionRef.current = newPosition;
-        const img = monsterRef.current.children[1];
-
-        if (facingRightRef.current) {
-          img.style.animation = 'flipRight 0.1s forwards';
-        } else {
-          img.style.animation = 'flipLeft 0.1s forwards';
+        const img = monsterRef.current && monsterRef.current.children[1];
+        if (img) {
+          if (facingRightRef.current) {
+            img.style.animation = 'flipRight 0.1s forwards';
+          } else {
+            img.style.animation = 'flipLeft 0.1s forwards';
+          }
         }
-
         requestAnimationFrame(updatePosition);
       }
     };
@@ -208,9 +208,9 @@ const MonsterAnimation = ({
   const respawnMonster = () => {
     stopAllAnimations();
     const div = monsterRef.current;
-    div.style.opacity = '1';
-    const img = monsterRef.current.children[1];
-    img.style.transform = 'rotate(0deg)';
+    if (div) div.style.opacity = '1';
+    const img = monsterRef.current && monsterRef.current.children[1];
+    if (img) img.style.transform = 'rotate(0deg)';
     currentPositionRef.current = 0;
     facingRightRef.current = false;
     setAnimationState('walking');
@@ -223,7 +223,7 @@ const MonsterAnimation = ({
 
   const addHitsplat = (damage) => {
     const newHitsplat = {
-      id: Date.now(),
+      id: Date.now() + Math.random(),
       damage,
       position: {
         left: Math.random() * 80 + 10,
