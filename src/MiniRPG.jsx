@@ -377,7 +377,6 @@ const MiniRPG = () => {
   const renderGame = () => (
     <div id='renderGame'
       style={{
-        maxWidth: '900px',
         width: '100%',
         margin: '0 auto',
         background: '#f0f0f0',
@@ -470,7 +469,7 @@ const MiniRPG = () => {
                 <button
                   onClick={() => navigateMonster('left')}
                   style={{
-                    fontSize: '36px',
+                    fontSize: '50px',
                     fontFamily: 'monospace',
                     display: 'flex',
                     justifyContent: 'center',
@@ -498,7 +497,7 @@ const MiniRPG = () => {
                 <button
                   onClick={() => navigateMonster('right')}
                   style={{
-                    fontSize: '36px',
+                    fontSize: '50px',
                     fontFamily: 'monospace',
                     display: 'flex',
                     justifyContent: 'center',
@@ -583,7 +582,7 @@ const MiniRPG = () => {
       <div id='game' style={{
         position: 'relative',
         width: '100%',
-        maxWidth: '900px',
+        maxWidth: '825px',
         margin: '0 auto',
         background: '#f0f0f0',
         display: 'flex',
@@ -594,8 +593,8 @@ const MiniRPG = () => {
         <div
           style={{
             position: 'absolute',
-            bottom: '20px',
-            left: '20px',
+            bottom: '10px',
+            left: '10px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'flex-start',
@@ -647,7 +646,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.5 - <a href='https://alan.computer'
+        v1.8.6 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>
