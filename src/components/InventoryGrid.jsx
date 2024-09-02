@@ -38,7 +38,6 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '0 0 10px 0',
       }}
     >
       <div

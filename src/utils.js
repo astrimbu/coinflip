@@ -23,3 +23,21 @@ export const getRarityStat = (rarity) => {
       return 0;
   }
 };
+
+export const getItemUrl = (name, rarity) => {
+  if (name === 'crystal' || name === 'potion' || name === 'gold') {
+    return new URL(`./assets/items/${name}.png`, import.meta.url).href;
+  }
+  return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url).href;
+};
+
+export const calculateWinRate = (totalStats, baseRate) => {
+  const statBonus = Math.floor(totalStats / 6) + totalStats * 0.1;
+  return Math.min(baseRate * Math.pow(2, statBonus), 1);
+};
+
+export const calculateItemDropRate = (baseChance, modifier, crystalTimer) => {
+  return (baseChance * modifier * (crystalTimer > 0 ? 2 : 1) * 100).toFixed(2);
+};
+
+export const experienceToNextLevel = (currentLevel) => Math.floor(100 * Math.pow(1.5, currentLevel - 1));

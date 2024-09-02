@@ -7,10 +7,9 @@ import MonsterAnimation from './components/MonsterAnimation'
 import WornEquipment from './components/WornEquipment'
 import Shop from './components/Shop'
 import Recycler from './components/Recycler'
-import { getColor, getRarityStat } from './utils';
+import { getColor, getRarityStat, getItemUrl, calculateWinRate, calculateItemDropRate, experienceToNextLevel } from './utils';
+import { monsterTypes, petDropRates, MIN_HEIGHT_VIEW } from './constants/gameData';
 import './styles.css';
-
-const MIN_HEIGHT_VIEW = '300px';
 
 const MiniRPG = () => {
   const {
@@ -27,13 +26,6 @@ const MiniRPG = () => {
     recycleItems,
     removeScrap,
   } = useInventoryManager();
-
-  const monsterTypes = {
-    Goblin: { label: 'Goblin', rate: 1 / 2, maxHP: 4, modifier: 6, rarity: 'Common', experience: 10, ticketCost: 0, order: 0 },
-    Ogre: { label: 'Ogre', rate: 1 / 6, maxHP: 6, modifier: 4, rarity: 'Magic', experience: 50, ticketCost: 1, order: 1 },
-    Demon: { label: 'Demon', rate: 1 / 40, maxHP: 10, modifier: 2, rarity: 'Rare', experience: 100, ticketCost: 2, order: 2 },
-    Dragon: { label: 'Dragon', rate: 1 / 300, maxHP: 34, modifier: 1, rarity: 'Unique', experience: 200, ticketCost: 3, order: 3 },
-  };
 
   const [currentMonster, setCurrentMonster] = useState('Goblin');
   const [scores, setScores] = useState(
@@ -61,8 +53,6 @@ const MiniRPG = () => {
   const [experience, setExperience] = useState(0);
   const [recycleMode, setRecycleMode] = useState(false);
 
-  const experienceToNextLevel = (currentLevel) => Math.floor(100 * Math.pow(1.5, currentLevel - 1));
-
   const handleMonsterClick = () => {
     if (isMonsterClickable) {
       fightMonster();
@@ -74,7 +64,6 @@ const MiniRPG = () => {
   const [pets, setPets] = useState(
     Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, { count: 0, kc: [] }]))
   );
-  const petDropRates = Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, 1 / 1000]));
   const [killCount, setKillCount] = useState(
     Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, 0]))
   );
@@ -87,14 +76,6 @@ const MiniRPG = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  function getItemUrl(name, rarity) {
-    if (name === 'crystal' || name === 'potion' || name === 'gold') {
-      return new URL(`./assets/items/${name}.png`, import.meta.url).href;
-    }
-    return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url)
-      .href;
-  }
 
   const calculateTotalStats = () => {
     return Object.values(equipment).reduce((total, item) => {
@@ -510,7 +491,7 @@ const MiniRPG = () => {
         {isSoundEnabled ? '🔊' : '🔇'}
       </button>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
         <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
           {renderInventory()}
         </div>
@@ -946,12 +927,11 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.3 - <a href='https://alan.computer'
+        v1.8.4 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>
   );
 };
-
 
 export default MiniRPG;
