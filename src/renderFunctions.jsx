@@ -211,26 +211,39 @@ export const renderPond = () => (
   </div>
 );
 
-export const renderMobileView = (currentMonster, monsterTypes, hitpoints, maxHP, handleMonsterClick, isMonsterClickable, handleMonsterDied, spawnNewMonster, experienceGained, lastAttack) => (
-  <div style={{ width: '100%', textAlign: 'center', padding: '20px', color: '#f0f0f0' }}>
-    <Area monster={currentMonster}>
-      <MonsterAnimation
-        monster={currentMonster}
-        hitpoints={hitpoints}
-        maxHP={monsterTypes[currentMonster].maxHP}
-        onMonsterClick={handleMonsterClick}
-        isClickable={isMonsterClickable}
-        handleMonsterDied={handleMonsterDied}
-        spawnNewMonster={spawnNewMonster}
-        experienceGained={monsterTypes[currentMonster].experience}
-        lastAttack={lastAttack}
-      />
-    </Area>
-    <p style={{ marginTop: '20px', fontSize: '16px' }}>
-      No support for mobile devices yet.
-    </p>
-  </div>
-);
+export const renderMobileView = (props) => {
+  const {
+    currentMonster,
+    monsterTypes,
+    monsterHitpoints,
+    handleMonsterClick,
+    isMonsterClickable,
+    handleMonsterDied,
+    spawnNewMonster,
+    lastAttack
+  } = props;
+
+  return (
+    <div style={{ width: '100%', textAlign: 'center', padding: '20px', color: '#f0f0f0' }}>
+      <Area monster={currentMonster}>
+        <MonsterAnimation
+          monster={currentMonster}
+          hitpoints={monsterHitpoints}
+          maxHP={monsterTypes[currentMonster].maxHP}
+          onMonsterClick={handleMonsterClick}
+          isClickable={isMonsterClickable}
+          handleMonsterDied={handleMonsterDied}
+          spawnNewMonster={spawnNewMonster}
+          experienceGained={monsterTypes[currentMonster].experience}
+          lastAttack={lastAttack}
+        />
+      </Area>
+      <p style={{ marginTop: '20px', fontSize: '16px' }}>
+        No support for mobile devices yet.
+      </p>
+    </div>
+  );
+};
 
 export const renderTown = (goToLocation) => (
   <div style={{

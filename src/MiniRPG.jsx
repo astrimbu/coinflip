@@ -406,7 +406,7 @@ const MiniRPG = () => {
         <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
         {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode)}
         </div>
-        <div style={{ width: '50%', position: 'relative' }}>
+        <div style={{ width: '50%', maxWidth: '400px', position: 'relative' }}>
           {(crystalTimer > 0 || potionTimer > 0) && (
             <div
               style={{
@@ -586,7 +586,7 @@ const MiniRPG = () => {
       <div id='game' style={{
         position: 'relative',
         width: '100%',
-        maxWidth: '825px',
+        maxWidth: '800px',
         margin: '0 auto',
         background: '#f0f0f0',
         display: 'flex',
@@ -640,7 +640,16 @@ const MiniRPG = () => {
       transition: 'opacity 0.3s',
       opacity: isTransitioning ? 0 : 1,
     }}>
-      {isDesktop ? renderCurrentLocation() : renderMobileView()}
+      {isDesktop ? renderCurrentLocation() : renderMobileView({
+        currentMonster,
+        monsterTypes,
+        monsterHitpoints,
+        handleMonsterClick,
+        isMonsterClickable,
+        handleMonsterDied,
+        spawnNewMonster,
+        lastAttack
+      })}
       <div
         style={{
           marginTop: '20px',
@@ -650,7 +659,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.7 - <a href='https://alan.computer'
+        v1.8.8 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>
