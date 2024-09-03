@@ -10,8 +10,6 @@ const Recycler = ({
   scrap,
   onRecycle,
   onExchange,
-  recycleMode,
-  toggleRecycleMode,
   onEquip,
   onUsePotion,
   onUseCrystal,
@@ -74,7 +72,7 @@ const Recycler = ({
       alignItems: 'center',
       justifyContent: 'space-between',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '40px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '40px', alignItems: 'center' }}>
         <div>
           <InventoryGrid
             items={inventory}
@@ -82,40 +80,35 @@ const Recycler = ({
             onUsePotion={onUsePotion}
             onUseCrystal={onUseCrystal}
             onRecycle={onRecycle}
-            recycleMode={recycleMode}
+            recycleMode={true}
           />
-        </div>
-        <div>
-          <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <button
-              onClick={toggleRecycleMode}
-              style={{
-                padding: '5px 10px',
-                backgroundColor: recycleMode ? '#ff4444' : '#4CAF50',
-                color: 'white',
-                border: 'none',
-                borderRadius: '3px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <img
-                src={hammer}
-                alt="Recycle"
-                style={{ width: '20px', height: '20px' }}
-              />
-              {recycleMode ? 'Cancel' : ''}
-            </button>
+          <div style={{
+            padding: '5px',
+            marginBottom: '10px',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
             <button
               onClick={handleRecycleAll}
               disabled={recyclableItems.length === 0}
-              style={{ padding: '5px 10px', fontSize: '0.9em', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px', cursor: recyclableItems.length === 0 ? 'not-allowed' : 'pointer' }}
+              style={{
+                padding: '10px 20px',
+                fontSize: '1.2em',
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '3px',
+                cursor: recyclableItems.length === 0 ? 'not-allowed' : 'pointer'
+              }}
             >
               Recycle All
             </button>
           </div>
-          <div style={{ backgroundColor: '#d5d5d5', padding: '5px', marginBottom: '10px' }}>
+        </div>
+        <div>
+
+          <div style={{ padding: '5px', marginBottom: '10px', fontWeight: 'bold' }}>
             {Object.entries(scrap).map(([rarity, count]) => (
               <div key={rarity} style={{ color: getColor(rarity) }}>
                 {rarity}: {count}
@@ -123,7 +116,6 @@ const Recycler = ({
             ))}
           </div>
           <div>
-            <h3 style={{ margin: '0 0 5px', fontSize: '1em' }}>Exchange Scrap:</h3>
             <div style={{ display: 'flex', gap: '5px', justifyContent: 'center', marginBottom: '5px' }}>
               <select value={exchangeRarity} onChange={(e) => setExchangeRarity(e.target.value)} style={{ padding: '2px', borderRadius: '2px', backgroundColor: getColor(exchangeRarity), color: 'white', fontSize: '0.8em' }}>
                 {Object.keys(scrap).map(rarity => (
@@ -141,14 +133,14 @@ const Recycler = ({
               onClick={handleExchange}
               disabled={scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull}
               style={{
-                padding: '5px 10px',
-                backgroundColor: scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull ? '#aaa' : '#007bff',
+                padding: '8px 15px',
+                backgroundColor: scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull ? '#aaa' : '#9c27b0',
                 color: 'white',
                 border: 'none',
                 borderRadius: '3px',
                 cursor: scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull ? 'not-allowed' : 'pointer',
-                fontSize: '0.9em',
-                width: '100%',
+                fontSize: '1em',
+                width: 'auto',
                 marginTop: '5px',
               }}
             >
