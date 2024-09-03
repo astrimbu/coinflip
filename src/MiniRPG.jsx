@@ -568,10 +568,10 @@ const MiniRPG = () => {
             style={{
               padding: '10px',
               fontSize: '24px',
-              backgroundColor: isFighting || currentLocation === 'town' ? '#ccc' : '#4CAF50',
+              backgroundColor: currentLocation === 'town' ? '#ccc' : '#4CAF50',
               border: 'none',
               borderRadius: '10px',
-              cursor: isFighting || currentLocation === 'town' ? 'not-allowed' : 'pointer',
+              cursor: currentLocation === 'town' ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

@@ -33,7 +33,7 @@ html::-webkit-scrollbar {
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -730%);
+    transform: translate(-50%, -500%);
   }
 }
 
