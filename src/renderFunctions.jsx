@@ -2,6 +2,7 @@ import React from 'react';
 import Area from './components/Area';
 import MonsterAnimation from './components/MonsterAnimation';
 import InventoryGrid from './components/InventoryGrid';
+import Town from './components/Town';
 import Shop from './components/Shop';
 import WornEquipment from './components/WornEquipment';
 import Recycler from './components/Recycler';
@@ -245,59 +246,4 @@ export const renderMobileView = (props) => {
   );
 };
 
-export const renderTown = (goToLocation) => (
-  <div style={{
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    backgroundColor: '#f0f0f0',
-    minHeight: MIN_HEIGHT_VIEW,
-  }}>
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '20px',
-      marginTop: '20px',
-    }}>
-      {[
-        { name: 'Recycler', image: '🔄' },
-        { name: 'Shop', image: '🛒' },
-        { name: 'Bank', image: '🏦' },
-        { name: 'Pond', image: '🎣' },
-        { name: 'Monster', image: '👹' },
-      ].map((service) => (
-        <div
-          key={service.name}
-          onClick={() => goToLocation(service.name.toLowerCase() === 'monster' ? 'game' : service.name.toLowerCase())}
-          style={{
-            width: '100px',
-            height: '100px',
-            backgroundColor: service.name === 'Monster' ? '#CD5C5C' : '#ddd',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            cursor: 'pointer',
-            borderRadius: '10px',
-            transition: 'background-color 0.3s, transform 0.3s',
-            transform: service.name === 'Monster' ? 'scale(1.1)' : 'scale(1)',
-            boxShadow: service.name === 'Monster' ? '0 0 15px rgba(0,0,0,0.2)' : 'none',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = service.name === 'Monster' ? '#A52A2A' : '#bbb';
-            e.currentTarget.style.transform = service.name === 'Monster' ? 'scale(1.15)' : 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = service.name === 'Monster' ? '#CD5C5C' : '#ddd';
-            e.currentTarget.style.transform = service.name === 'Monster' ? 'scale(1.1)' : 'scale(1)';
-          }}
-        >
-          <div style={{ fontSize: '48px' }}>{service.image}</div>
-          <div style={{ color: service.name === 'Monster' ? 'white' : 'black', fontWeight: service.name === 'Monster' ? 'bold' : 'normal' }}>
-            {service.name}
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
+export const renderTown = (goToLocation) => <Town goToLocation={goToLocation} />;
