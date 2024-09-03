@@ -8,6 +8,7 @@ export const monsterTypes = {
     experience: 10,
     ticketCost: 0,
     order: 0,
+    damage: 1,
   },
   Ogre: {
     label: "Ogre",
@@ -18,6 +19,7 @@ export const monsterTypes = {
     experience: 50,
     ticketCost: 1,
     order: 1,
+    damage: 4,
   },
   Demon: {
     label: "Demon",
@@ -28,6 +30,7 @@ export const monsterTypes = {
     experience: 100,
     ticketCost: 2,
     order: 2,
+    damage: 8,
   },
   Dragon: {
     label: "Dragon",
@@ -38,6 +41,7 @@ export const monsterTypes = {
     experience: 200,
     ticketCost: 3,
     order: 3,
+    damage: 12,
   },
 };
 

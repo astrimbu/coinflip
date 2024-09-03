@@ -66,6 +66,8 @@ const MiniRPG = () => {
   const [recycleMode, setRecycleMode] = useState(false);
   const [showLevelUpButton, setShowLevelUpButton] = useState(false);
   const [showSkillTree, setShowSkillTree] = useState(false);
+  const [userHitpoints, setUserHitpoints] = useState(100);
+  const [maxUserHitpoints, setMaxUserHitpoints] = useState(100);
 
   const handleMonsterClick = () => {
     if (isMonsterClickable) {
@@ -282,6 +284,12 @@ const MiniRPG = () => {
     spawnNewMonster();
   };
 
+  const handleUserDied = () => {
+    setIsFighting(false);
+    setIsAttacking(false);
+    // Add any other logic for user death (e.g., respawn, penalty, etc.)
+  };
+
   const potionTimerRef = useRef(potionTimer);
 
   useEffect(() => {
@@ -292,22 +300,23 @@ const MiniRPG = () => {
 
   useEffect(() => { // Fight Monster effect
     const performAttack = () => {
-      const adjustedRate = calcWinRate(calculateTotalStats(), monsterTypes[currentMonster].rate);
-      const result = Math.random() < adjustedRate;
-      setResult(result);
+      // User attack
+      const userAdjustedRate = calcWinRate(calculateTotalStats(), monsterTypes[currentMonster].rate);
+      const userResult = Math.random() < userAdjustedRate;
+      setResult(userResult);
 
       setIsAttacking(true);
-      playAttackSound(result);
+      playAttackSound(userResult);
 
-      const damage = result
+      const userDamage = userResult
         ? (1 + Math.floor(calculateTotalStats() / 10)) * (potionTimerRef.current > 0 ? 2 : 1)
         : 0;
 
-      setLastAttack({ damage, id: Date.now() });
+      setLastAttack({ damage: userDamage, id: Date.now() });
 
-      if (result) {
+      if (userResult) {
         setMonsterHitpoints((prevHp) => {
-          const newHp = prevHp - damage;
+          const newHp = prevHp - userDamage;
           if (newHp <= 0) {
             setIsDying(true);
           }
@@ -315,15 +324,24 @@ const MiniRPG = () => {
         });
       }
 
+      // Monster attack
+      const monsterAdjustedRate = 1 - userAdjustedRate; // Simplistic approach, can be refined later
+      const monsterResult = Math.random() < monsterAdjustedRate;
+
+      if (monsterResult) {
+        const monsterDamage = monsterTypes[currentMonster].damage;
+        setUserHitpoints((prevHp) => Math.max(0, prevHp - monsterDamage));
+      }
+
       setTimeout(() => {
         setIsAttacking(false);
-        setAnimationResult(result);
+        setAnimationResult(userResult);
 
         setScores((prevScores) => ({
           ...prevScores,
           [currentMonster]: {
             fights: prevScores[currentMonster].fights + 1,
-            wins: prevScores[currentMonster].wins + (result ? 1 : 0),
+            wins: prevScores[currentMonster].wins + (userResult ? 1 : 0),
           },
         }));
 
@@ -479,6 +497,16 @@ const MiniRPG = () => {
           {renderPets(pets, monsterTypes, getColor, hoveredPet, setHoveredPet)}
           {showLevelUpButton && renderLevelUpButton(openSkillTree)}
           {showSkillTree && renderSkillTree(closeSkillTree)}
+          <div style={{
+            position: 'absolute',
+            top: '10px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            fontSize: '14px',
+            color: 'white',
+          }}>
+            HP: {userHitpoints} / {maxUserHitpoints}
+          </div>
         </div>
         <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
           {renderEquipment(equipment, unequipItem)}
@@ -618,7 +646,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.15 - <a href='https://alan.computer'
+        v1.8.16 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>
