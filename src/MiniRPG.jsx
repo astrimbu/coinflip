@@ -512,6 +512,7 @@ const MiniRPG = () => {
       setIsTransitioning(false);
     }, 300);
     if (isFighting) {
+      setIsFighting(false);
     }
   }, [isFighting]);
   const goToLocation = useCallback((location) => {

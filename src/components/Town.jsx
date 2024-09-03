@@ -34,7 +34,7 @@ const Town = ({ goToLocation }) => {
 
 const ServiceButton = ({ service, goToLocation }) => {
   const isMonster = service.name === 'Monster';
-  
+
   return (
     <div
       onClick={() => goToLocation(isMonster ? 'game' : service.name.toLowerCase())}
