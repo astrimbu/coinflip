@@ -5,7 +5,7 @@ import Area from './components/Area';
 import MonsterAnimation from './components/MonsterAnimation'
 import NavigationArrow from './components/NavigationArrow';
 import { getColor, getRarityStat, getItemUrl, calcWinRate, calcItemDropRate, xpToNextLevel } from './utils';
-import { monsterTypes, petDropRates } from './constants/gameData';
+import { monsterTypes, petDropRates, ATTACK_SPEED } from './constants/gameData';
 import './styles.css';
 import {
   renderPets,
@@ -332,7 +332,7 @@ const MiniRPG = () => {
 
     if (isFighting) {
       performAttack();
-      fightIntervalRef.current = setInterval(performAttack, 1200);
+      fightIntervalRef.current = setInterval(performAttack, ATTACK_SPEED);
     } else {
       clearInterval(fightIntervalRef.current);
     }
@@ -618,7 +618,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.14 - <a href='https://alan.computer'
+        v1.8.15 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>

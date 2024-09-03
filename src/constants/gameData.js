@@ -46,4 +46,5 @@ export const petDropRates = Object.fromEntries(
 );
 
 export const MIN_HEIGHT_VIEW = "300px";
+export const ATTACK_SPEED = 1200;
 

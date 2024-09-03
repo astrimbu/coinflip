@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState, useEffect, useRef } from 'react';
+import { ATTACK_SPEED } from '../constants/gameData';
 
 const MonsterAnimation = ({
   monster,
@@ -126,7 +127,7 @@ const MonsterAnimation = ({
             { transform: `translateX(${fp}px) rotate(0deg)` },
           ],
           {
-            duration: 1200,
+            duration: ATTACK_SPEED,
             easing: 'ease-out',
           }
         );
