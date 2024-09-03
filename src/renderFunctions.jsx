@@ -325,23 +325,24 @@ export const renderDeathScreen = (handleContinue) => (
       alignItems: 'center',
       zIndex: 1000,
       animation: 'fadeIn 0.5s ease-in-out',
-      transform: 'translateY(-5%)',
     }}
   >
-    <h2 style={{ color: 'white', fontSize: '2em', marginBottom: '20px' }}>Sit rat 🐀</h2>
-    <button
-      onClick={handleContinue}
-      style={{
-        padding: '10px 20px',
-        fontSize: '1em',
-        backgroundColor: '#4CAF50',
-        color: 'white',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-      }}
-    >
-      Continue
-    </button>
+    <div style={{ transform: 'translateY(-30px)' }}>
+      <h2 style={{ color: 'white', fontSize: '2em', margin: '0 0 10px 0' }}>Sit rat 🐀</h2>
+      <button
+        onClick={handleContinue}
+        style={{
+          padding: '10px 20px',
+          fontSize: '1em',
+          backgroundColor: '#4CAF50',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+        }}
+      >
+        Continue
+      </button>
+    </div>
   </div>
 );
