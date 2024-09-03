@@ -3,11 +3,12 @@ import { MIN_HEIGHT_VIEW } from '../constants/gameData';
 
 const Town = ({ goToLocation }) => {
   const services = [
-    { name: 'Bank', image: '🏦' },
-    { name: 'Monster', image: '👹' },
     { name: 'Recycler', image: '🔄' },
+    { name: 'Monster', image: '👹' },
+    { name: 'Bank', image: '🏦' },
     { name: 'Shop', image: '🛒' },
     { name: 'Pond', image: '🎣' },
+    { name: 'Stats', image: '📈' },
   ];
 
   return (

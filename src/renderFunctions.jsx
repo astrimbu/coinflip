@@ -347,3 +347,53 @@ export const renderDeathScreen = (handleContinue) => (
     </div>
   </div>
 );
+
+export const renderStats = (killCount, scores, pets) => {
+  return (
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', borderRadius: '10px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '30px' }}>
+        <div style={{ flexBasis: '30%', minWidth: '200px' }}>
+          <h3 style={{ color: '#444', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>Monster Kills</h3>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {Object.entries(killCount).map(([monster, count]) => (
+              <li key={monster} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}>
+                <span>{monster}:</span> <span style={{ fontWeight: 'bold' }}>{count}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div style={{ flexBasis: '30%', minWidth: '200px' }}>
+          <h3 style={{ color: '#444', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>Fight Scores</h3>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {Object.entries(scores).map(([monster, { fights, wins }]) => (
+              <li key={monster} style={{ padding: '3px 0' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>{monster}:</span>
+                  <span style={{ fontWeight: 'bold' }}>{wins}/{fights}</span>
+                </div>
+                <div style={{ fontSize: '0.8em', color: '#666', textAlign: 'right' }}>
+                  ({fights > 0 ? ((wins / fights) * 100).toFixed(1) : 0}% win)
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div style={{ flexBasis: '30%', minWidth: '200px' }}>
+          <h3 style={{ color: '#444', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>Pets Collected</h3>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {Object.entries(pets).map(([monster, { count, kc }]) => (
+              <li key={monster} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}>
+                <span>{monster}:</span>
+                <span style={{ fontWeight: 'bold' }}>
+                  {count} {count > 0 && <span style={{ fontSize: '0.8em', color: '#666' }}>({kc.join(', ')})</span>}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+};
