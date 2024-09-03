@@ -68,6 +68,21 @@ const MiniRPG = () => {
   const [showSkillTree, setShowSkillTree] = useState(false);
   const [userHitpoints, setUserHitpoints] = useState(100);
   const [maxUserHitpoints, setMaxUserHitpoints] = useState(100);
+  const userHitpointsRef = useRef(userHitpoints);
+
+  useEffect(() => {
+    userHitpointsRef.current = userHitpoints;
+  }, [userHitpoints]);
+
+  useEffect(() => { // Passive health regeneration
+    const healthRegenInterval = setInterval(() => {
+      if (userHitpointsRef.current < maxUserHitpoints) {
+        setUserHitpoints(prevHp => Math.min(prevHp + 1, maxUserHitpoints));
+      }
+    }, 10000);
+
+    return () => clearInterval(healthRegenInterval);
+  }, [userHitpointsRef, maxUserHitpoints]);
 
   const handleMonsterClick = () => {
     if (isMonsterClickable) {
@@ -646,7 +661,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.16 - <a href='https://alan.computer'
+        v1.8.17 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>
