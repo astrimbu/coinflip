@@ -483,12 +483,12 @@ const MiniRPG = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const goToTown = useCallback(() => {
-    if (!isFighting) {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setCurrentLocation('town');
-        setIsTransitioning(false);
-      }, 300);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentLocation('town');
+      setIsTransitioning(false);
+    }, 300);
+    if (isFighting) {
     }
   }, [isFighting]);
   const goToLocation = useCallback((location) => {
@@ -541,7 +541,7 @@ const MiniRPG = () => {
         >
           <button
             onClick={goToTown}
-            disabled={isFighting || currentLocation === 'town'}
+            disabled={currentLocation === 'town'}
             style={{
               padding: '10px',
               fontSize: '24px',
@@ -594,7 +594,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.11 - <a href='https://alan.computer'
+        v1.8.12 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>
