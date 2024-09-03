@@ -299,13 +299,49 @@ export const renderSkillTree = (closeSkillTree) => (
     <div
       style={{
         backgroundColor: '#f0f0f0',
-        padding: '20px',
+        padding: '30px 40px',
         borderRadius: '10px',
       }}
     >
-      <h2>Skill Tree</h2>
-      <p>Coming soon™️</p>
+      <h2 style={{ color: '#333', fontSize: '2em', textAlign: 'center', margin: '5px 0' }}>Skill Tree</h2>
+      <p style={{ color: '#666', fontSize: '1em', textAlign: 'center', margin: '0 0 20px 0' }}>Coming soon™️</p>
       <button onClick={closeSkillTree}>Close</button>
     </div>
+  </div>
+);
+
+export const renderDeathScreen = (handleContinue) => (
+  <div
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 1000,
+      animation: 'fadeIn 0.5s ease-in-out',
+      transform: 'translateY(-5%)',
+    }}
+  >
+    <h2 style={{ color: 'white', fontSize: '2em', marginBottom: '20px' }}>Sit rat 🐀</h2>
+    <button
+      onClick={handleContinue}
+      style={{
+        padding: '10px 20px',
+        fontSize: '1em',
+        backgroundColor: '#4CAF50',
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+      }}
+    >
+      Continue
+    </button>
   </div>
 );

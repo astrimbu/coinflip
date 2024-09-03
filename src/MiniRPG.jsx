@@ -20,6 +20,7 @@ import {
   renderTown,
   renderLevelUpButton,
   renderSkillTree,
+  renderDeathScreen,
 } from './renderFunctions';
 
 
@@ -68,6 +69,7 @@ const MiniRPG = () => {
   const [showSkillTree, setShowSkillTree] = useState(false);
   const [userHitpoints, setUserHitpoints] = useState(100);
   const [maxUserHitpoints, setMaxUserHitpoints] = useState(100);
+  const [userIsDead, setUserIsDead] = useState(false);
   const userHitpointsRef = useRef(userHitpoints);
 
   useEffect(() => {
@@ -76,7 +78,7 @@ const MiniRPG = () => {
 
   useEffect(() => { // Passive health regeneration
     const healthRegenInterval = setInterval(() => {
-      if (userHitpointsRef.current < maxUserHitpoints) {
+      if (!userIsDead && userHitpointsRef.current < maxUserHitpoints) {
         setUserHitpoints(prevHp => Math.min(prevHp + 1, maxUserHitpoints));
       }
     }, 10000);
@@ -302,7 +304,12 @@ const MiniRPG = () => {
   const handleUserDied = () => {
     setIsFighting(false);
     setIsAttacking(false);
-    // Add any other logic for user death (e.g., respawn, penalty, etc.)
+    setUserIsDead(true);
+  };
+
+  const handleContinue = () => {
+    setUserIsDead(false);
+    setUserHitpoints(maxUserHitpoints);
   };
 
   const potionTimerRef = useRef(potionTimer);
@@ -345,7 +352,13 @@ const MiniRPG = () => {
 
       if (monsterResult) {
         const monsterDamage = monsterTypes[currentMonster].damage;
-        setUserHitpoints((prevHp) => Math.max(0, prevHp - monsterDamage));
+        setUserHitpoints((prevHp) => {
+          const newHp = Math.max(0, prevHp - monsterDamage);
+          if (newHp <= 0) {
+            handleUserDied();
+          }
+          return newHp;
+        });
       }
 
       setTimeout(() => {
@@ -492,6 +505,7 @@ const MiniRPG = () => {
               spawnNewMonster={spawnNewMonster}
               experienceGained={monsterTypes[currentMonster].experience}
               lastAttack={lastAttack}
+              isFighting={isFighting}
             />
             {currentMonster !== 'Goblin' && (
               <NavigationArrow
@@ -642,6 +656,7 @@ const MiniRPG = () => {
       transition: 'opacity 0.3s',
       opacity: isTransitioning ? 0 : 1,
     }}>
+      {userIsDead && renderDeathScreen(handleContinue)}
       {isDesktop ? renderCurrentLocation() : renderMobileView({
         currentMonster,
         monsterTypes,
@@ -661,8 +676,12 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.17 - <a href='https://alan.computer'
-          style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
+        v1.8.18 - <a href='https://alan.computer'
+          style={{
+            color: '#b0b0b0',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+          }}>alan.computer</a>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ const MonsterAnimation = ({
   spawnNewMonster,
   experienceGained,
   lastAttack,
+  isFighting,
 }) => {
   const [animationState, setAnimationState] = useState('walking');
   const [showExperience, setShowExperience] = useState(false);
@@ -58,6 +59,14 @@ const MonsterAnimation = ({
       addHitsplat(lastAttack.damage);
     }
   }, [lastAttack]);
+
+  useEffect(() => {
+    if (!isFighting && animationState === 'fighting') {
+      setAnimationState('walking');
+    } else if (isFighting && animationState === 'walking') {
+      setAnimationState('fighting');
+    }
+  }, [isFighting, animationState]);
 
   const startWalkingAnimation = () => {
     const startPosition = 0;

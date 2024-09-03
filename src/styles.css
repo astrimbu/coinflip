@@ -56,3 +56,8 @@ html::-webkit-scrollbar {
     transform: translateX(-100%);
   }
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
