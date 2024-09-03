@@ -3,11 +3,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import useInventoryManager from './hooks/useInventoryManager';
 import Area from './components/Area';
 import MonsterAnimation from './components/MonsterAnimation'
-import InventoryGrid from './components/InventoryGrid'
-import WornEquipment from './components/WornEquipment'
-import Shop from './components/Shop'
-import Recycler from './components/Recycler'
-
+import NavigationArrow from './components/NavigationArrow';
+import { getColor, getRarityStat, getItemUrl, calcWinRate, calcItemDropRate, xpToNextLevel } from './utils';
+import { monsterTypes, petDropRates } from './constants/gameData';
+import './styles.css';
 import {
   renderPets,
   renderLevelAndExperience,
@@ -21,9 +20,6 @@ import {
   renderTown
 } from './renderFunctions';
 
-import { getColor, getRarityStat, getItemUrl, calculateWinRate, calculateItemDropRate, experienceToNextLevel } from './utils';
-import { monsterTypes, petDropRates, MIN_HEIGHT_VIEW } from './constants/gameData';
-import './styles.css';
 
 const MiniRPG = () => {
   const {
@@ -141,21 +137,6 @@ const MiniRPG = () => {
     }
     return () => clearInterval(interval);
   }, [crystalTimer, potionTimer]);
-
-  const calculateWinRate = () => {
-    const totalStats = calculateTotalStats();
-    const statBonus = Math.floor(totalStats / 6) + totalStats * 0.1;
-    const baseRate = monsterTypes[currentMonster].rate;
-    return Math.min(baseRate * Math.pow(2, statBonus), 1);
-  };
-
-  const calculateItemDropRate = () => {
-    const baseChance = 0.1;
-    const modifier = monsterTypes[currentMonster].modifier;
-    return (baseChance * modifier * (crystalTimer > 0 ? 2 : 1) * 100).toFixed(
-      2
-    );
-  };
 
   const handleRecycle = (items) => {
     recycleItems(items);
@@ -286,7 +267,7 @@ const MiniRPG = () => {
     const expGained = monsterTypes[currentMonster].experience;
     setExperience((prevExp) => {
       const newExp = prevExp + expGained;
-      const expNeeded = experienceToNextLevel(level);
+      const expNeeded = xpToNextLevel(level);
       if (newExp >= expNeeded) {
         setLevel((prevLevel) => prevLevel + 1);
         playLevelUpSound();
@@ -308,7 +289,7 @@ const MiniRPG = () => {
 
   useEffect(() => { // Fight Monster effect
     const performAttack = () => {
-      const adjustedRate = calculateWinRate();
+      const adjustedRate = calcWinRate(calculateTotalStats(), monsterTypes[currentMonster].rate);
       const result = Math.random() < adjustedRate;
       setResult(result);
 
@@ -458,68 +439,22 @@ const MiniRPG = () => {
               experienceGained={monsterTypes[currentMonster].experience}
               lastAttack={lastAttack}
             />
-            {currentMonster !== 'Goblin' && ( // Navigation arrow
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                left: '10px',
-                transform: 'translateY(-50%)',
-                zIndex: 10,
-              }}>
-                <button
-                  onClick={() => navigateMonster('left')}
-                  disabled={isFighting}
-                  style={{
-                    fontSize: '50px',
-                    fontFamily: 'monospace',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    border: 'none',
-                    background: 'transparent',
-                    color: isFighting ? '#a9a9a9' : 'white',
-                    cursor: isFighting ? 'not-allowed' : 'pointer',
-                    fontWeight: 'bold',
-                    padding: '0',
-                    opacity: isFighting ? 0.5 : 1,
-                  }}
-                >
-                  ←
-                </button>
-              </div>
+            {currentMonster !== 'Goblin' && (
+              <NavigationArrow
+                direction="left"
+                onClick={() => navigateMonster('left')}
+                disabled={isFighting}
+              />
             )}
-            {currentMonster !== 'Dragon' && ( // Navigation arrow
-              <div style={{
-                position: 'absolute',
-                top: '50%',
-                right: '10px',
-                transform: 'translateY(-50%)',
-                zIndex: 10,
-              }}>
-                <button
-                  onClick={() => navigateMonster('right')}
-                  disabled={isFighting}
-                  style={{
-                    fontSize: '50px',
-                    fontFamily: 'monospace',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    border: 'none',
-                    background: 'transparent',
-                    color: isFighting ? '#a9a9a9' : 'white',
-                    cursor: isFighting ? 'not-allowed' : 'pointer',
-                    fontWeight: 'bold',
-                    padding: '0',
-                    opacity: isFighting ? 0.5 : 1,
-                  }}
-                >
-                  →
-                </button>
-              </div>
+            {currentMonster !== 'Dragon' && (
+              <NavigationArrow
+                direction="right"
+                onClick={() => navigateMonster('right')}
+                disabled={isFighting}
+              />
             )}
           </Area>
-          {renderLevelAndExperience(level, experience, experienceToNextLevel)}
+          {renderLevelAndExperience(level, experience, xpToNextLevel)}
           {renderPets(pets, monsterTypes, getColor, hoveredPet, setHoveredPet)}
         </div>
         <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
@@ -532,8 +467,8 @@ const MiniRPG = () => {
               fontSize: '0.8em',
             }}
           >
-            Accuracy: {(calculateWinRate() * 100).toFixed(2)}% <br />
-            Drop rate: {calculateItemDropRate()}%
+            Accuracy: {(calcWinRate(calculateTotalStats(), monsterTypes[currentMonster].rate) * 100).toFixed(2)}% <br />
+            Drop rate: {calcItemDropRate(0.1, monsterTypes[currentMonster].modifier, crystalTimer)}%
           </div>
         </div>
       </div>
@@ -659,7 +594,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.8 - <a href='https://alan.computer'
+        v1.8.9 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>
