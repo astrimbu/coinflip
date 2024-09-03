@@ -60,6 +60,7 @@ const WornEquipment = ({ equipment, onUnequip }) => {
               src={getItemUrl(equipment[slot].name, equipment[slot].rarity)}
               alt={`${equipment[slot].rarity} ${equipment[slot].name}`}
               style={{ maxWidth: '80%', maxHeight: '80%' }}
+              draggable="false"
             />
           )}
           {hoveredItem === equipment[slot] && equipment[slot] && (

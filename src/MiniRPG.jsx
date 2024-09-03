@@ -461,7 +461,7 @@ const MiniRPG = () => {
           {renderEquipment(equipment, unequipItem)}
           <div
             style={{
-              margin: '10px',
+              margin: '0',
               textAlign: 'center',
               fontStyle: 'italic',
               fontSize: '0.8em',
@@ -594,7 +594,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.10 - <a href='https://alan.computer'
+        v1.8.11 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>

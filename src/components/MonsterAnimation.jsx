@@ -277,6 +277,7 @@ const MonsterAnimation = ({
         style={{
           height: '100%',
         }}
+        draggable="false"
       />
       {showExperience && (
         <div
