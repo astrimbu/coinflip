@@ -17,7 +17,9 @@ import {
   renderBank,
   renderPond,
   renderMobileView,
-  renderTown
+  renderTown,
+  renderLevelUpButton,
+  renderSkillTree,
 } from './renderFunctions';
 
 
@@ -62,6 +64,8 @@ const MiniRPG = () => {
   const [level, setLevel] = useState(1);
   const [experience, setExperience] = useState(0);
   const [recycleMode, setRecycleMode] = useState(false);
+  const [showLevelUpButton, setShowLevelUpButton] = useState(false);
+  const [showSkillTree, setShowSkillTree] = useState(false);
 
   const handleMonsterClick = () => {
     if (isMonsterClickable) {
@@ -269,8 +273,7 @@ const MiniRPG = () => {
       const newExp = prevExp + expGained;
       const expNeeded = xpToNextLevel(level);
       if (newExp >= expNeeded) {
-        setLevel((prevLevel) => prevLevel + 1);
-        playLevelUpSound();
+        handleLevelUp();
         return newExp - expNeeded;
       }
       return newExp;
@@ -353,6 +356,24 @@ const MiniRPG = () => {
     const newMonster = Object.keys(monsterTypes).find(monster => monsterTypes[monster].order === newOrder);
     setCurrentMonster(newMonster);
     setMonsterHitpoints(monsterTypes[newMonster].maxHP);
+  };
+
+  const handleLevelUp = () => {
+    setLevel((prevLevel) => {
+      const newLevel = prevLevel + 1;
+      setShowLevelUpButton(true);
+      playLevelUpSound();
+      return newLevel;
+    });
+  };
+
+  const openSkillTree = () => {
+    setShowSkillTree(true);
+    setShowLevelUpButton(false);
+  };
+
+  const closeSkillTree = () => {
+    setShowSkillTree(false);
   };
 
   const renderGame = () => (
@@ -456,6 +477,8 @@ const MiniRPG = () => {
           </Area>
           {renderLevelAndExperience(level, experience, xpToNextLevel)}
           {renderPets(pets, monsterTypes, getColor, hoveredPet, setHoveredPet)}
+          {showLevelUpButton && renderLevelUpButton(openSkillTree)}
+          {showSkillTree && renderSkillTree(closeSkillTree)}
         </div>
         <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
           {renderEquipment(equipment, unequipItem)}
@@ -594,7 +617,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.13 - <a href='https://alan.computer'
+        v1.8.14 - <a href='https://alan.computer'
           style={{ color: '#b0b0b0', textDecoration: 'none' }}>alan.computer</a>
       </div>
     </div>

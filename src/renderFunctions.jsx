@@ -247,3 +247,65 @@ export const renderMobileView = (props) => {
 };
 
 export const renderTown = (goToLocation) => <Town goToLocation={goToLocation} />;
+
+export const renderLevelUpButton = (openSkillTree) => (
+  <button
+    onClick={openSkillTree}
+    style={{
+      position: 'absolute',
+      bottom: '23px',
+      left: '10px',
+      padding: '10px',
+      backgroundColor: '#c8b400',
+      color: 'black',
+      fontFamily: 'monospace',
+      fontWeight: 'bold',
+      border: 'none',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      zIndex: 10,
+      transition: 'all 0.3s ease',
+    }}
+    onMouseEnter={(e) => {
+      e.target.style.color = 'white';
+      e.target.style.backgroundColor = '#a68d00';
+      e.target.style.transform = 'scale(1.05)';
+    }}
+    onMouseLeave={(e) => {
+      e.target.style.color = 'black';
+      e.target.style.backgroundColor = '#c8b400';
+      e.target.style.transform = 'scale(1)';
+    }}
+  >
+    Level Up!
+  </button>
+);
+
+export const renderSkillTree = (closeSkillTree) => (
+  <div
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 20,
+    }}
+  >
+    <div
+      style={{
+        backgroundColor: '#f0f0f0',
+        padding: '20px',
+        borderRadius: '10px',
+      }}
+    >
+      <h2>Skill Tree</h2>
+      <p>Coming soon™️</p>
+      <button onClick={closeSkillTree}>Close</button>
+    </div>
+  </div>
+);
