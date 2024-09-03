@@ -240,7 +240,8 @@ export const renderMobileView = (props) => {
         />
       </Area>
       <p style={{ marginTop: '20px', fontSize: '16px' }}>
-        No support for mobile devices yet.
+        No support for mobile devices yet.<br />
+        Landscape mode might work, but is untested.
       </p>
     </div>
   );
