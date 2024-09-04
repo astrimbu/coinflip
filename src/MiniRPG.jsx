@@ -2,11 +2,20 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import useInventoryManager from './hooks/useInventoryManager';
 import Area from './components/Area';
-import MonsterAnimation from './components/MonsterAnimation'
+import MonsterAnimation from './components/MonsterAnimation';
 import NavigationArrow from './components/NavigationArrow';
-import { getColor, getRarityStat, getItemUrl, calcWinRate, calcItemDropRate, xpToNextLevel } from './utils';
 import { monsterTypes, petDropRates, ATTACK_SPEED } from './constants/gameData';
 import './styles.css';
+import {
+  getColor,
+  getRarityStat,
+  getItemUrl,
+  calcItemDropRate,
+  xpToNextLevel,
+  calculateCombatResult,
+  getPlayerAccuracy,
+  getMonsterAccuracy,
+} from './utils';
 import {
   renderPets,
   renderLevelAndExperience,
@@ -71,8 +80,13 @@ const MiniRPG = () => {
   const [userHitpoints, setUserHitpoints] = useState(100);
   const [maxUserHitpoints, setMaxUserHitpoints] = useState(100);
   const [userIsDead, setUserIsDead] = useState(false);
-  const userHitpointsRef = useRef(userHitpoints);
 
+  const [monsterAnimationState, setMonsterAnimationState] = useState('walking');
+  const handleAnimationStateChange = (newState) => {
+    setMonsterAnimationState(newState);
+  };
+
+  const userHitpointsRef = useRef(userHitpoints);
   useEffect(() => {
     userHitpointsRef.current = userHitpoints;
   }, [userHitpoints]);
@@ -507,19 +521,20 @@ const MiniRPG = () => {
               experienceGained={monsterTypes[currentMonster].experience}
               lastAttack={lastAttack}
               isFighting={isFighting}
+              onAnimationStateChange={handleAnimationStateChange}
             />
             {currentMonster !== 'Goblin' && (
               <NavigationArrow
                 direction="left"
                 onClick={() => navigateMonster('left')}
-                disabled={isFighting}
+                disabled={isFighting || monsterAnimationState === 'dying'}
               />
             )}
             {currentMonster !== 'Dragon' && (
               <NavigationArrow
                 direction="right"
                 onClick={() => navigateMonster('right')}
-                disabled={isFighting}
+                disabled={isFighting || monsterAnimationState === 'dying'}
               />
             )}
           </Area>
@@ -679,7 +694,7 @@ const MiniRPG = () => {
           color: '#b0b0b0',
         }}
       >
-        v1.8.22 - <a href='https://alan.computer'
+        v1.8.23 - <a href='https://alan.computer'
           style={{
             color: '#b0b0b0',
             textDecoration: 'none',

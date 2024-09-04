@@ -13,6 +13,7 @@ const MonsterAnimation = ({
   experienceGained,
   lastAttack,
   isFighting,
+  onAnimationStateChange,
 }) => {
   const [animationState, setAnimationState] = useState('walking');
   const [showExperience, setShowExperience] = useState(false);
@@ -49,10 +50,12 @@ const MonsterAnimation = ({
   useEffect(() => {
     if (hitpoints <= 0 && animationState !== 'dying' && animationState !== 'dead') {
       setAnimationState('dying');
+      onAnimationStateChange('dying');
     } else if (hitpoints > 0 && animationState === 'dead') {
       setAnimationState('walking');
+      onAnimationStateChange('walking');
     }
-  }, [hitpoints]);
+  }, [hitpoints, animationState, onAnimationStateChange]);
 
   useEffect(() => {
     if (lastAttack.id !== null) {
@@ -224,6 +227,7 @@ const MonsterAnimation = ({
     currentPositionRef.current = 0;
     facingRightRef.current = false;
     setAnimationState('walking');
+    onAnimationStateChange('walking');
     spawnNewMonster();
 
     setTimeout(() => {
