@@ -49,6 +49,6 @@ export const petDropRates = Object.fromEntries(
   Object.keys(monsterTypes).map((monster) => [monster, 1 / 1000]),
 );
 
-export const MIN_HEIGHT_VIEW = "300px";
+export const MIN_HEIGHT_VIEW = "314px";
 export const ATTACK_SPEED = 1200;
 

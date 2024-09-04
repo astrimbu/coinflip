@@ -126,8 +126,12 @@ export const renderInventory = (inventory, equipItem, usePotion, useCrystal, han
 );
 
 export const renderShop = (inventory, inventoryFull, purchaseItem, purchaseNotification) => (
-  <div style={{
+  <div style={{  // TODO: factor out parent div?
     minHeight: MIN_HEIGHT_VIEW,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
   }}>
     <Shop
       gold={inventory.Gold}
@@ -161,8 +165,12 @@ export const renderEquipment = (equipment, unequipItem) => (
 );
 
 export const renderRecycler = (inventory, inventoryFull, scrap, handleRecycle, handleExchange, recycleMode, toggleRecycleMode, equipment, unequipItem) => (
-  <div style={{
+  <div style={{  // TODO: factor out parent div?
     minHeight: MIN_HEIGHT_VIEW,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
   }}>
     <Recycler
       inventory={inventory}
