@@ -658,46 +658,72 @@ const MiniRPG = () => {
     );
   };
 
+  const [scale, setScale] = useState(1);
+  const [alignToTop, setAlignToTop] = useState(false);
+
+  useEffect(() => { // Resize scaling
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      if (width > 800) {
+        const widthScale = width / 800;
+        const heightScale = height / 350;
+        setScale(Math.max(1, Math.min(widthScale, heightScale)));
+      } else {
+        setScale(1);
+      }
+      setAlignToTop(height < 350);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call once to set initial scale
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div style={{
       width: '100%',
-      height: windowHeight > 500 ? '100vh' : 'auto',
-      justifyContent: windowHeight > 500 ? 'center' : 'flex-start',
+      height: '100vh',
       display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      margin: '0 auto',
-      gap: '20px',
-      position: 'relative',
-      transition: 'opacity 0.3s',
-      opacity: isTransitioning ? 0 : 1,
+      justifyContent: 'center',
+      alignItems: alignToTop ? 'flex-start' : 'center',
+      overflow: 'hidden',
     }}>
-      {userIsDead && renderDeathScreen(handleContinue)}
-      {isDesktop ? renderCurrentLocation() : renderMobileView({
-        currentMonster,
-        monsterTypes,
-        monsterHitpoints,
-        handleMonsterClick,
-        isMonsterClickable,
-        handleMonsterDied,
-        spawnNewMonster,
-        lastAttack
-      })}
-      <div
-        style={{
-          marginTop: '10px',
-          textAlign: 'center',
-          fontSize: '12px',
-          fontFamily: 'monospace',
-          color: '#b0b0b0',
-        }}
-      >
-        v1.8.23 - <a href='https://alan.computer'
+      <div style={{
+        width: '800px',
+        transform: `scale(${scale})`,
+        transformOrigin: alignToTop ? 'top center' : 'center center',
+        transition: 'opacity 0.2s',
+        opacity: isTransitioning ? 0 : 1,
+      }}>
+        {userIsDead && renderDeathScreen(handleContinue)}
+        {isDesktop ? renderCurrentLocation() : renderMobileView({
+          currentMonster,
+          monsterTypes,
+          monsterHitpoints,
+          handleMonsterClick,
+          isMonsterClickable,
+          handleMonsterDied,
+          spawnNewMonster,
+          lastAttack
+        })}
+        <div
           style={{
+            marginTop: '10px',
+            textAlign: 'center',
+            fontSize: '12px',
+            fontFamily: 'monospace',
             color: '#b0b0b0',
-            textDecoration: 'none',
-            fontWeight: 'bold',
-          }}>alan.computer</a>
+          }}
+        >
+          v1.8.24 - <a href='https://alan.computer'
+            style={{
+              color: '#b0b0b0',
+              textDecoration: 'none',
+              fontWeight: 'bold',
+            }}>alan.computer</a>
+        </div>
       </div>
     </div>
   );

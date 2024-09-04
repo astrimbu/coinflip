@@ -227,7 +227,7 @@ export const renderMobileView = (props) => {
   } = props;
 
   return (
-    <div style={{ width: '100%', textAlign: 'center', padding: '20px', color: '#f0f0f0' }}>
+    <div style={{ width: '100%', textAlign: 'center', color: '#f0f0f0' }}>
       <Area monster={currentMonster}>
         <MonsterAnimation
           monster={currentMonster}
