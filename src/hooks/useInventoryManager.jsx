@@ -53,14 +53,16 @@ const inventoryReducer = (state, action) => {
       };
     case EQUIP_ITEM: {
       const { item, slot } = action.payload;
-      const updatedInventory = {
-        ...state.inventory,
-        [item.name]: state.inventory[item.name].filter(i => i !== item)
-      };
-      const updatedEquipment = { ...state.equipment, [slot]: item };
-      if (state.equipment[slot]) {
-        updatedInventory[state.equipment[slot].name] = [...updatedInventory[state.equipment[slot].name], state.equipment[slot]];
+      const updatedInventory = { ...state.inventory };
+      const updatedEquipment = { ...state.equipment };
+      if (slot !== null) {
+        updatedInventory[item.name] = updatedInventory[item.name].filter(i => i !== item);
       }
+      if (updatedEquipment[item.name]) {
+        const previousItem = updatedEquipment[item.name];
+        updatedInventory[previousItem.name] = [...updatedInventory[previousItem.name], previousItem];
+      }
+      updatedEquipment[item.name] = item;
       return {
         ...state,
         inventory: updatedInventory,
@@ -159,7 +161,7 @@ const useInventoryManager = () => {
     dispatch({ type: REMOVE_ITEM, payload: { category, item } });
   }, []);
 
-  const equipItem = useCallback((item, slot) => {
+  const equipItem = useCallback((item, slot = null) => {
     dispatch({ type: EQUIP_ITEM, payload: { item, slot } });
   }, []);
 
