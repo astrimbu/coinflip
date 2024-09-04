@@ -179,37 +179,39 @@ export const renderRecycler = (inventory, inventoryFull, scrap, handleRecycle, h
 );
 
 export const renderBank = () => (
-  <div style={{
-    minHeight: MIN_HEIGHT_VIEW,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f0f0f0',
-  }}>
-    <div style={{ fontSize: '48px', marginBottom: '20px' }}>
-      🏦💰💵🪙
+  <Area monster="Bank">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: MIN_HEIGHT_VIEW,
+    }}>
+      <div style={{ fontSize: '48px', marginBottom: '20px' }}>
+        🏦💰💵🪙
+      </div>
+      <h2 style={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Bank</h2>
+      <p style={{ fontSize: '24px', fontStyle: 'italic', color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Coming soon™️</p>
     </div>
-    <h2>Bank</h2>
-    <p style={{ fontSize: '24px', fontStyle: 'italic', color: '#666' }}>Coming soon™️</p>
-  </div>
+  </Area>
 );
 
 export const renderPond = () => (
-  <div style={{
-    minHeight: MIN_HEIGHT_VIEW,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f0f0f0',
-  }}>
-    <div style={{ fontSize: '48px', marginBottom: '20px' }}>
-      🎣🐟🌊🚣
+  <Area monster="Pond">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: MIN_HEIGHT_VIEW,
+    }}>
+      <div style={{ fontSize: '48px', marginBottom: '20px' }}>
+        🎣🐟🌊🚣
+      </div>
+      <h2 style={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Pond</h2>
+      <p style={{ fontSize: '24px', fontStyle: 'italic', color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Coming soon™️</p>
     </div>
-    <h2>Pond</h2>
-    <p style={{ fontSize: '24px', fontStyle: 'italic', color: '#666' }}>Coming soon™️</p>
-  </div>
+  </Area>
 );
 
 export const renderMobileView = (props) => {

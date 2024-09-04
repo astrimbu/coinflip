@@ -11,6 +11,10 @@ const Area = ({ children, monster }) => {
         return 'hellscape.png';
       case 'Dragon':
         return 'wild.png';
+      case 'Bank':
+        return 'bank.png';
+      case 'Pond':
+        return 'water.png';
       default:
         return 'forest.png';
     }

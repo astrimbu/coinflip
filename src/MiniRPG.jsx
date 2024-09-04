@@ -672,14 +672,14 @@ const MiniRPG = () => {
       })}
       <div
         style={{
-          marginTop: '20px',
+          marginTop: '10px',
           textAlign: 'center',
           fontSize: '12px',
           fontFamily: 'monospace',
           color: '#b0b0b0',
         }}
       >
-        v1.8.21 - <a href='https://alan.computer'
+        v1.8.22 - <a href='https://alan.computer'
           style={{
             color: '#b0b0b0',
             textDecoration: 'none',
