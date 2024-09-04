@@ -319,8 +319,8 @@ export const renderDeathScreen = (handleContinue) => (
       position: 'fixed',
       top: 0,
       left: 0,
-      width: '100%',
-      height: '100%',
+      width: '100vw',
+      height: '100vh',
       backgroundColor: 'rgba(0, 0, 0, 0.8)',
       display: 'flex',
       flexDirection: 'column',
@@ -330,13 +330,14 @@ export const renderDeathScreen = (handleContinue) => (
       animation: 'fadeIn 0.5s ease-in-out',
     }}
   >
-    <div style={{ transform: 'translateY(-30px)' }}>
-      <h2 style={{ color: 'white', fontSize: '2em', margin: '0 0 10px 0' }}>Sit rat 🐀</h2>
+    <div style={{ transform: 'translateY(-25px)' }}>
+      <h2 style={{ color: 'white', fontSize: '2em', margin: '0 0 10px 0' }}>You died 💀</h2>
       <button
         onClick={handleContinue}
         style={{
           padding: '10px 20px',
-          fontSize: '1em',
+          fontSize: '1.5em',
+          fontFamily: 'monospace',
           backgroundColor: '#4CAF50',
           color: 'white',
           border: 'none',
@@ -344,7 +345,7 @@ export const renderDeathScreen = (handleContinue) => (
           cursor: 'pointer',
         }}
       >
-        Continue
+        Continue?
       </button>
     </div>
   </div>

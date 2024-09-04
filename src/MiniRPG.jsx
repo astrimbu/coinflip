@@ -690,6 +690,7 @@ const MiniRPG = () => {
       alignItems: alignToTop ? 'flex-start' : 'center',
       overflow: 'hidden',
     }}>
+      {userIsDead && renderDeathScreen(handleContinue)}
       <div style={{
         width: '800px',
         transform: `scale(${scale})`,
@@ -697,7 +698,6 @@ const MiniRPG = () => {
         transition: 'opacity 0.2s',
         opacity: isTransitioning ? 0 : 1,
       }}>
-        {userIsDead && renderDeathScreen(handleContinue)}
         {isDesktop ? renderCurrentLocation() : renderMobileView({
           currentMonster,
           monsterTypes,
@@ -717,7 +717,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.8.24 - <a href='https://alan.computer'
+          v1.8.25 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
