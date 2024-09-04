@@ -12,9 +12,7 @@ import {
   getItemUrl,
   calcItemDropRate,
   xpToNextLevel,
-  calculateCombatResult,
-  getPlayerAccuracy,
-  getMonsterAccuracy,
+  calcWinRate,
 } from './utils';
 import {
   renderPets,
