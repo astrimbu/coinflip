@@ -360,7 +360,7 @@ export const renderDeathScreen = (handleContinue) => (
   </div>
 );
 
-export const renderStats = (killCount, scores, pets) => {
+export const renderStats = (killCount, scores, pets, userDeaths) => {
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', borderRadius: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '30px' }}>
@@ -405,6 +405,9 @@ export const renderStats = (killCount, scores, pets) => {
             ))}
           </ul>
         </div>
+      </div>
+      <div style={{ marginTop: '20px', textAlign: 'center', color: '#666' }}>
+        Total Deaths: <span style={{ fontWeight: 'bold' }}>{userDeaths}</span>
       </div>
     </div>
   );

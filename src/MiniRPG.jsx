@@ -79,6 +79,7 @@ const MiniRPG = () => {
   const [userHitpoints, setUserHitpoints] = useState(100);
   const [maxUserHitpoints, setMaxUserHitpoints] = useState(100);
   const [userIsDead, setUserIsDead] = useState(false);
+  const [userDeaths, setUserDeaths] = useState(0);
 
   const [monsterAnimationState, setMonsterAnimationState] = useState('walking');
   const handleAnimationStateChange = (newState) => {
@@ -121,6 +122,29 @@ const MiniRPG = () => {
       setWindowHeight(window.innerHeight);
     };
     window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const [scale, setScale] = useState(1);
+  const [alignToTop, setAlignToTop] = useState(false);
+
+  useEffect(() => { // Resize scaling
+    const handleResize = () => {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      if (width > 800) {
+        const widthScale = width / 800;
+        const heightScale = height / 350;
+        setScale(Math.max(1, Math.min(widthScale, heightScale)));
+      } else {
+        setScale(1);
+      }
+      setAlignToTop(height < 350);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call once to set initial scale
+
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -301,6 +325,7 @@ const MiniRPG = () => {
     checkForItem();
     checkForPet();
     setTickets((prevTickets) => prevTickets + 10);
+    updateCurrency('Gold', 1);
     setKillCount((prevKillCount) => ({
       ...prevKillCount,
       [currentMonster]: prevKillCount[currentMonster] + 1,
@@ -324,6 +349,7 @@ const MiniRPG = () => {
     setIsFighting(false);
     setIsAttacking(false);
     setUserIsDead(true);
+    setUserDeaths(prevDeaths => prevDeaths + 1);
   };
 
   const handleContinue = () => {
@@ -333,7 +359,7 @@ const MiniRPG = () => {
 
   const potionTimerRef = useRef(potionTimer);
 
-  useEffect(() => {
+  useEffect(() => { // Potion timer reference
     potionTimerRef.current = potionTimer;
   }, [potionTimer]);
 
@@ -499,13 +525,13 @@ const MiniRPG = () => {
                 </div>
               )}
               {potionTimer > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#f0f0f0' }}>
                   <img
                     src={getItemUrl('potion', 'Potion')}
                     alt="Potion"
                     style={{ width: '20px', height: '20px' }}
                   />
-                  <span style={{ fontSize: '12px', fontWeight: 'bold' }}>
+                  <span style={{ fontSize: '14px', fontWeight: 'bold' }}>
                     {Math.floor(potionTimer / 60)}:
                     {(potionTimer % 60).toString().padStart(2, '0')}
                   </span>
@@ -614,7 +640,7 @@ const MiniRPG = () => {
         case 'pond':
           return renderPond();
         case 'stats':
-          return renderStats(killCount, scores, pets);
+          return renderStats(killCount, scores, pets, userDeaths);
         default:
           return renderGame();
       }
@@ -664,29 +690,6 @@ const MiniRPG = () => {
     );
   };
 
-  const [scale, setScale] = useState(1);
-  const [alignToTop, setAlignToTop] = useState(false);
-
-  useEffect(() => { // Resize scaling
-    const handleResize = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      if (width > 800) {
-        const widthScale = width / 800;
-        const heightScale = height / 350;
-        setScale(Math.max(1, Math.min(widthScale, heightScale)));
-      } else {
-        setScale(1);
-      }
-      setAlignToTop(height < 350);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Call once to set initial scale
-
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   return (
     <div style={{
       width: '100%',
@@ -723,7 +726,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.8.28 - <a href='https://alan.computer'
+          v1.8.29 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
