@@ -239,10 +239,16 @@ const MiniRPG = () => {
   const attack2Sound = useRef(new Audio(new URL('./assets/sounds/attack2.mp3', import.meta.url).href));
   const getPetSound = useRef(new Audio(new URL('./assets/sounds/getPet.ogg', import.meta.url).href));
   const fireworksSound = useRef(new Audio(new URL('./assets/sounds/fireworks.ogg', import.meta.url).href));
+  const deathSound = useRef(new Audio(new URL('./assets/sounds/death.mp3', import.meta.url).href));
+
 
   useEffect(() => {
     isSoundEnabledRef.current = isSoundEnabled;
+    attack1Sound.current.volume = 0.1;
+    attack2Sound.current.volume = 0.1;
+    getPetSound.current.volume = 0.1;
     fireworksSound.current.volume = 0.1;
+    deathSound.current.volume = 0.1;
   }, [isSoundEnabled]);
 
   const playSound = (sound) => {
@@ -250,6 +256,10 @@ const MiniRPG = () => {
       sound.currentTime = 0;
       sound.play().catch(error => console.error("Error playing sound:", error));
     }
+  };
+
+  const playDeathSound = () => {
+    playSound(deathSound.current);
   };
 
   const playAttackSound = (result) => {
@@ -365,6 +375,7 @@ const MiniRPG = () => {
     setIsAttacking(false);
     setUserIsDead(true);
     setUserDeaths(prevDeaths => prevDeaths + 1);
+    playDeathSound();
   };
 
   const handleContinue = () => {
@@ -741,7 +752,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.9.0 - <a href='https://alan.computer'
+          v1.9.1 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
