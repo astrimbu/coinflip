@@ -24,11 +24,11 @@ export const getRarityStat = (rarity) => {
   }
 };
 
-export const getItemUrl = (name, rarity) => {
+export const getItemUrl = (name, rarity, root = '.') => {
   if (name === 'crystal' || name === 'potion' || name === 'gold') {
-    return new URL(`./assets/items/${name}.png`, import.meta.url).href;
+    return new URL(`${root}/assets/items/${name}.png`, import.meta.url).href;
   }
-  return new URL(`./assets/items/${name}-${rarity}.png`, import.meta.url).href;
+  return new URL(`${root}/assets/items/${name}-${rarity}.png`, import.meta.url).href;
 };
 
 export const calcWinRate = (totalStats, baseRate) => {

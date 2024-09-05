@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { getColor } from '../utils';
 
-const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode }) => {
+const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode, onDeposit, actionLabel }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
 
   function getItemUrl(name, rarity) {
@@ -15,12 +15,15 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
 
   const handleClick = (flattenedItems, index) => {
     if (!flattenedItems[index]) return;
-    if (recycleMode) {
-      onRecycle([flattenedItems[index]]);
-    } else if (flattenedItems[index].name === 'Crystal') {
-      onUseCrystal(flattenedItems[index]);
+    const item = flattenedItems[index];
+    if (onDeposit) {
+      onDeposit(item.name, item);  // Bank view
+    } else if (recycleMode) {
+      onRecycle([item]);
+    } else if (item.name === 'Crystal') {
+      onUseCrystal(item);
     } else {
-      onEquip(flattenedItems[index], flattenedItems[index].name);
+      onEquip(item, item.name);
     }
   };
 
@@ -140,6 +143,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
                     }}
                   >
                     {`${flattenedItems[index].name} (${flattenedItems[index].rarity})`}
+                    {actionLabel && ` - ${actionLabel}`}
                   </div>
                 )}
               </>

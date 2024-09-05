@@ -3,6 +3,7 @@ import Area from './components/Area';
 import MonsterAnimation from './components/MonsterAnimation';
 import InventoryGrid from './components/InventoryGrid';
 import Town from './components/Town';
+import Bank from './components/Bank';
 import Shop from './components/Shop';
 import WornEquipment from './components/WornEquipment';
 import Recycler from './components/Recycler';
@@ -187,7 +188,7 @@ export const renderRecycler = (inventory, inventoryFull, scrap, handleRecycle, h
   </div>
 );
 
-export const renderBank = () => (
+export const renderBank = (inventory, bankItems, handleDeposit, handleWithdraw) => (
   <Area monster="Bank">
     <div style={{
       display: 'flex',
@@ -196,11 +197,12 @@ export const renderBank = () => (
       justifyContent: 'center',
       minHeight: MIN_HEIGHT_VIEW,
     }}>
-      <div style={{ fontSize: '48px', marginBottom: '20px' }}>
-        🏦💰💵🪙
-      </div>
-      <h2 style={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Bank</h2>
-      <p style={{ fontSize: '24px', fontStyle: 'italic', color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Coming soon™️</p>
+      <Bank
+        inventory={inventory}
+        bankItems={bankItems}
+        onDeposit={handleDeposit}
+        onWithdraw={handleWithdraw}
+      />
     </div>
   </Area>
 );

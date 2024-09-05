@@ -11,6 +11,8 @@ const UNEQUIP_ITEM = 'UNEQUIP_ITEM';
 const UPDATE_CURRENCY = 'UPDATE_CURRENCY';
 const RECYCLE_ITEMS = 'RECYCLE_ITEMS';
 const REMOVE_SCRAP = 'REMOVE_SCRAP';
+const DEPOSIT_ITEM = 'DEPOSIT_ITEM';
+const WITHDRAW_ITEM = 'WITHDRAW_ITEM';
 
 // Utility functions
 const countInventoryItems = (inventory) => {
@@ -116,6 +118,61 @@ const inventoryReducer = (state, action) => {
         scrap: newScrap,
       };
     }
+    case DEPOSIT_ITEM: {
+      const { category, item } = action.payload;
+      const updatedInventory = { ...state.inventory };
+      const updatedBankItems = { ...state.bankItems };
+
+      // Remove item from inventory
+      updatedInventory[category] = updatedInventory[category].filter(i => i.id !== item.id);
+
+      // Add item to bank (without duplication)
+      if (!updatedBankItems[category]) {
+        updatedBankItems[category] = [];
+      }
+      if (!updatedBankItems[category].some(bankItem => bankItem.id === item.id)) {
+        updatedBankItems[category].push(item);
+      }
+
+      return {
+        ...state,
+        inventory: updatedInventory,
+        bankItems: updatedBankItems,
+        inventoryFull: false,
+      };
+    }
+    case WITHDRAW_ITEM: {
+      const { category, item } = action.payload;
+      const updatedInventory = { ...state.inventory };
+      const updatedBankItems = { ...state.bankItems };
+
+      if (updatedBankItems[category] && Array.isArray(updatedBankItems[category])) {
+        // Remove item from bank
+        updatedBankItems[category] = updatedBankItems[category].filter(i => i.id !== item.id);
+
+        if (updatedBankItems[category].length === 0) {
+          delete updatedBankItems[category];
+        }
+
+        // Add item to inventory (without duplication)
+        if (!updatedInventory[category]) {
+          updatedInventory[category] = [];
+        }
+        if (!updatedInventory[category].some(invItem => invItem.id === item.id)) {
+          updatedInventory[category].push(item);
+        }
+      } else {
+        console.warn(`Attempted to withdraw item from non-existent category: ${category}`);
+        return state;
+      }
+
+      return {
+        ...state,
+        inventory: updatedInventory,
+        bankItems: updatedBankItems,
+        inventoryFull: countInventoryItems(updatedInventory) >= MAX_INVENTORY_SLOTS,
+      };
+    }
     default:
       return state;
   }
@@ -150,7 +207,8 @@ const useInventoryManager = () => {
     },
     scrap: { Common: 0, Magic: 0, Rare: 0, Unique: 0 },
     inventoryFull: false,
-    recentItems: []
+    recentItems: [],
+    bankItems: {}
   });
 
   const addItem = useCallback((category, item) => {
@@ -181,12 +239,21 @@ const useInventoryManager = () => {
     dispatch({ type: REMOVE_SCRAP, payload: { rarity } });
   }, []);
 
+  const depositItem = useCallback((category, item) => {
+    dispatch({ type: DEPOSIT_ITEM, payload: { category, item } });
+  }, []);
+
+  const withdrawItem = useCallback((category, item) => {
+    dispatch({ type: WITHDRAW_ITEM, payload: { category, item } });
+  }, []);
+
   return {
     inventory: state.inventory,
     equipment: state.equipment,
     scrap: state.scrap,
     inventoryFull: state.inventoryFull,
     recentItems: state.recentItems,
+    bankItems: state.bankItems,
     addItem,
     removeItem,
     equipItem,
@@ -194,6 +261,8 @@ const useInventoryManager = () => {
     updateCurrency,
     recycleItems,
     removeScrap,
+    depositItem,
+    withdrawItem,
   };
 };
 

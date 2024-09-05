@@ -36,6 +36,7 @@ import {
 const MiniRPG = () => {
   const {
     inventory,
+    bankItems,
     equipment,
     scrap,
     inventoryFull,
@@ -47,6 +48,8 @@ const MiniRPG = () => {
     updateCurrency,
     recycleItems,
     removeScrap,
+    depositItem,
+    withdrawItem,
   } = useInventoryManager();
 
   const [currentMonster, setCurrentMonster] = useState('Goblin');
@@ -215,6 +218,18 @@ const MiniRPG = () => {
       equipItem(newItem, null);
     } else {
       addItem(itemName, newItem);
+    }
+  };
+
+  const handleDeposit = (category, item) => {
+    depositItem(category, item);
+  };
+
+  const handleWithdraw = (category, item) => {
+    if (Object.keys(inventory).length < 16) {
+      withdrawItem(category, item);
+    } else {
+      console.log("Inventory is full. Cannot withdraw item.");
     }
   };
 
@@ -636,7 +651,7 @@ const MiniRPG = () => {
         case 'shop':
           return renderShop(inventory, inventoryFull, purchaseItem, purchaseNotification);
         case 'bank':
-          return renderBank();
+          return renderBank(inventory, bankItems, handleDeposit, handleWithdraw);
         case 'pond':
           return renderPond();
         case 'stats':
@@ -726,7 +741,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.8.30 - <a href='https://alan.computer'
+          v1.9.0 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
