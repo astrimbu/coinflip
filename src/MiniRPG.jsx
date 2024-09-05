@@ -512,7 +512,7 @@ const MiniRPG = () => {
               }}
             >
               {crystalTimer > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#f0f0f0' }}>
                   <img
                     src={getItemUrl('crystal', 'Crystal')}
                     alt="Crystal"
@@ -726,7 +726,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.8.29 - <a href='https://alan.computer'
+          v1.8.30 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

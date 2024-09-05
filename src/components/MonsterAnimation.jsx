@@ -290,8 +290,9 @@ const MonsterAnimation = ({
         alt={monster}
         style={{
           height: '100%',
+          userSelect: 'none',
         }}
-        draggable="false"
+        draggable='false'
       />
       {showExperience && (
         <div
