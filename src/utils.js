@@ -41,3 +41,8 @@ export const calcItemDropRate = (baseChance, modifier, crystalTimer) => {
 };
 
 export const xpToNextLevel = (currentLevel) => Math.floor(100 * Math.pow(1.5, currentLevel - 1));
+
+export const compareRarity = (rarity1, rarity2) => {
+  const rarityOrder = ['Common', 'Magic', 'Rare', 'Unique'];
+  return rarityOrder.indexOf(rarity1) - rarityOrder.indexOf(rarity2);
+};

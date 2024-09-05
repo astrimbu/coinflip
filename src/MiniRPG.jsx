@@ -13,6 +13,7 @@ import {
   calcItemDropRate,
   xpToNextLevel,
   calcWinRate,
+  compareRarity,
 } from './utils';
 import {
   renderPets,
@@ -185,7 +186,12 @@ const MiniRPG = () => {
 
   const handleExchange = (rarity, itemName) => {
     removeScrap(rarity);
-    addItem(itemName, { name: itemName, rarity, stat: getRarityStat(rarity) });
+    const newItem = { name: itemName, rarity, stat: getRarityStat(rarity) };
+    if (!equipment[itemName] || compareRarity(rarity, equipment[itemName].rarity) > 0) {
+      equipItem(newItem, null);
+    } else {
+      addItem(itemName, newItem);
+    }
   };
 
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
@@ -600,7 +606,7 @@ const MiniRPG = () => {
         case 'town':
           return renderTown(goToLocation);
         case 'recycler':
-          return renderRecycler(inventory, inventoryFull, scrap, handleRecycle, handleExchange, recycleMode, toggleRecycleMode, equipment, unequipItem);
+          return renderRecycler(inventory, inventoryFull, scrap, handleRecycle, handleExchange, recycleMode, toggleRecycleMode, equipment, equipItem, unequipItem);
         case 'shop':
           return renderShop(inventory, inventoryFull, purchaseItem, purchaseNotification);
         case 'bank':
@@ -717,7 +723,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.8.27 - <a href='https://alan.computer'
+          v1.8.28 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

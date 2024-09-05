@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { getColor } from '../utils.js';
+import { getColor, compareRarity } from '../utils.js';
 import InventoryGrid from './InventoryGrid';
 import WornEquipment from './WornEquipment';
 
@@ -10,10 +10,10 @@ const Recycler = ({
   scrap,
   onRecycle,
   onExchange,
-  onEquip,
   onUsePotion,
   onUseCrystal,
   equipment,
+  onEquip,
   onUnequip,
 }) => {
   const [exchangeRarity, setExchangeRarity] = useState('Common');
@@ -43,7 +43,7 @@ const Recycler = ({
     onRecycle(recycledScrap);
   };
 
-  const handleExchange = () => {
+  const initiateExchange = () => {
     if (
       scrap[exchangeRarity] >= 2 &&
       exchangeItem &&
@@ -130,7 +130,7 @@ const Recycler = ({
               </select>
             </div>
             <button
-              onClick={handleExchange}
+              onClick={initiateExchange}
               disabled={scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull}
               style={{
                 padding: '8px 15px',

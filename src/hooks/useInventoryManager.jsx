@@ -55,10 +55,10 @@ const inventoryReducer = (state, action) => {
       const { item, slot } = action.payload;
       const updatedInventory = { ...state.inventory };
       const updatedEquipment = { ...state.equipment };
-      if (slot !== null) {
+      if (slot !== null) {  // If the item is being equipped from the inventory
         updatedInventory[item.name] = updatedInventory[item.name].filter(i => i !== item);
       }
-      if (updatedEquipment[item.name]) {
+      if (updatedEquipment[item.name]) {  // If there's an item already equipped
         const previousItem = updatedEquipment[item.name];
         updatedInventory[previousItem.name] = [...updatedInventory[previousItem.name], previousItem];
       }

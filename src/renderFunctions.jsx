@@ -164,7 +164,7 @@ export const renderEquipment = (equipment, unequipItem) => (
   </div>
 );
 
-export const renderRecycler = (inventory, inventoryFull, scrap, handleRecycle, handleExchange, recycleMode, toggleRecycleMode, equipment, unequipItem) => (
+export const renderRecycler = (inventory, inventoryFull, scrap, handleRecycle, handleExchange, recycleMode, toggleRecycleMode, equipment, equipItem, unequipItem) => (
   <div style={{  // TODO: factor out parent div?
     minHeight: MIN_HEIGHT_VIEW,
     display: 'flex',
@@ -181,6 +181,7 @@ export const renderRecycler = (inventory, inventoryFull, scrap, handleRecycle, h
       recycleMode={recycleMode}
       toggleRecycleMode={toggleRecycleMode}
       equipment={equipment}
+      onEquip={equipItem}
       onUnequip={unequipItem}
     />
   </div>
