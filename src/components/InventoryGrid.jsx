@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { getColor } from '../utils';
 
-const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode, onDeposit, actionLabel }) => {
+const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode, onDeposit, actionLabel, onDrop, scale }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [contextMenu, setContextMenu] = useState(null);
 
   function getItemUrl(name, rarity) {
     if (name === 'crystal' || name === 'potion' || name === 'gold') {
@@ -32,6 +33,31 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
     .flatMap(([, itemArray]) => (Array.isArray(itemArray) ? itemArray : []))
     .slice(0, 16);
 
+  const handleContextMenu = useCallback((e, item) => {
+    e.preventDefault();
+    if (item) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      setContextMenu({
+        x: (e.clientX - rect.left) / scale,
+        y: (e.clientY - rect.top) / scale,
+        item: item
+      });
+    }
+  }, [scale]);
+
+  const handleDropItem = useCallback(() => {
+    if (contextMenu) {
+      onDrop(contextMenu.item);
+      setContextMenu(null);
+    }
+  }, [contextMenu, onDrop]);
+
+  useEffect(() => {
+    const handleClickOutside = () => setContextMenu(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   return (
     <div
       data-testid='Inventory'
@@ -41,6 +67,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        position: 'relative',
       }}
     >
       <div
@@ -109,6 +136,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
               cursor: recycleMode && flattenedItems[index] ? 'grab' : 'pointer',
             }}
             onClick={() => handleClick(flattenedItems, index)}
+            onContextMenu={(e) => handleContextMenu(e, flattenedItems[index])}
             onMouseEnter={() => setHoveredItem(flattenedItems[index])}
             onMouseLeave={() => setHoveredItem(null)}
           >
@@ -151,6 +179,35 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
           </div>
         ))}
       </div>
+      {contextMenu && (
+        <div
+          style={{
+            position: 'absolute',
+            top: `${contextMenu.y}px`,
+            left: `${contextMenu.x}px`,
+            backgroundColor: 'white',
+            border: '1px solid black',
+            borderRadius: '4px',
+            padding: '5px',
+            zIndex: 1000,
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+          }}
+        >
+          <button
+            onClick={handleDropItem}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: '5px 10px',
+              cursor: 'pointer',
+              color: '#333',
+              fontSize: '14px',
+            }}
+          >
+            Drop {contextMenu.item.name}
+          </button>
+        </div>
+      )}
       {flattenedItems.length >= 16 && (
         <p style={{ margin: '5px 0 0 0', fontSize: '12px' }}>Inventory is full</p>
       )}

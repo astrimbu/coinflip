@@ -113,7 +113,7 @@ export const renderLevelAndExperience = (level, experience, experienceToNextLeve
   </div>
 );
 
-export const renderInventory = (inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode) => (
+export const renderInventory = (inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale) => (
   <div>
     <InventoryGrid
       items={inventory}
@@ -122,6 +122,8 @@ export const renderInventory = (inventory, equipItem, usePotion, useCrystal, han
       onUseCrystal={useCrystal}
       onRecycle={handleRecycle}
       recycleMode={recycleMode}
+      onDrop={handleDrop}
+      scale={scale}
     />
   </div>
 );
