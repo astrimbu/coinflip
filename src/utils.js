@@ -46,3 +46,10 @@ export const compareRarity = (rarity1, rarity2) => {
   const rarityOrder = ['Common', 'Magic', 'Rare', 'Unique'];
   return rarityOrder.indexOf(rarity1) - rarityOrder.indexOf(rarity2);
 };
+
+export const calculateAccuracy = (userStats, monster) => {
+  const baseAccuracy = 0.6;
+  const statDifference = userStats - monster.defense;
+  const accuracyModifier = Math.min(Math.max(statDifference * 0.02, -0.3), 0.3);
+  return Math.min(Math.max(baseAccuracy + accuracyModifier, 0.1), 0.95);
+};

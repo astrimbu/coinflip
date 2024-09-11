@@ -4,6 +4,7 @@ import useInventoryManager from './hooks/useInventoryManager';
 import Area from './components/Area';
 import MonsterAnimation from './components/MonsterAnimation';
 import NavigationArrow from './components/NavigationArrow';
+import TimerDisplay from './components/TimerDisplay';
 import { monsterTypes, petDropRates, ATTACK_SPEED } from './constants/gameData';
 import './styles.css';
 import {
@@ -14,6 +15,7 @@ import {
   xpToNextLevel,
   calcWinRate,
   compareRarity,
+  calculateAccuracy,
 } from './utils';
 import {
   renderPets,
@@ -79,8 +81,8 @@ const MiniRPG = () => {
   const [recycleMode, setRecycleMode] = useState(false);
   const [showLevelUpButton, setShowLevelUpButton] = useState(false);
   const [showSkillTree, setShowSkillTree] = useState(false);
-  const [userHitpoints, setUserHitpoints] = useState(100);
-  const [maxUserHitpoints, setMaxUserHitpoints] = useState(100);
+  const [userHitpoints, setUserHitpoints] = useState(10);
+  const [maxUserHitpoints, setMaxUserHitpoints] = useState(10);
   const [userIsDead, setUserIsDead] = useState(false);
   const [userDeaths, setUserDeaths] = useState(0);
 
@@ -480,6 +482,8 @@ const MiniRPG = () => {
       const newLevel = prevLevel + 1;
       setShowLevelUpButton(true);
       playLevelUpSound();
+      setMaxUserHitpoints(prevMax => prevMax + 2);
+      setUserHitpoints(prevHp => prevHp + 2);
       return newLevel;
     });
   };
@@ -526,45 +530,7 @@ const MiniRPG = () => {
         {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode)}
         </div>
         <div style={{ width: '50%', maxWidth: '400px', position: 'relative' }}>
-          {(crystalTimer > 0 || potionTimer > 0) && (
-            <div
-              style={{
-                position: 'absolute',
-                top: '10px',
-                left: '10px',
-                display: 'flex',
-                gap: '10px',
-                zIndex: 10,
-              }}
-            >
-              {crystalTimer > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#f0f0f0' }}>
-                  <img
-                    src={getItemUrl('crystal', 'Crystal')}
-                    alt="Crystal"
-                    style={{ width: '20px', height: '20px' }}
-                  />
-                  <span style={{ fontSize: '12px', fontWeight: 'bold' }}>
-                    {Math.floor(crystalTimer / 60)}:
-                    {(crystalTimer % 60).toString().padStart(2, '0')}
-                  </span>
-                </div>
-              )}
-              {potionTimer > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#f0f0f0' }}>
-                  <img
-                    src={getItemUrl('potion', 'Potion')}
-                    alt="Potion"
-                    style={{ width: '20px', height: '20px' }}
-                  />
-                  <span style={{ fontSize: '14px', fontWeight: 'bold' }}>
-                    {Math.floor(potionTimer / 60)}:
-                    {(potionTimer % 60).toString().padStart(2, '0')}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
+          <TimerDisplay crystalTimer={crystalTimer} potionTimer={potionTimer} />
           <Area monster={currentMonster}>
             <MonsterAnimation
               monster={currentMonster}
@@ -619,7 +585,7 @@ const MiniRPG = () => {
               fontSize: '0.8em',
             }}
           >
-            Accuracy: {(calcWinRate(calculateTotalStats(), monsterTypes[currentMonster].rate) * 100).toFixed(2)}% <br />
+            Accuracy: {(calculateAccuracy(calculateTotalStats(), monsterTypes[currentMonster]) * 100).toFixed(2)}% <br />
             Drop rate: {calcItemDropRate(0.1, monsterTypes[currentMonster].modifier, crystalTimer)}%
           </div>
         </div>
@@ -752,7 +718,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.9.1 - <a href='https://alan.computer'
+          v1.9.2 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

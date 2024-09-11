@@ -9,6 +9,8 @@ export const monsterTypes = {
     ticketCost: 0,
     order: 0,
     damage: 1,
+    attack: 1,
+    defense: 1,
   },
   Ogre: {
     label: "Ogre",
@@ -19,7 +21,9 @@ export const monsterTypes = {
     experience: 50,
     ticketCost: 1,
     order: 1,
-    damage: 4,
+    damage: 2,
+    attack: 3,
+    defense: 3,
   },
   Demon: {
     label: "Demon",
@@ -30,7 +34,9 @@ export const monsterTypes = {
     experience: 100,
     ticketCost: 2,
     order: 2,
-    damage: 8,
+    damage: 4,
+    attack: 7,
+    defense: 6,
   },
   Dragon: {
     label: "Dragon",
@@ -41,7 +47,9 @@ export const monsterTypes = {
     experience: 200,
     ticketCost: 3,
     order: 3,
-    damage: 12,
+    damage: 8,
+    attack: 10,
+    defense: 9,
   },
 };
 
@@ -51,4 +59,3 @@ export const petDropRates = Object.fromEntries(
 
 export const MIN_HEIGHT_VIEW = "314px";
 export const ATTACK_SPEED = 1200;
-
