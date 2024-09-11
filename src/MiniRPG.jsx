@@ -270,11 +270,11 @@ const MiniRPG = () => {
 
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const isSoundEnabledRef = useRef(true);
-  const attack1Sound = useRef(new Audio(new URL('./assets/sounds/attack1.ogg', import.meta.url).href));
-  const attack2Sound = useRef(new Audio(new URL('./assets/sounds/attack2.mp3', import.meta.url).href));
-  const getPetSound = useRef(new Audio(new URL('./assets/sounds/getPet.ogg', import.meta.url).href));
-  const fireworksSound = useRef(new Audio(new URL('./assets/sounds/fireworks.ogg', import.meta.url).href));
-  const deathSound = useRef(new Audio(new URL('./assets/sounds/death.mp3', import.meta.url).href));
+  const attack1Sound = useRef(new Audio('/coinflip/assets/sounds/attack1.ogg'));
+  const attack2Sound = useRef(new Audio('/coinflip/assets/sounds/attack2.mp3'));
+  const getPetSound = useRef(new Audio('/coinflip/assets/sounds/getPet.ogg'));
+  const fireworksSound = useRef(new Audio('/coinflip/assets/sounds/fireworks.ogg'));
+  const deathSound = useRef(new Audio('/coinflip/assets/sounds/death.mp3'));
 
 
   useEffect(() => {
@@ -764,7 +764,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.2 - <a href='https://alan.computer'
+          v1.10.3 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
