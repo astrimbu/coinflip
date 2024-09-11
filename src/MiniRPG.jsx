@@ -235,6 +235,12 @@ const MiniRPG = () => {
     }
   };
 
+  const handleDrop = useCallback((item) => {
+    if (item && item.name) {
+      removeItem(item.name, item);
+    }
+  }, [removeItem]);
+
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const isSoundEnabledRef = useRef(true);
   const attack1Sound = useRef(new Audio(new URL('./assets/sounds/attack1.ogg', import.meta.url).href));
@@ -527,7 +533,7 @@ const MiniRPG = () => {
 
       <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
         <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
-        {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode)}
+        {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale)}
         </div>
         <div style={{ width: '50%', maxWidth: '400px', position: 'relative' }}>
           <TimerDisplay crystalTimer={crystalTimer} potionTimer={potionTimer} />
