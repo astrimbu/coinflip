@@ -84,7 +84,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
             fontSize: '12px',
           }}
         >
-          <img src={getItemUrl('gold')} alt='Gold' style={{ width: '25px', height: '25px', marginRight: '5px' }} draggable="false" /> {items.Gold}
+          <img src={getItemUrl('gold', 'gold', '..')} alt='Gold' style={{ width: '25px', height: '25px', marginRight: '5px' }} draggable="false" /> {items.Gold}
         </div>
         <div
           style={{
@@ -100,7 +100,7 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
           }}
           onClick={() => items.Potion > 0 && onUsePotion()}
         >
-          <img src={getItemUrl('potion')} alt='Potion' style={{ width: '25px', height: '25px', marginRight: '5px' }} draggable="false" /> {items.Potion}
+          <img src={getItemUrl('potion', 'potion', '..')} alt='Potion' style={{ width: '25px', height: '25px', marginRight: '5px' }} draggable="false" /> {items.Potion}
         </div>
       </div>
       <div
@@ -143,7 +143,8 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
                 <img
                   src={getItemUrl(
                     flattenedItems[index].name.toLowerCase(),
-                    flattenedItems[index].rarity.toLowerCase()
+                    flattenedItems[index].rarity.toLowerCase(),
+                    '..'
                   )}
                   alt={
                     flattenedItems[index].rarity +
