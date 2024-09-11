@@ -223,6 +223,19 @@ const MiniRPG = () => {
     }
   };
 
+  const handleUpgradeSlot = (slotName, newRarity) => {
+    const currentItem = equipment[slotName];
+    if (currentItem && scrap[newRarity] >= 2) {
+      removeScrap(newRarity, 2);
+      const upgradedItem = { 
+        ...currentItem, 
+        rarity: newRarity, 
+        stat: getRarityStat(newRarity) 
+      };
+      equipItem(upgradedItem, slotName);
+    }
+  };
+
   const handleDeposit = (category, item) => {
     depositItem(category, item);
   };
@@ -255,8 +268,8 @@ const MiniRPG = () => {
     attack1Sound.current.volume = 0.1;
     attack2Sound.current.volume = 0.1;
     getPetSound.current.volume = 0.1;
-    fireworksSound.current.volume = 0.1;
-    deathSound.current.volume = 0.1;
+    fireworksSound.current.volume = 0.05;
+    deathSound.current.volume = 0.05;
   }, [isSoundEnabled]);
 
   const playSound = (sound) => {
@@ -630,7 +643,7 @@ const MiniRPG = () => {
         case 'town':
           return renderTown(goToLocation);
         case 'recycler':
-          return renderRecycler(inventory, inventoryFull, scrap, handleRecycle, handleExchange, recycleMode, toggleRecycleMode, equipment, equipItem, unequipItem);
+          return renderRecycler(inventory, inventoryFull, scrap, handleRecycle, recycleMode, toggleRecycleMode, equipment, equipItem, unequipItem, handleUpgradeSlot);
         case 'shop':
           return renderShop(inventory, inventoryFull, purchaseItem, purchaseNotification);
         case 'bank':
@@ -724,7 +737,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.9.4 - <a href='https://alan.computer'
+          v1.9.5 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

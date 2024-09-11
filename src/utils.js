@@ -61,3 +61,9 @@ export const calculateAccuracy = (userStats, monster) => {
   const accuracyModifier = Math.min(Math.max(statDifference * 0.02, -0.3), 0.3);
   return Math.min(Math.max(baseAccuracy + accuracyModifier, 0.1), 0.95);
 };
+
+export const getNextRarity = (currentRarity) => {
+  const rarityOrder = ['Common', 'Magic', 'Rare', 'Unique'];
+  const currentIndex = rarityOrder.findIndex(rarity => compareRarity(rarity, currentRarity) === 0);
+  return currentIndex < rarityOrder.length - 1 ? rarityOrder[currentIndex + 1] : null;
+};

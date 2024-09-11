@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { getColor, compareRarity } from '../utils.js';
+import { getColor, getNextRarity } from '../utils.js';
 import InventoryGrid from './InventoryGrid';
 import WornEquipment from './WornEquipment';
 
@@ -9,15 +9,18 @@ const Recycler = ({
   inventoryFull,
   scrap,
   onRecycle,
-  onExchange,
   onUsePotion,
   onUseCrystal,
   equipment,
   onEquip,
   onUnequip,
+  onUpgradeSlot,
 }) => {
+  const [upgradeMode, setUpgradeMode] = useState(false);
   const [exchangeRarity, setExchangeRarity] = useState('Common');
   const [exchangeItem, setExchangeItem] = useState('');
+  const [selectedSlot, setSelectedSlot] = useState('');
+
   const hammer = new URL(`../assets/items/hammer.png`, import.meta.url).href;
   const validEquipmentTypes = [
     'Hat',
@@ -43,14 +46,13 @@ const Recycler = ({
     onRecycle(recycledScrap);
   };
 
-  const initiateExchange = () => {
-    if (
-      scrap[exchangeRarity] >= 2 &&
-      exchangeItem &&
-      validEquipmentTypes.includes(exchangeItem)
-    ) {
-      onExchange(exchangeRarity, exchangeItem);
-      setExchangeItem('');
+  const handleUpgradeSlot = (slot) => {
+    if (equipment[slot]) {
+      const currentRarity = equipment[slot].rarity;
+      const nextRarity = getNextRarity(currentRarity);
+      if (nextRarity && scrap[currentRarity] >= 2) {
+        onUpgradeSlot(slot, nextRarity);
+      }
     }
   };
 
@@ -116,44 +118,33 @@ const Recycler = ({
             ))}
           </div>
           <div>
-            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center', marginBottom: '5px' }}>
-              <select value={exchangeRarity} onChange={(e) => setExchangeRarity(e.target.value)} style={{ padding: '2px', borderRadius: '2px', backgroundColor: getColor(exchangeRarity), color: 'white', fontSize: '0.8em' }}>
-                {Object.keys(scrap).map(rarity => (
-                  <option key={rarity} value={rarity} style={{ backgroundColor: getColor(rarity) }}>{rarity}</option>
-                ))}
-              </select>
-              <select value={exchangeItem} onChange={(e) => setExchangeItem(e.target.value)} style={{ padding: '2px', borderRadius: '2px', fontSize: '0.8em' }}>
-                <option value=''>Select item type</option>
-                {validEquipmentTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
             <button
-              onClick={initiateExchange}
-              disabled={scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull}
+              onClick={() => setUpgradeMode(!upgradeMode)}
               style={{
                 padding: '8px 15px',
-                backgroundColor: scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull ? '#aaa' : '#9c27b0',
+                backgroundColor: upgradeMode ? '#4CAF50' : '#9c27b0',
                 color: 'white',
                 border: 'none',
                 borderRadius: '3px',
-                cursor: scrap[exchangeRarity] < 2 || !exchangeItem || inventoryFull ? 'not-allowed' : 'pointer',
+                cursor: 'pointer',
                 fontSize: '1em',
                 width: 'auto',
                 marginTop: '5px',
               }}
             >
-              Exchange
+              {upgradeMode ? 'Cancel' : 'Upgrade Mode'}
             </button>
-            <p style={{ margin: '5px 0 0', fontSize: '0.8em' }}>Cost: 2 {exchangeRarity} scrap</p>
+            <p style={{ margin: '5px 0 0', fontSize: '0.8em' }}>
+              {upgradeMode ? 'Click an item to upgrade' : 'Click an item to unequip'}
+            </p>
           </div>
         </div>
         <div>
           <WornEquipment
             equipment={equipment}
             onUnequip={onUnequip}
-            fullUnique={Object.values(equipment).every(item => item && item.rarity === 'Unique')}
+            onUpgrade={handleUpgradeSlot}
+            upgradeMode={upgradeMode}
           />
         </div>
       </div>

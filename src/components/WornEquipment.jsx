@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { getColor, getBackgroundColor } from '../utils';
 
-const WornEquipment = ({ equipment, onUnequip }) => {
+const WornEquipment = ({ equipment, onUnequip, onUpgrade, upgradeMode }) => {
   const slots = [
     'Hat',
     'Cape',
@@ -52,8 +52,9 @@ const WornEquipment = ({ equipment, onUnequip }) => {
             backgroundColor: equipment[slot]
               ? getBackgroundColor(equipment[slot].rarity)
               : 'transparent',
+            cursor: equipment[slot] ? 'pointer' : 'default',
           }}
-          onClick={() => equipment[slot] && onUnequip(slot)}
+          onClick={() => equipment[slot] && (upgradeMode ? onUpgrade(slot) : onUnequip(slot))}
           onMouseEnter={() => setHoveredItem(equipment[slot])}
           onMouseLeave={() => setHoveredItem(null)}
           title={slot.charAt(0).toUpperCase() + slot.slice(1)}
