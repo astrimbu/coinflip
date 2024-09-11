@@ -1,10 +1,9 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
+import { getItemUrl } from '../utils';
 
 const Shop = ({ gold, inventoryFull, onPurchase }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
-
-  const getItemUrl = (name) => new URL(`../assets/items/${name}.png`, import.meta.url).href;
 
   const renderShopItem = (itemName, price, description) => (
     <div
@@ -21,7 +20,7 @@ const Shop = ({ gold, inventoryFull, onPurchase }) => {
       onMouseEnter={() => setHoveredItem(itemName)}
       onMouseLeave={() => setHoveredItem(null)}
     >
-      <img src={getItemUrl(itemName.toLowerCase())} alt={itemName} style={{ width: '24px', height: '24px' }} />
+      <img src={getItemUrl(itemName.toLowerCase())} alt={itemName} />
       <span>{`${itemName} (${price}G)`}</span>
       <button
         onClick={() => onPurchase(itemName)}

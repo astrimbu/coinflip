@@ -25,7 +25,7 @@ const Area = ({ children, monster }) => {
       style={{
         width: '100%',
         height: '300px',
-        backgroundImage: `url(${new URL(`../assets/backgrounds/${getBackgroundImage()}`, import.meta.url).href})`,
+        backgroundImage: `url(/coinflip/assets/backgrounds/${getBackgroundImage()})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',

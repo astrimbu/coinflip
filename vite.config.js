@@ -9,6 +9,6 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/setup-test.js",
   },
-  base: "/coinflip",
+  base: "/coinflip/",
   plugins: [react()],
 });

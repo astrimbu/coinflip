@@ -286,7 +286,7 @@ const MonsterAnimation = ({
         />
       </div>
       <img
-        src={new URL(`../assets/monsters/${monster.toLowerCase()}.png`, import.meta.url).href}
+        src={`/coinflip/assets/monsters/${monster.toLowerCase()}.png`}
         alt={monster}
         style={{
           height: '100%',

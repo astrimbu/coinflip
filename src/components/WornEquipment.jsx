@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { getColor, getBackgroundColor } from '../utils';
+import { getColor, getBackgroundColor, getItemUrl } from '../utils';
 
 const WornEquipment = ({ equipment, onUnequip, onUpgrade, upgradeMode }) => {
   const slots = [
@@ -14,13 +14,6 @@ const WornEquipment = ({ equipment, onUnequip, onUpgrade, upgradeMode }) => {
     'Boots',
     'Ring',
   ];
-
-  function getItemUrl(name, rarity) {
-    name = name.toLowerCase();
-    rarity = rarity.toLowerCase();
-    return new URL(`../assets/items/${name}-${rarity}.png`, import.meta.url)
-      .href;
-  }
 
   const calculateTotalStats = () => {
     return slots.reduce((total, slot) => {

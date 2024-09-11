@@ -32,13 +32,13 @@ export const getRarityStat = (rarity) => {
   }
 };
 
-export const getItemUrl = (name, rarity, root = '.') => {
+export const getItemUrl = (name, rarity) => {
   if (['crystal', 'potion', 'gold', 'logs'].includes(name)) {
-    return new URL(`${root}/assets/items/${name}.png`, import.meta.url).href;
+    return `/coinflip/assets/items/${name}.png`;
   } else if (name === 'fire') {
-    return new URL(`${root}/assets/items/fire.gif`, import.meta.url).href;
+    return `/coinflip/assets/items/fire.gif`;
   }
-  return new URL(`${root}/assets/items/${name}-${rarity}.png`, import.meta.url).href;
+  return `/coinflip/assets/items/${name}-${rarity}.png`;
 };
 
 export const calcWinRate = (totalStats, baseRate) => {
