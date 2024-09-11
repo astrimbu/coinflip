@@ -191,6 +191,7 @@ const useInventoryManager = () => {
       Ring: [],
       Amulet: [],
       Crystal: [],
+      Logs: [],
       Gold: 1,
       Potion: 1,
     },

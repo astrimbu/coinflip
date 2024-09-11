@@ -33,8 +33,10 @@ export const getRarityStat = (rarity) => {
 };
 
 export const getItemUrl = (name, rarity, root = '.') => {
-  if (name === 'crystal' || name === 'potion' || name === 'gold') {
+  if (['crystal', 'potion', 'gold', 'logs'].includes(name)) {
     return new URL(`${root}/assets/items/${name}.png`, import.meta.url).href;
+  } else if (name === 'fire') {
+    return new URL(`${root}/assets/items/fire.gif`, import.meta.url).href;
   }
   return new URL(`${root}/assets/items/${name}-${rarity}.png`, import.meta.url).href;
 };

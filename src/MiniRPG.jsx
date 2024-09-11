@@ -85,6 +85,15 @@ const MiniRPG = () => {
   const [maxUserHitpoints, setMaxUserHitpoints] = useState(10);
   const [userIsDead, setUserIsDead] = useState(false);
   const [userDeaths, setUserDeaths] = useState(0);
+  const [fire, setFire] = useState(false);
+
+  const lightFire = useCallback((logItem) => {
+    if (!fire && logItem) {
+      removeItem('Logs', logItem);
+      setFire(true);
+      setTimeout(() => setFire(false), 60000); // Fire lasts for 1 minute
+    } // else: "There's already a fire going"
+  }, [fire, removeItem]);
 
   const [monsterAnimationState, setMonsterAnimationState] = useState('walking');
   const handleAnimationStateChange = (newState) => {
@@ -168,6 +177,11 @@ const MiniRPG = () => {
     } else if (item === 'Potion' && inventory.Gold >= 1) {
       updateCurrency('Gold', -1);
       updateCurrency('Potion', 1);
+      setPurchaseNotification(true);
+      setTimeout(() => setPurchaseNotification(false), 2000);
+    } else if (item === 'Logs' && inventory.Gold >= 1) {
+      updateCurrency('Gold', -1);
+      addItem('Logs', { name: 'Logs', rarity: 'Logs' });
       setPurchaseNotification(true);
       setTimeout(() => setPurchaseNotification(false), 2000);
     }
@@ -546,7 +560,7 @@ const MiniRPG = () => {
 
       <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
         <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
-        {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale)}
+        {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire)}
         </div>
         <div style={{ width: '50%', maxWidth: '400px', position: 'relative' }}>
           <TimerDisplay crystalTimer={crystalTimer} potionTimer={potionTimer} />
@@ -593,7 +607,20 @@ const MiniRPG = () => {
           }}>
             HP: {userHitpoints} / {maxUserHitpoints}
           </div>
+          {fire && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+              }}
+            >
+              <img src={getItemUrl('fire')} alt='fire' style={{ width: '100px', height: '100px' }} />
+            </div>
+          )}
         </div>
+        
         <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
           {renderEquipment(equipment, unequipItem)}
           <div
@@ -737,7 +764,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.9.5 - <a href='https://alan.computer'
+          v1.10.0 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

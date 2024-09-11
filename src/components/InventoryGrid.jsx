@@ -1,18 +1,10 @@
 /* eslint-disable react/prop-types */
 import { useState, useCallback, useEffect } from 'react';
-import { getColor, getBackgroundColor } from '../utils';
+import { getColor, getBackgroundColor, getItemUrl } from '../utils';
 
-const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode, onDeposit, actionLabel, onDrop, scale }) => {
+const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode, onDeposit, actionLabel, onDrop, scale, onLightFire }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
-
-  function getItemUrl(name, rarity) {
-    if (name === 'crystal' || name === 'potion' || name === 'gold') {
-      return new URL(`../assets/items/${name}.png`, import.meta.url).href;
-    }
-    return new URL(`../assets/items/${name}-${rarity}.png`, import.meta.url)
-      .href;
-  }
 
   const handleClick = (flattenedItems, index) => {
     if (!flattenedItems[index]) return;
@@ -23,6 +15,8 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
       onRecycle([item]);
     } else if (item.name === 'Crystal') {
       onUseCrystal(item);
+    } else if (item.name === 'Logs') {
+      onLightFire(item);
     } else {
       onEquip(item, item.name);
     }
