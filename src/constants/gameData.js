@@ -40,16 +40,16 @@ export const monsterTypes = {
   },
   Dragon: {
     label: "Dragon",
-    rate: 1 / 300,
+    rate: 1 / 150,
     maxHP: 34,
     modifier: 1,
     rarity: "Unique",
     experience: 200,
     ticketCost: 3,
     order: 3,
-    damage: 8,
-    attack: 10,
-    defense: 9,
+    damage: 6,
+    attack: 5,
+    defense: 6,
   },
 };
 

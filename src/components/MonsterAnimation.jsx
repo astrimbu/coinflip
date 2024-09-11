@@ -301,14 +301,14 @@ const MonsterAnimation = ({
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            fontSize: '16px',
-            fontWeight: 'bold',
+            fontSize: '14px',
+            fontWeight: '700',
+            fontFamily: 'monospace',
             color: '#f0f0f0',
-            textShadow: '1px 1px black, 0 0 5px rgba(0,0,0,0.5)',
             animation: 'floatUp 3s forwards',
           }}
         >
-          +{experienceGained}xp
+          +{experienceGained} XP
         </div>
       )}
       {hitsplats.map(hitsplat => (

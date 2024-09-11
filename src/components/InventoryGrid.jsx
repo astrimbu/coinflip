@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState, useCallback, useEffect } from 'react';
-import { getColor } from '../utils';
+import { getColor, getBackgroundColor } from '../utils';
 
 const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode, onDeposit, actionLabel, onDrop, scale }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -132,7 +132,11 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: recycleMode && flattenedItems[index] ? 'rgba(255, 0, 0, 0.5)' : 'transparent',
+              backgroundColor: recycleMode && flattenedItems[index]
+                ? 'rgba(255, 0, 0, 0.5)'
+                : flattenedItems[index]
+                  ? getBackgroundColor(flattenedItems[index].rarity)
+                  : 'transparent',
               cursor: recycleMode && flattenedItems[index] ? 'grab' : 'pointer',
             }}
             onClick={() => handleClick(flattenedItems, index)}

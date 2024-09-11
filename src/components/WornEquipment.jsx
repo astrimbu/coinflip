@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { getColor } from '../utils';
+import { getColor, getBackgroundColor } from '../utils';
 
 const WornEquipment = ({ equipment, onUnequip }) => {
   const slots = [
@@ -49,6 +49,9 @@ const WornEquipment = ({ equipment, onUnequip }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            backgroundColor: equipment[slot]
+              ? getBackgroundColor(equipment[slot].rarity)
+              : 'transparent',
           }}
           onClick={() => equipment[slot] && onUnequip(slot)}
           onMouseEnter={() => setHoveredItem(equipment[slot])}

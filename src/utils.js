@@ -9,6 +9,14 @@ export const getColor = (rarity) => {
   return colors[rarity] || "#000000";
 };
 
+export const getBackgroundColor = (rarity) => {
+  if (rarity === 'Unique') {
+    return 'rgba(0, 0, 0, 0.3)';
+  }
+  const color = getColor(rarity);
+  return `${color}33`; // 33 is 20% opacity in hex for other rarities
+};
+
 export const getRarityStat = (rarity) => {
   switch (rarity) {
     case "Common":
