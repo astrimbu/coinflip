@@ -33,6 +33,8 @@ export const getRarityStat = (rarity) => {
 };
 
 export const getItemUrl = (name, rarity) => {
+  if (name) name = name.toLowerCase();
+  if (rarity) rarity = rarity.toLowerCase();
   if (['crystal', 'potion', 'gold', 'logs'].includes(name)) {
     return `/coinflip/assets/items/${name}.png`;
   } else if (name === 'fire') {

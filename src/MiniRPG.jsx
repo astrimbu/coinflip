@@ -5,7 +5,7 @@ import Area from './components/Area';
 import MonsterAnimation from './components/MonsterAnimation';
 import NavigationArrow from './components/NavigationArrow';
 import TimerDisplay from './components/TimerDisplay';
-import { monsterTypes, petDropRates, ATTACK_SPEED } from './constants/gameData';
+import { monsterTypes, petDropRates, FIRE_LENGTH, ATTACK_SPEED } from './constants/gameData';
 import './styles.css';
 import {
   getColor,
@@ -86,14 +86,29 @@ const MiniRPG = () => {
   const [userIsDead, setUserIsDead] = useState(false);
   const [userDeaths, setUserDeaths] = useState(0);
   const [fire, setFire] = useState(false);
+  const [fireTimer, setFireTimer] = useState(0);
 
   const lightFire = useCallback((logItem) => {
     if (!fire && logItem) {
       removeItem('Logs', logItem);
       setFire(true);
-      setTimeout(() => setFire(false), 60000); // Fire lasts for 1 minute
-    } // else: "There's already a fire going"
+      setFireTimer(FIRE_LENGTH);
+      setTimeout(() => {
+        setFire(false);
+        setFireTimer(0);
+      }, FIRE_LENGTH * 1000);
+    }
   }, [fire, removeItem]);
+
+  useEffect(() => {
+    let interval;
+    if (fireTimer > 0) {
+      interval = setInterval(() => {
+        setFireTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [fireTimer]);
 
   const [monsterAnimationState, setMonsterAnimationState] = useState('walking');
   const handleAnimationStateChange = (newState) => {
@@ -563,7 +578,7 @@ const MiniRPG = () => {
         {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire)}
         </div>
         <div style={{ width: '50%', maxWidth: '400px', position: 'relative' }}>
-          <TimerDisplay crystalTimer={crystalTimer} potionTimer={potionTimer} />
+          <TimerDisplay crystalTimer={crystalTimer} potionTimer={potionTimer} fireTimer={fireTimer} />
           <Area monster={currentMonster}>
             <MonsterAnimation
               monster={currentMonster}
@@ -764,7 +779,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.4 - <a href='https://alan.computer'
+          v1.10.5 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

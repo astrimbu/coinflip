@@ -1,7 +1,7 @@
 import React from 'react';
 import { getItemUrl } from '../utils';
 
-const TimerDisplay = ({ crystalTimer, potionTimer }) => {
+const TimerDisplay = ({ crystalTimer, potionTimer, fireTimer }) => {
   return (
     <div
       style={{
@@ -9,6 +9,7 @@ const TimerDisplay = ({ crystalTimer, potionTimer }) => {
         top: '10px',
         left: '10px',
         display: 'flex',
+        flexDirection: 'column',
         gap: '10px',
         zIndex: 10,
       }}
@@ -20,7 +21,7 @@ const TimerDisplay = ({ crystalTimer, potionTimer }) => {
             alt="Crystal"
             style={{ width: '20px', height: '20px' }}
           />
-          <span style={{ fontSize: '12px', fontWeight: 'bold' }}>
+          <span style={{ fontSize: '14px', fontWeight: 'bold' }}>
             {Math.floor(crystalTimer / 60)}:
             {(crystalTimer % 60).toString().padStart(2, '0')}
           </span>
@@ -36,6 +37,19 @@ const TimerDisplay = ({ crystalTimer, potionTimer }) => {
           <span style={{ fontSize: '14px', fontWeight: 'bold' }}>
             {Math.floor(potionTimer / 60)}:
             {(potionTimer % 60).toString().padStart(2, '0')}
+          </span>
+        </div>
+      )}
+      {fireTimer > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', color: '#f0f0f0' }}>
+          <img
+            src={'/coinflip/assets/items/fire.png'}
+            alt="Fire"
+            style={{ width: '20px', height: '20px' }}
+          />
+          <span style={{ fontSize: '14px', fontWeight: 'bold' }}>
+            {Math.floor(fireTimer / 60)}:
+            {(fireTimer % 60).toString().padStart(2, '0')}
           </span>
         </div>
       )}
