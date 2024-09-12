@@ -17,6 +17,7 @@ import {
   compareRarity,
   calcAccuracy,
   calcMonsterAccuracy,
+  calcStats,
 } from './utils';
 import {
   renderPets,
@@ -88,6 +89,11 @@ const MiniRPG = () => {
   const [userDeaths, setUserDeaths] = useState(0);
   const [fire, setFire] = useState(false);
   const [fireTimer, setFireTimer] = useState(0);
+  const [showDetailedStats, setShowDetailedStats] = useState(false);
+
+  const toggleDetailedStats = () => {
+    setShowDetailedStats(!showDetailedStats);
+  };
 
   const lightFire = useCallback((logItem) => {
     if (!fire && logItem) {
@@ -177,12 +183,6 @@ const MiniRPG = () => {
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const calculateTotalStats = () => {
-    return Object.values(equipment).reduce((total, item) => {
-      return total + (item && item.stat ? item.stat : 0);
-    }, 0);
-  };
 
   const purchaseItem = (item) => {
     if (item === 'Crystal' && inventory.Gold >= 1) {
@@ -445,7 +445,7 @@ const MiniRPG = () => {
   useEffect(() => { // Fight Monster effect
     const performAttack = () => {
       // User attack
-      const userAdjustedRate = calcWinRate(calculateTotalStats(), monsterTypes[currentMonster].rate);
+      const userAdjustedRate = calcWinRate(calcStats(equipment), monsterTypes[currentMonster].rate);
       const userResult = Math.random() < userAdjustedRate;
       setResult(userResult);
 
@@ -453,7 +453,7 @@ const MiniRPG = () => {
       playAttackSound(userResult);
 
       const userDamage = userResult
-        ? (1 + Math.floor(calculateTotalStats() / 10)) * (potionTimerRef.current > 0 ? 2 : 1)
+        ? (1 + Math.floor(calcStats(equipment) / 10)) * (potionTimerRef.current > 0 ? 2 : 1)
         : 0;
 
       setLastAttack({ damage: userDamage, id: Date.now() });
@@ -469,7 +469,7 @@ const MiniRPG = () => {
       }
 
       // Monster attack
-      const monsterAdjustedRate = calcMonsterAccuracy(monsterTypes[currentMonster].attack, calculateTotalStats());
+      const monsterAdjustedRate = calcMonsterAccuracy(monsterTypes[currentMonster].attack, calcStats(equipment));
       const monsterResult = Math.random() < monsterAdjustedRate;
 
       if (monsterResult) {
@@ -645,27 +645,48 @@ const MiniRPG = () => {
               textAlign: 'center',
               fontStyle: 'italic',
               fontSize: '0.6em',
-              padding: '0 4em',
+              padding: '1em 5em 0 5em',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
-              <span style={{ fontSize: '0.8em' }}>Accuracy:</span>
-              <span style={{ fontSize: '1em', fontWeight: 'bold' }}>
-                {(calcAccuracy(calculateTotalStats(), monsterTypes[currentMonster]) * 100).toFixed(2)}%
+            <div 
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                cursor: 'pointer',
+              }}
+              onClick={toggleDetailedStats}
+            >
+              <span style={{ fontSize: '1em' }}>Total Stats:</span>
+              <span style={{ fontSize: '1.2em', fontWeight: 'bold', marginLeft: '5px' }}>
+                {calcStats(equipment)}
+              </span>
+              <span style={{ marginLeft: '10px', fontSize: '0.8em' }}>
+                {showDetailedStats ? '▲' : '▼'}
               </span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
-              <span style={{ fontSize: '0.8em' }}>Drop rate:</span>
-              <span style={{ fontSize: '1em', fontWeight: 'bold' }}>
-                {calcItemDropRate(0.1, monsterTypes[currentMonster].modifier, crystalTimer).toFixed(2)}%
-              </span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
-              <span style={{ fontSize: '0.8em' }}>Monster accuracy:</span>
-              <span style={{ fontSize: '1em', fontWeight: 'bold' }}>
-                {(calcMonsterAccuracy(monsterTypes[currentMonster].attack, calculateTotalStats()) * 100).toFixed(2)}%
-              </span>
-            </div>
+            {showDetailedStats && (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
+                  <span style={{ fontSize: '0.8em' }}>Accuracy:</span>
+                  <span style={{ fontSize: '1em' }}>
+                    {(calcAccuracy(calcStats(equipment), monsterTypes[currentMonster]) * 100).toFixed(2)}%
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
+                  <span style={{ fontSize: '0.8em' }}>Drop rate:</span>
+                  <span style={{ fontSize: '1em' }}>
+                    {calcItemDropRate(0.1, monsterTypes[currentMonster].modifier, crystalTimer).toFixed(2)}%
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
+                  <span style={{ fontSize: '0.8em' }}>Monster accuracy:</span>
+                  <span style={{ fontSize: '1em' }}>
+                    {(calcMonsterAccuracy(monsterTypes[currentMonster].attack, calcStats(equipment)) * 100).toFixed(2)}%
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -797,7 +818,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.6 - <a href='https://alan.computer'
+          v1.10.7 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

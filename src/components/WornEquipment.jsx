@@ -102,10 +102,6 @@ const WornEquipment = ({ equipment, onUnequip, onUpgrade, upgradeMode }) => {
       <div style={{ gridColumn: '1' }}>{renderSlot('Gloves')}</div>
       <div style={{ gridColumn: '2' }}>{renderSlot('Boots')}</div>
       <div style={{ gridColumn: '3' }}>{renderSlot('Ring')}</div>
-
-      <div style={{ gridColumn: '1 / span 3', textAlign: 'center', fontSize: '14px' }}>
-        <h3 style={{ margin: '5px 0' }}>Total Stats: {calculateTotalStats()}</h3>
-      </div>
     </div>
   );
 };

@@ -43,6 +43,14 @@ export const getItemUrl = (name, rarity) => {
   return `/coinflip/assets/items/${name}-${rarity}.png`;
 };
 
+
+export const calcStats = (equipment) => {
+  return Object.values(equipment).reduce((total, item) => {
+    return total + (item && item.stat ? item.stat : 0);
+  }, 0);
+};
+
+
 export const calcWinRate = (totalStats, baseRate) => {
   const statBonus = Math.floor(totalStats / 6) + totalStats * 0.1;
   return Math.min(baseRate * Math.pow(2, statBonus), 1);
