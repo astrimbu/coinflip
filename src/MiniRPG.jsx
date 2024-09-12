@@ -15,7 +15,8 @@ import {
   xpToNextLevel,
   calcWinRate,
   compareRarity,
-  calculateAccuracy,
+  calcAccuracy,
+  calcMonsterAccuracy,
 } from './utils';
 import {
   renderPets,
@@ -468,7 +469,7 @@ const MiniRPG = () => {
       }
 
       // Monster attack
-      const monsterAdjustedRate = 1 - userAdjustedRate; // Simplistic approach, can be refined later
+      const monsterAdjustedRate = calcMonsterAccuracy(monsterTypes[currentMonster].attack, calculateTotalStats());
       const monsterResult = Math.random() < monsterAdjustedRate;
 
       if (monsterResult) {
@@ -643,11 +644,28 @@ const MiniRPG = () => {
               margin: '0',
               textAlign: 'center',
               fontStyle: 'italic',
-              fontSize: '0.8em',
+              fontSize: '0.6em',
+              padding: '0 4em',
             }}
           >
-            Accuracy: {(calculateAccuracy(calculateTotalStats(), monsterTypes[currentMonster]) * 100).toFixed(2)}% <br />
-            Drop rate: {calcItemDropRate(0.1, monsterTypes[currentMonster].modifier, crystalTimer)}%
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
+              <span style={{ fontSize: '0.8em' }}>Accuracy:</span>
+              <span style={{ fontSize: '1em', fontWeight: 'bold' }}>
+                {(calcAccuracy(calculateTotalStats(), monsterTypes[currentMonster]) * 100).toFixed(2)}%
+              </span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
+              <span style={{ fontSize: '0.8em' }}>Drop rate:</span>
+              <span style={{ fontSize: '1em', fontWeight: 'bold' }}>
+                {calcItemDropRate(0.1, monsterTypes[currentMonster].modifier, crystalTimer).toFixed(2)}%
+              </span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
+              <span style={{ fontSize: '0.8em' }}>Monster accuracy:</span>
+              <span style={{ fontSize: '1em', fontWeight: 'bold' }}>
+                {(calcMonsterAccuracy(monsterTypes[currentMonster].attack, calculateTotalStats()) * 100).toFixed(2)}%
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -779,7 +797,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.5 - <a href='https://alan.computer'
+          v1.10.6 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
