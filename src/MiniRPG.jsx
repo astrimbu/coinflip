@@ -5,6 +5,7 @@ import Area from './components/Area';
 import MonsterAnimation from './components/MonsterAnimation';
 import NavigationArrow from './components/NavigationArrow';
 import TimerDisplay from './components/TimerDisplay';
+import StatsInfo from './components/StatsInfo';
 import { monsterTypes, petDropRates, FIRE_LENGTH, ATTACK_SPEED } from './constants/gameData';
 import './styles.css';
 import {
@@ -639,55 +640,12 @@ const MiniRPG = () => {
         
         <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
           {renderEquipment(equipment, unequipItem)}
-          <div
-            style={{
-              margin: '0',
-              textAlign: 'center',
-              fontStyle: 'italic',
-              fontSize: '0.6em',
-              padding: '1em 5em 0 5em',
-            }}
-          >
-            <div 
-              style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center',
-                cursor: 'pointer',
-              }}
-              onClick={toggleDetailedStats}
-            >
-              <span style={{ fontSize: '1em' }}>Total Stats:</span>
-              <span style={{ fontSize: '1.2em', fontWeight: 'bold', marginLeft: '5px' }}>
-                {calcStats(equipment)}
-              </span>
-              <span style={{ marginLeft: '10px', fontSize: '0.8em' }}>
-                {showDetailedStats ? '▲' : '▼'}
-              </span>
-            </div>
-            {showDetailedStats && (
-              <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
-                  <span style={{ fontSize: '0.8em' }}>Accuracy:</span>
-                  <span style={{ fontSize: '1em' }}>
-                    {(calcAccuracy(calcStats(equipment), monsterTypes[currentMonster]) * 100).toFixed(2)}%
-                  </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
-                  <span style={{ fontSize: '0.8em' }}>Drop rate:</span>
-                  <span style={{ fontSize: '1em' }}>
-                    {calcItemDropRate(0.1, monsterTypes[currentMonster].modifier, crystalTimer).toFixed(2)}%
-                  </span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', }}>
-                  <span style={{ fontSize: '0.8em' }}>Monster accuracy:</span>
-                  <span style={{ fontSize: '1em' }}>
-                    {(calcMonsterAccuracy(monsterTypes[currentMonster].attack, calcStats(equipment)) * 100).toFixed(2)}%
-                  </span>
-                </div>
-              </>
-            )}
-          </div>
+          <StatsInfo 
+            equipment={equipment}
+            currentMonster={currentMonster}
+            monsterTypes={monsterTypes}
+            crystalTimer={crystalTimer}
+          />
         </div>
       </div>
     </div>
@@ -818,7 +776,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.7 - <a href='https://alan.computer'
+          v1.10.8 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
