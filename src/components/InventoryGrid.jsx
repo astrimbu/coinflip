@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState, useCallback, useEffect } from 'react';
-import { getColor, getBackgroundColor, getItemUrl } from '../utils';
+import { getColor, getBackgroundColor, getItemUrl, validEquipmentTypes } from '../utils';
 
 const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode, onDeposit, actionLabel, onDrop, scale, onLightFire }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
@@ -12,7 +12,9 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
     if (onDeposit) {
       onDeposit(item.name, item);  // Bank view
     } else if (recycleMode) {
-      onRecycle([item]);
+      if (validEquipmentTypes.includes(item.name)) {
+        onRecycle([item]);
+      } else { return; }
     } else if (item.name === 'Crystal') {
       onUseCrystal(item);
     } else if (item.name === 'Logs') {

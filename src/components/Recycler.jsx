@@ -1,12 +1,11 @@
 /* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { getColor, getNextRarity } from '../utils.js';
+import { getColor, getNextRarity, validEquipmentTypes } from '../utils.js';
 import InventoryGrid from './InventoryGrid';
 import WornEquipment from './WornEquipment';
 
 const Recycler = ({
   inventory,
-  inventoryFull,
   scrap,
   onRecycle,
   onUsePotion,
@@ -17,28 +16,12 @@ const Recycler = ({
   onUpgradeSlot,
 }) => {
   const [upgradeMode, setUpgradeMode] = useState(false);
-  const [exchangeRarity, setExchangeRarity] = useState('Common');
-  const [exchangeItem, setExchangeItem] = useState('');
-  const [selectedSlot, setSelectedSlot] = useState('');
-
-  const hammer = new URL(`../assets/items/hammer.png`, import.meta.url).href;
-  const validEquipmentTypes = [
-    'Hat',
-    'Cape',
-    'Amulet',
-    'Weapon',
-    'Body',
-    'Pants',
-    'Gloves',
-    'Boots',
-    'Ring',
-  ];
 
   const handleRecycleAll = () => {
     const recycledScrap = Object.entries(inventory)
       .filter(
         ([category]) =>
-          category !== 'Gold' && category !== 'Potion' && category !== 'Crystal'
+          validEquipmentTypes.includes(category)
       )
       .flatMap(([, items]) =>
         Array.isArray(items) ? items.filter((item) => item.rarity) : []
@@ -59,7 +42,7 @@ const Recycler = ({
   const recyclableItems = Object.entries(inventory)
     .filter(
       ([category]) =>
-        category !== 'Gold' && category !== 'Potion' && category !== 'Crystal'
+        validEquipmentTypes.includes(category)
     )
     .flatMap(([, items]) =>
       Array.isArray(items) ? items.filter((item) => item.rarity) : []

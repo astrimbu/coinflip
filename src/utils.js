@@ -9,6 +9,18 @@ export const getColor = (rarity) => {
   return colors[rarity] || "#000000";
 };
 
+export const validEquipmentTypes = [
+  'Hat',
+  'Cape',
+  'Amulet',
+  'Weapon',
+  'Body',
+  'Pants',
+  'Gloves',
+  'Boots',
+  'Ring',
+];
+
 export const getBackgroundColor = (rarity) => {
   if (rarity === 'Unique') {
     return 'rgba(0, 0, 0, 0.3)';
