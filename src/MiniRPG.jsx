@@ -75,6 +75,8 @@ const MiniRPG = () => {
   const [showSkillTree, setShowSkillTree] = useState(false);
   const [userHitpoints, setUserHitpoints] = useState(10);
   const [maxUserHitpoints, setMaxUserHitpoints] = useState(10);
+  const [damageFlash, setDamageFlash] = useState(false);
+  const [isLowHP, setIsLowHP] = useState(false);
   const [userIsDead, setUserIsDead] = useState(false);
   const [userDeaths, setUserDeaths] = useState(0);
   const [fire, setFire] = useState({ isLit: false, lastUpdated: Date.now() });
@@ -95,7 +97,11 @@ const MiniRPG = () => {
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { // Low HP effect
+    setIsLowHP(userHitpoints < maxUserHitpoints * 0.3);
+  }, [userHitpoints, maxUserHitpoints]);
+
+  useEffect(() => { // Fire state sanity check
     if (fire.isLit && fireTimer === 0) {
       console.warn('Inconsistent state: Fire is lit but timer is 0');
     } else if (!fire.isLit && fireTimer > 0) {
@@ -174,8 +180,6 @@ const MiniRPG = () => {
 
     return () => clearInterval(healthRegenInterval);
   }, [userHitpointsRef, maxUserHitpoints]);
-
-
 
   useEffect(() => { // Fire auto-clicker
     if (!fire.isLit || fireTimer <= 0) return;
@@ -483,6 +487,8 @@ const MiniRPG = () => {
       const monsterAdjustedRate = calcMonsterAccuracy(monsterTypes[currentMonster].attack, calcStats(equipment));
       const monsterResult = Math.random() < monsterAdjustedRate;
       if (monsterResult) {
+        setDamageFlash(true);
+        setTimeout(() => setDamageFlash(false), 200);
         const monsterDamage = monsterTypes[currentMonster].damage;
         setUserHitpoints((prevHp) => {
           const newHp = Math.max(0, prevHp - monsterDamage);
@@ -625,7 +631,16 @@ const MiniRPG = () => {
             left: '50%',
             transform: 'translateX(-50%)',
             fontSize: '14px',
+            fontWeight: 'bold',
+            backgroundColor: userHitpoints === 0 ? 'black' : 
+              damageFlash ? `rgba(150, 0, 0, ${0.5 + 0.5 * (1 - userHitpoints / maxUserHitpoints)})` : 
+              `rgb(${150 - (150 * (userHitpoints / maxUserHitpoints))}, ${150 * (userHitpoints / maxUserHitpoints)}, 0)`,
             color: 'white',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            transition: 'all 0.3s ease',
+            boxShadow: damageFlash ? '0 0 10px rgba(255, 0, 0, 0.3)' : 'none',
+            animation: isLowHP ? 'pulse 1s infinite' : 'none',
           }}>
             HP: {userHitpoints} / {maxUserHitpoints}
           </div>
@@ -794,7 +809,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.15 - <a href='https://alan.computer'
+          v1.10.16 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
