@@ -23,24 +23,22 @@ const countInventoryItems = (inventory) => {
 const inventoryReducer = (state, action) => {
   switch (action.type) {
     case ADD_ITEM: {
+      const { category, item } = action.payload;
+      const itemId = new Date().toISOString();
+
       if (countInventoryItems(state.inventory) >= MAX_INVENTORY_SLOTS) {
         return { ...state, inventoryFull: true };
       }
-
-      const { category, item } = action.payload;
+      
+      const updatedItem = { ...item, id: itemId };
       const updatedInventory = {
         ...state.inventory,
-        [category]: [...state.inventory[category], item]
+        [category]: [...state.inventory[category], updatedItem]
       };
-      const updatedRecentItems = [
-        item,
-        ...state.recentItems.slice(0, 4)
-      ];
 
       return {
         ...state,
         inventory: updatedInventory,
-        recentItems: updatedRecentItems,
         inventoryFull: countInventoryItems(updatedInventory) >= MAX_INVENTORY_SLOTS
       };
     }
@@ -49,7 +47,7 @@ const inventoryReducer = (state, action) => {
         ...state,
         inventory: {
           ...state.inventory,
-          [action.payload.category]: state.inventory[action.payload.category].filter(item => item !== action.payload.item)
+          [action.payload.category]: state.inventory[action.payload.category].filter(item => item.id !== action.payload.item.id)
         },
         inventoryFull: false
       };
@@ -58,7 +56,7 @@ const inventoryReducer = (state, action) => {
       const updatedInventory = { ...state.inventory };
       const updatedEquipment = { ...state.equipment };
       if (slot !== null) {  // If the item is being equipped from the inventory
-        updatedInventory[item.name] = updatedInventory[item.name].filter(i => i !== item);
+        updatedInventory[item.name] = updatedInventory[item.name].filter(i => i.id !== item.id);
       }
       if (updatedEquipment[item.name]) {  // If there's an item already equipped
         const previousItem = updatedEquipment[item.name];
@@ -99,7 +97,7 @@ const inventoryReducer = (state, action) => {
       const recycledInventory = { ...state.inventory };
       const updatedScrap = { ...state.scrap };
       action.payload.items.forEach(item => {
-        recycledInventory[item.name] = recycledInventory[item.name].filter(i => i !== item);
+        recycledInventory[item.name] = recycledInventory[item.name].filter(i => i.id !== item.id);
         updatedScrap[item.rarity]++;
       });
       return {
@@ -123,16 +121,17 @@ const inventoryReducer = (state, action) => {
       const updatedInventory = { ...state.inventory };
       const updatedBankItems = { ...state.bankItems };
 
+      // Create a key for the item based on its name and rarity
+      const itemKey = `${item.name}_${item.rarity}`;
+
       // Remove item from inventory
       updatedInventory[category] = updatedInventory[category].filter(i => i.id !== item.id);
-
-      // Add item to bank (without duplication)
-      if (!updatedBankItems[category]) {
-        updatedBankItems[category] = [];
+      
+      // Add item to the stack in bank
+      if (!updatedBankItems[itemKey]) {
+        updatedBankItems[itemKey] = [];
       }
-      if (!updatedBankItems[category].some(bankItem => bankItem.id === item.id)) {
-        updatedBankItems[category].push(item);
-      }
+      updatedBankItems[itemKey] = [...updatedBankItems[itemKey], item];
 
       return {
         ...state,
@@ -142,36 +141,42 @@ const inventoryReducer = (state, action) => {
       };
     }
     case WITHDRAW_ITEM: {
-      const { category, item } = action.payload;
+      const { category, itemKey } = action.payload;
       const updatedInventory = { ...state.inventory };
       const updatedBankItems = { ...state.bankItems };
 
-      if (updatedBankItems[category] && Array.isArray(updatedBankItems[category])) {
-        // Remove item from bank
-        updatedBankItems[category] = updatedBankItems[category].filter(i => i.id !== item.id);
+      if (updatedBankItems[itemKey] && updatedBankItems[itemKey].length > 0) {
+        // Create a new array without the last item
+        const newBankItemStack = updatedBankItems[itemKey].slice(0, -1);
+        const item = updatedBankItems[itemKey][updatedBankItems[itemKey].length - 1];
 
-        if (updatedBankItems[category].length === 0) {
-          delete updatedBankItems[category];
+        // Update bank items
+        if (newBankItemStack.length === 0) {
+          delete updatedBankItems[itemKey];
+        } else {
+          updatedBankItems[itemKey] = newBankItemStack;
         }
 
-        // Add item to inventory (without duplication)
-        if (!updatedInventory[category]) {
-          updatedInventory[category] = [];
+        // Check if the item is already in the inventory
+        const itemAlreadyInInventory = updatedInventory[category]?.some(invItem => invItem.id === item.id);
+
+        if (!itemAlreadyInInventory) {
+          // Add item to inventory only if it's not already there
+          if (!updatedInventory[category]) {
+            updatedInventory[category] = [];
+          }
+          updatedInventory[category] = [...updatedInventory[category], item];
         }
-        if (!updatedInventory[category].some(invItem => invItem.id === item.id)) {
-          updatedInventory[category].push(item);
-        }
+
+        return {
+          ...state,
+          inventory: updatedInventory,
+          bankItems: updatedBankItems,
+          inventoryFull: countInventoryItems(updatedInventory) >= MAX_INVENTORY_SLOTS,
+        };
       } else {
-        console.warn(`Attempted to withdraw item from non-existent category: ${category}`);
         return state;
       }
-
-      return {
-        ...state,
-        inventory: updatedInventory,
-        bankItems: updatedBankItems,
-        inventoryFull: countInventoryItems(updatedInventory) >= MAX_INVENTORY_SLOTS,
-      };
     }
     default:
       return state;
@@ -244,8 +249,8 @@ const useInventoryManager = () => {
     dispatch({ type: DEPOSIT_ITEM, payload: { category, item } });
   }, []);
 
-  const withdrawItem = useCallback((category, item) => {
-    dispatch({ type: WITHDRAW_ITEM, payload: { category, item } });
+  const withdrawItem = useCallback((category, itemKey) => {
+    dispatch({ type: WITHDRAW_ITEM, payload: { category, itemKey } });
   }, []);
 
   return {

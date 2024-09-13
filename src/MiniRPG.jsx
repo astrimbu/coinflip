@@ -42,7 +42,6 @@ const MiniRPG = () => {
     equipment,
     scrap,
     inventoryFull,
-    recentItems,
     addItem,
     removeItem,
     equipItem,
@@ -224,9 +223,10 @@ const MiniRPG = () => {
   }, []);
 
   const purchaseItem = (item) => {
+    const itemId = new Date().toISOString();
     if (item === 'Crystal' && inventory.Gold >= 1) {
       updateCurrency('Gold', -1);
-      addItem('Crystal', { name: 'Crystal', rarity: 'Crystal' });
+      addItem('Crystal', { name: 'Crystal', rarity: 'Crystal', id: itemId });
       setPurchaseNotification(true);
       setTimeout(() => setPurchaseNotification(false), 2000);
     } else if (item === 'Potion' && inventory.Gold >= 1) {
@@ -236,7 +236,7 @@ const MiniRPG = () => {
       setTimeout(() => setPurchaseNotification(false), 2000);
     } else if (item === 'Logs' && inventory.Gold >= 1) {
       updateCurrency('Gold', -1);
-      addItem('Logs', { name: 'Logs', rarity: 'Logs' });
+      addItem('Logs', { name: 'Logs', rarity: 'Logs', id: itemId });
       setPurchaseNotification(true);
       setTimeout(() => setPurchaseNotification(false), 2000);
     }
@@ -298,8 +298,9 @@ const MiniRPG = () => {
     depositItem(category, item);
   };
 
-  const handleWithdraw = (category, item) => {
-    withdrawItem(category, item);
+  const handleWithdraw = (itemKey) => {
+    const category = itemKey.split('_')[0];
+    withdrawItem(category, itemKey);
   };
 
   const handleDrop = useCallback((item) => {
@@ -793,7 +794,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.14 - <a href='https://alan.computer'
+          v1.10.15 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
