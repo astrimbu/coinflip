@@ -12,11 +12,8 @@ import {
   getColor,
   getRarityStat,
   getItemUrl,
-  calcItemDropRate,
   xpToNextLevel,
   calcWinRate,
-  compareRarity,
-  calcAccuracy,
   calcMonsterAccuracy,
   calcStats,
 } from './utils';
@@ -61,22 +58,15 @@ const MiniRPG = () => {
   const [scores, setScores] = useState(
     Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, { fights: 0, wins: 0 }]))
   );
-
   const [checkSeed, setCheckSeed] = useState(Math.random());
   const [itemSeed, setItemSeed] = useState(Math.random());
-  const [result, setResult] = useState(false);
   const [isFighting, setIsFighting] = useState(false);
   const fightIntervalRef = useRef(null);
-  const [isAttacking, setIsAttacking] = useState(false);
-  const [isDying, setIsDying] = useState(false);
   const [monsterHitpoints, setMonsterHitpoints] = useState(monsterTypes[currentMonster].maxHP);
-  const [view, setView] = useState('game');
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 750);
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const [crystalTimer, setCrystalTimer] = useState(0);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
-  const [animationResult, setAnimationResult] = useState(null);
   const [tickets, setTickets] = useState(0);
   const isMonsterClickable = !isFighting && tickets >= monsterTypes[currentMonster].ticketCost;
   const [level, setLevel] = useState(1);
@@ -90,11 +80,8 @@ const MiniRPG = () => {
   const [userDeaths, setUserDeaths] = useState(0);
   const [fire, setFire] = useState(false);
   const [fireTimer, setFireTimer] = useState(0);
-  const [showDetailedStats, setShowDetailedStats] = useState(false);
-
-  const toggleDetailedStats = () => {
-    setShowDetailedStats(!showDetailedStats);
-  };
+  const isFightingRef = useRef(false);
+  const fireRef = useRef(false);
 
   const lightFire = useCallback((logItem) => {
     if (!fire && logItem) {
@@ -108,7 +95,7 @@ const MiniRPG = () => {
     }
   }, [fire, removeItem]);
 
-  useEffect(() => {
+  useEffect(() => { // Fire timer
     let interval;
     if (fireTimer > 0) {
       interval = setInterval(() => {
@@ -128,7 +115,7 @@ const MiniRPG = () => {
     userHitpointsRef.current = userHitpoints;
   }, [userHitpoints]);
 
-  useEffect(() => { // Passive health regeneration
+  useEffect(() => { // Health regeneration
     const healthRegenInterval = setInterval(() => {
       if (!userIsDead && userHitpointsRef.current < maxUserHitpoints) {
         setUserHitpoints(prevHp => Math.min(prevHp + 1, maxUserHitpoints));
@@ -146,6 +133,13 @@ const MiniRPG = () => {
     }
   };
 
+  useEffect(() => {
+    if (!fire || fireTimer <= 0) return;
+    if (monsterAnimationState === 'walking' && !isFighting && isMonsterClickable) {
+      handleMonsterClick();
+    }
+  }, [fireTimer]);
+
   const [pets, setPets] = useState(
     Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, { count: 0, kc: [] }]))
   );
@@ -156,7 +150,6 @@ const MiniRPG = () => {
   useEffect(() => { // Resize listener
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 750);
-      setWindowHeight(window.innerHeight);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -210,7 +203,6 @@ const MiniRPG = () => {
       setCrystalTimer(300);
     }
   };
-
   const usePotion = () => {
     if (inventory.Potion > 0) {
       updateCurrency('Potion', -1);
@@ -242,16 +234,6 @@ const MiniRPG = () => {
   const toggleRecycleMode = () => {
     setRecycleMode(!recycleMode);
     document.body.style.cursor = recycleMode ? 'default' : 'grab';
-  };
-
-  const handleExchange = (rarity, itemName) => {
-    removeScrap(rarity);
-    const newItem = { name: itemName, rarity, stat: getRarityStat(rarity) };
-    if (!equipment[itemName] || compareRarity(rarity, equipment[itemName].rarity) > 0) {
-      equipItem(newItem, null);
-    } else {
-      addItem(itemName, newItem);
-    }
   };
 
   const handleUpgradeSlot = (slotName, newRarity) => {
@@ -293,14 +275,13 @@ const MiniRPG = () => {
   const fireworksSound = useRef(new Audio('/coinflip/assets/sounds/fireworks.ogg'));
   const deathSound = useRef(new Audio('/coinflip/assets/sounds/death.mp3'));
 
-
   useEffect(() => {
     isSoundEnabledRef.current = isSoundEnabled;
-    attack1Sound.current.volume = 0.1;
-    attack2Sound.current.volume = 0.1;
+    attack1Sound.current.volume = 0.5;
+    attack2Sound.current.volume = 0.5;
     getPetSound.current.volume = 0.1;
-    fireworksSound.current.volume = 0.05;
-    deathSound.current.volume = 0.05;
+    fireworksSound.current.volume = 0.1;
+    deathSound.current.volume = 0.1;
   }, [isSoundEnabled]);
 
   const playSound = (sound) => {
@@ -391,13 +372,11 @@ const MiniRPG = () => {
   };
 
   const spawnNewMonster = () => {
-    setIsDying(false);
     setMonsterHitpoints(monsterTypes[currentMonster].maxHP);
   };
 
   const handleMonsterDied = () => {
     setIsFighting(false);
-    setIsAttacking(false);
     setMonsterHitpoints(0);
     checkForItem();
     checkForPet();
@@ -424,8 +403,9 @@ const MiniRPG = () => {
 
   const handleUserDied = () => {
     setIsFighting(false);
-    setIsAttacking(false);
     setUserIsDead(true);
+    setFire(false);
+    setFireTimer(0);
     setUserDeaths(prevDeaths => prevDeaths + 1);
     playDeathSound();
   };
@@ -448,31 +428,20 @@ const MiniRPG = () => {
       // User attack
       const userAdjustedRate = calcWinRate(calcStats(equipment), monsterTypes[currentMonster].rate);
       const userResult = Math.random() < userAdjustedRate;
-      setResult(userResult);
-
-      setIsAttacking(true);
       playAttackSound(userResult);
-
       const userDamage = userResult
         ? (1 + Math.floor(calcStats(equipment) / 10)) * (potionTimerRef.current > 0 ? 2 : 1)
         : 0;
-
       setLastAttack({ damage: userDamage, id: Date.now() });
-
       if (userResult) {
         setMonsterHitpoints((prevHp) => {
-          const newHp = prevHp - userDamage;
-          if (newHp <= 0) {
-            setIsDying(true);
-          }
-          return newHp;
+          return prevHp - userDamage;
         });
       }
 
       // Monster attack
       const monsterAdjustedRate = calcMonsterAccuracy(monsterTypes[currentMonster].attack, calcStats(equipment));
       const monsterResult = Math.random() < monsterAdjustedRate;
-
       if (monsterResult) {
         const monsterDamage = monsterTypes[currentMonster].damage;
         setUserHitpoints((prevHp) => {
@@ -485,9 +454,6 @@ const MiniRPG = () => {
       }
 
       setTimeout(() => {
-        setIsAttacking(false);
-        setAnimationResult(userResult);
-
         setScores((prevScores) => ({
           ...prevScores,
           [currentMonster]: {
@@ -495,7 +461,6 @@ const MiniRPG = () => {
             wins: prevScores[currentMonster].wins + (userResult ? 1 : 0),
           },
         }));
-
       }, 300);
     };
 
@@ -658,16 +623,38 @@ const MiniRPG = () => {
   const [currentLocation, setCurrentLocation] = useState('game');
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  useEffect(() => {
+    if (fire && monsterAnimationState === 'walking' && !isFighting && isMonsterClickable) {
+      const timer = setTimeout(() => {
+        handleMonsterClick();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [fire, monsterAnimationState, isFighting, isMonsterClickable, handleMonsterClick]);
+
+  useEffect(() => {
+    isFightingRef.current = isFighting;
+  }, [isFighting]);
+
+  useEffect(() => {
+    fireRef.current = fire;
+  }, [fire]);
+
   const goToTown = useCallback(() => {
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentLocation('town');
       setIsTransitioning(false);
     }, 300);
-    if (isFighting) {
+    if (isFightingRef.current) {
       setIsFighting(false);
     }
-  }, [isFighting]);
+    if (fireRef.current) {
+      setFire(false);
+      setFireTimer(0);
+    }
+  }, []);
+
   const goToLocation = useCallback((location) => {
     setIsTransitioning(true);
     setTimeout(() => {
@@ -776,7 +763,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.8 - <a href='https://alan.computer'
+          v1.10.9 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

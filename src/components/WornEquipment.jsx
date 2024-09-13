@@ -15,15 +15,6 @@ const WornEquipment = ({ equipment, onUnequip, onUpgrade, upgradeMode }) => {
     'Ring',
   ];
 
-  const calculateTotalStats = () => {
-    return slots.reduce((total, slot) => {
-      if (equipment[slot] && equipment[slot].stat) {
-        return total + equipment[slot].stat;
-      }
-      return total;
-    }, 0);
-  };
-
   const [hoveredItem, setHoveredItem] = useState(null);
 
   function renderSlot(slot) {
