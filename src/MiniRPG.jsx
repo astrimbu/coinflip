@@ -132,7 +132,7 @@ const MiniRPG = () => {
     }
   }
 
-  useEffect(() => {
+  useEffect(() => { // Fire timeout
     return () => {
       if (fireTimeoutRef.current) {
         clearTimeout(fireTimeoutRef.current);
@@ -140,7 +140,7 @@ const MiniRPG = () => {
     };
   }, []);
 
-  useEffect(() => {
+  useEffect(() => { // Fire timer
     let interval;
     if (fireTimer > 0) {
       interval = setInterval(() => {
@@ -152,7 +152,7 @@ const MiniRPG = () => {
     return () => clearInterval(interval);
   }, [fireTimer]);
 
-  useEffect(() => {
+  useEffect(() => { // Fire auto-clicker
     if (fire.isLit && monsterAnimationState === 'walking' && !isFighting && isMonsterClickable) {
       const timer = setTimeout(() => {
         handleMonsterClick();
@@ -162,7 +162,7 @@ const MiniRPG = () => {
   }, [fire.isLit, monsterAnimationState, isFighting, isMonsterClickable]);
 
   const userHitpointsRef = useRef(userHitpoints);
-  useEffect(() => {
+  useEffect(() => { // Health ref
     userHitpointsRef.current = userHitpoints;
   }, [userHitpoints]);
 
@@ -178,7 +178,7 @@ const MiniRPG = () => {
 
 
 
-  useEffect(() => {
+  useEffect(() => { // Fire auto-clicker
     if (!fire.isLit || fireTimer <= 0) return;
     if (monsterAnimationState === 'walking' && !isFighting && isMonsterClickable) {
       handleMonsterClick();
@@ -681,12 +681,8 @@ const MiniRPG = () => {
       setCurrentLocation('town');
       setIsTransitioning(false);
     }, 300);
-    if (isFightingRef.current) {
-      setIsFighting(false);
-    }
-    if (fire.isLit) {
-      extinguishFire();
-    }
+    setIsFighting(false);
+    extinguishFire();
   }, []);
 
   const goToLocation = useCallback((location) => {
@@ -797,7 +793,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.13 - <a href='https://alan.computer'
+          v1.10.14 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
