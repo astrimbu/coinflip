@@ -7,7 +7,6 @@ import Bank from './components/Bank';
 import Shop from './components/Shop';
 import WornEquipment from './components/WornEquipment';
 import Recycler from './components/Recycler';
-import { getItemUrl } from './utils';
 import { MIN_HEIGHT_VIEW } from './constants/gameData';
 
 export const renderPets = (pets, monsterTypes, getColor, hoveredPet, setHoveredPet) => (
@@ -28,7 +27,7 @@ export const renderPets = (pets, monsterTypes, getColor, hoveredPet, setHoveredP
           .map(([monster, { count, kc }]) => (
             <div key={monster} style={{ textAlign: 'center', margin: '0 auto', position: 'relative' }}>
               <img
-                src={`${getItemUrl('pet', monster)}`}
+                src={`/coinflip/assets/monsters/${monster.toLowerCase()}.png`}
                 alt={`${monsterTypes[monster].label}`}
                 style={{ width: '30px', height: '30px' }}
                 onMouseEnter={() => setHoveredPet(monster)}

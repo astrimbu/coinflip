@@ -124,6 +124,14 @@ const MiniRPG = () => {
     }
   }, [fire.isLit, removeItem]);
 
+  const extinguishFire = () => {
+    setFire({isLit: false});
+    setFireTimer(0);
+    if (fireTimeoutRef.current) {
+      clearTimeout(fireTimeoutRef.current);
+    }
+  }
+
   useEffect(() => {
     return () => {
       if (fireTimeoutRef.current) {
@@ -437,9 +445,7 @@ const MiniRPG = () => {
   const handleUserDied = () => {
     setIsFighting(false);
     setUserIsDead(true);
-    setFire({isLit: false});
-    setFireTimer(0);
-    setUserDeaths(prevDeaths => prevDeaths + 1);
+    extinguishFire();
     playDeathSound();
   };
 
@@ -679,8 +685,7 @@ const MiniRPG = () => {
       setIsFighting(false);
     }
     if (fire.isLit) {
-      setFire({isLit: false});
-      setFireTimer(0);
+      extinguishFire();
     }
   }, []);
 
@@ -792,7 +797,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.12 - <a href='https://alan.computer'
+          v1.10.13 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
