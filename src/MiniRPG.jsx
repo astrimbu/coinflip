@@ -80,8 +80,21 @@ const MiniRPG = () => {
   const [userDeaths, setUserDeaths] = useState(0);
   const [fire, setFire] = useState({ isLit: false, lastUpdated: Date.now() });
   const [fireTimer, setFireTimer] = useState(0);
+  const fireTimeoutRef = useRef(null);
   const isFightingRef = useRef(false);
-  const fireRef = useRef(false);
+  const [monsterAnimationState, setMonsterAnimationState] = useState('walking');
+
+  const handleAnimationStateChange = (newState) => {
+    setMonsterAnimationState(newState);
+  };
+
+  const handleMonsterClick = () => {
+    if (isMonsterClickable) {
+      fightMonster();
+      setItemSeed(Math.random());
+      setCheckSeed(Math.random());
+    }
+  };
 
   useEffect(() => {
     if (fire.isLit && fireTimer === 0) {
@@ -94,38 +107,51 @@ const MiniRPG = () => {
   const lightFire = useCallback((logItem) => {
     if (!fire.isLit && logItem) {
       removeItem('Logs', logItem);
-      setFire({isLit: true});
+      setFire({ isLit: true, lastUpdated: Date.now() });
       setFireTimer(FIRE_LENGTH);
 
-      if (fireRef.current) {
-        clearTimeout(fireRef.current);
+      if (fireTimeoutRef.current) {
+        clearTimeout(fireTimeoutRef.current);
       }
 
-      fireRef.current = setTimeout(() => {
-        setFire({isLit: false});
+      fireTimeoutRef.current = setTimeout(() => {
+        setFire({ isLit: false, lastUpdated: Date.now() });
         setFireTimer(0);
+        fireTimeoutRef.current = null;
       }, FIRE_LENGTH * 1000);
+    } else if (fire.isLit && logItem) {
+      // Add a delay to the fire extinguishing
     }
   }, [fire.isLit, removeItem]);
 
-  useEffect(() => { // Fire timer
-  let interval;
-  if (fireTimer > 0) {
-    interval = setInterval(() => {
-      setFireTimer(fireTimer - 1);
-    }, 1000);
-  }
-  return () => {
-    if (interval) {
-      clearInterval(interval);
-    }
-  };
-}, [fireTimer]);
+  useEffect(() => {
+    return () => {
+      if (fireTimeoutRef.current) {
+        clearTimeout(fireTimeoutRef.current);
+      }
+    };
+  }, []);
 
-  const [monsterAnimationState, setMonsterAnimationState] = useState('walking');
-  const handleAnimationStateChange = (newState) => {
-    setMonsterAnimationState(newState);
-  };
+  useEffect(() => {
+    let interval;
+    if (fireTimer > 0) {
+      interval = setInterval(() => {
+        if (fireTimer > 0) {
+          setFireTimer((prevTimer) => prevTimer - 1);
+        }
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [fireTimer]);
+
+  useEffect(() => {
+    if (fire.isLit && monsterAnimationState === 'walking' && !isFighting && isMonsterClickable) {
+      const timer = setTimeout(() => {
+        handleMonsterClick();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [fire.isLit, monsterAnimationState, isFighting, isMonsterClickable]);
 
   const userHitpointsRef = useRef(userHitpoints);
   useEffect(() => {
@@ -142,13 +168,7 @@ const MiniRPG = () => {
     return () => clearInterval(healthRegenInterval);
   }, [userHitpointsRef, maxUserHitpoints]);
 
-  const handleMonsterClick = () => {
-    if (isMonsterClickable) {
-      fightMonster();
-      setItemSeed(Math.random());
-      setCheckSeed(Math.random());
-    }
-  };
+
 
   useEffect(() => {
     if (!fire.isLit || fireTimer <= 0) return;
@@ -649,10 +669,6 @@ const MiniRPG = () => {
     isFightingRef.current = isFighting;
   }, [isFighting]);
 
-  useEffect(() => {
-    fireRef.current = fire.isLit;
-  }, [fire.isLit]);
-
   const goToTown = useCallback(() => {
     setIsTransitioning(true);
     setTimeout(() => {
@@ -662,7 +678,7 @@ const MiniRPG = () => {
     if (isFightingRef.current) {
       setIsFighting(false);
     }
-    if (fireRef.current) {
+    if (fire.isLit) {
       setFire({isLit: false});
       setFireTimer(0);
     }
@@ -776,7 +792,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.11 - <a href='https://alan.computer'
+          v1.10.12 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
