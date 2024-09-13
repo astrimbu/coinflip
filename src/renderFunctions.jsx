@@ -17,10 +17,9 @@ export const renderPets = (pets, monsterTypes, getColor, hoveredPet, setHoveredP
     pets.Dragon.count > 0) && (
     <div
       style={{
-        marginBottom: '16px',
-        backgroundColor: '#e0e0e0',
         padding: '10px',
         borderRadius: '5px',
+        fontSize: '10px',
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -30,8 +29,8 @@ export const renderPets = (pets, monsterTypes, getColor, hoveredPet, setHoveredP
             <div key={monster} style={{ textAlign: 'center', margin: '0 auto', position: 'relative' }}>
               <img
                 src={`${getItemUrl('pet', monster)}`}
-                alt={`${monsterTypes[monster].label} Pet`}
-                style={{ width: '50px', height: '50px' }}
+                alt={`${monsterTypes[monster].label}`}
+                style={{ width: '30px', height: '30px' }}
                 onMouseEnter={() => setHoveredPet(monster)}
                 onMouseLeave={() => setHoveredPet(null)}
               />
@@ -65,7 +64,6 @@ export const renderPets = (pets, monsterTypes, getColor, hoveredPet, setHoveredP
             </div>
           ))}
       </div>
-      <span style={{ fontSize: '10px' }}>(1/1,000)</span>
     </div>
   )
 );

@@ -78,32 +78,49 @@ const MiniRPG = () => {
   const [maxUserHitpoints, setMaxUserHitpoints] = useState(10);
   const [userIsDead, setUserIsDead] = useState(false);
   const [userDeaths, setUserDeaths] = useState(0);
-  const [fire, setFire] = useState(false);
+  const [fire, setFire] = useState({ isLit: false, lastUpdated: Date.now() });
   const [fireTimer, setFireTimer] = useState(0);
   const isFightingRef = useRef(false);
   const fireRef = useRef(false);
 
+  useEffect(() => {
+    if (fire.isLit && fireTimer === 0) {
+      console.warn('Inconsistent state: Fire is lit but timer is 0');
+    } else if (!fire.isLit && fireTimer > 0) {
+      console.warn('Inconsistent state: Fire is not lit but timer is > 0');
+    }
+  }, [fire.isLit, fireTimer]);
+
   const lightFire = useCallback((logItem) => {
-    if (!fire && logItem) {
+    if (!fire.isLit && logItem) {
       removeItem('Logs', logItem);
-      setFire(true);
+      setFire({isLit: true});
       setFireTimer(FIRE_LENGTH);
-      setTimeout(() => {
-        setFire(false);
+
+      if (fireRef.current) {
+        clearTimeout(fireRef.current);
+      }
+
+      fireRef.current = setTimeout(() => {
+        setFire({isLit: false});
         setFireTimer(0);
       }, FIRE_LENGTH * 1000);
     }
-  }, [fire, removeItem]);
+  }, [fire.isLit, removeItem]);
 
   useEffect(() => { // Fire timer
-    let interval;
-    if (fireTimer > 0) {
-      interval = setInterval(() => {
-        setFireTimer((prevTimer) => prevTimer - 1);
-      }, 1000);
+  let interval;
+  if (fireTimer > 0) {
+    interval = setInterval(() => {
+      setFireTimer(fireTimer - 1);
+    }, 1000);
+  }
+  return () => {
+    if (interval) {
+      clearInterval(interval);
     }
-    return () => clearInterval(interval);
-  }, [fireTimer]);
+  };
+}, [fireTimer]);
 
   const [monsterAnimationState, setMonsterAnimationState] = useState('walking');
   const handleAnimationStateChange = (newState) => {
@@ -134,7 +151,7 @@ const MiniRPG = () => {
   };
 
   useEffect(() => {
-    if (!fire || fireTimer <= 0) return;
+    if (!fire.isLit || fireTimer <= 0) return;
     if (monsterAnimationState === 'walking' && !isFighting && isMonsterClickable) {
       handleMonsterClick();
     }
@@ -254,11 +271,7 @@ const MiniRPG = () => {
   };
 
   const handleWithdraw = (category, item) => {
-    if (Object.keys(inventory).length < 16) {
-      withdrawItem(category, item);
-    } else {
-      console.log("Inventory is full. Cannot withdraw item.");
-    }
+    withdrawItem(category, item);
   };
 
   const handleDrop = useCallback((item) => {
@@ -404,7 +417,7 @@ const MiniRPG = () => {
   const handleUserDied = () => {
     setIsFighting(false);
     setUserIsDead(true);
-    setFire(false);
+    setFire({isLit: false});
     setFireTimer(0);
     setUserDeaths(prevDeaths => prevDeaths + 1);
     playDeathSound();
@@ -542,7 +555,8 @@ const MiniRPG = () => {
 
       <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
         <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
-        {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire)}
+          {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire)}
+          {renderPets(pets, monsterTypes, getColor, hoveredPet, setHoveredPet)}
         </div>
         <div style={{ width: '50%', maxWidth: '400px', position: 'relative' }}>
           <TimerDisplay crystalTimer={crystalTimer} potionTimer={potionTimer} fireTimer={fireTimer} />
@@ -576,7 +590,6 @@ const MiniRPG = () => {
             )}
           </Area>
           {renderLevelAndExperience(level, experience, xpToNextLevel)}
-          {renderPets(pets, monsterTypes, getColor, hoveredPet, setHoveredPet)}
           {showLevelUpButton && renderLevelUpButton(openSkillTree)}
           {showSkillTree && renderSkillTree(closeSkillTree)}
           <div style={{
@@ -589,7 +602,7 @@ const MiniRPG = () => {
           }}>
             HP: {userHitpoints} / {maxUserHitpoints}
           </div>
-          {fire && (
+          {fire.isLit && (
             <div
               style={{
                 position: 'absolute',
@@ -624,21 +637,21 @@ const MiniRPG = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    if (fire && monsterAnimationState === 'walking' && !isFighting && isMonsterClickable) {
+    if (fire.isLit && monsterAnimationState === 'walking' && !isFighting && isMonsterClickable) {
       const timer = setTimeout(() => {
         handleMonsterClick();
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [fire, monsterAnimationState, isFighting, isMonsterClickable, handleMonsterClick]);
+  }, [fire.isLit, monsterAnimationState, isFighting, isMonsterClickable, handleMonsterClick]);
 
   useEffect(() => {
     isFightingRef.current = isFighting;
   }, [isFighting]);
 
   useEffect(() => {
-    fireRef.current = fire;
-  }, [fire]);
+    fireRef.current = fire.isLit;
+  }, [fire.isLit]);
 
   const goToTown = useCallback(() => {
     setIsTransitioning(true);
@@ -650,7 +663,7 @@ const MiniRPG = () => {
       setIsFighting(false);
     }
     if (fireRef.current) {
-      setFire(false);
+      setFire({isLit: false});
       setFireTimer(0);
     }
   }, []);
