@@ -55,18 +55,21 @@ const WornEquipment = ({ equipment, onUnequip, onUpgrade, upgradeMode }) => {
             <div
               style={{
                 position: 'absolute',
-                bottom: '100%',
                 left: '50%',
-                transform: 'translateX(-50%)',
-                backgroundColor: 'rgba(0,0,0,0.8)',
-                color: 'white',
-                padding: '5px',
+                top: '50%',
+                transform: 'translate(-50%, -50%)',
+                lineHeight: '1',
+                color: '#f0f0f0',
+                textShadow: '1px 1px 1px rgba(0,0,0,1)',
+                fontSize: '10px',
+                fontFamily: 'Arial, sans-serif',
+                padding: '0',
                 borderRadius: '3px',
                 whiteSpace: 'nowrap',
                 zIndex: 1000,
               }}
             >
-              {`+${equipment[slot].stat} to Stats`}
+              {`+${equipment[slot].stat}`}
             </div>
           )}
         </div>
