@@ -627,9 +627,8 @@ const MiniRPG = () => {
           {showSkillTree && renderSkillTree(closeSkillTree)}
           <div style={{
             position: 'absolute',
-            top: '10px',
-            left: '50%',
-            transform: 'translateX(-50%)',
+            bottom: '23px',
+            right: '10px',
             fontSize: '14px',
             fontWeight: 'bold',
             backgroundColor: userHitpoints === 0 ? 'black' : 
@@ -809,7 +808,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.16 - <a href='https://alan.computer'
+          v1.10.17 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
