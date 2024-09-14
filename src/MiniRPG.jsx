@@ -104,6 +104,7 @@ const MiniRPG = () => {
   useEffect(() => { // Fire state sanity check
     if (fire.isLit && fireTimer === 0) {
       console.warn('Inconsistent state: Fire is lit but timer is 0');
+      extinguishFire();
     } else if (!fire.isLit && fireTimer > 0) {
       console.warn('Inconsistent state: Fire is not lit but timer is > 0');
     }
@@ -867,7 +868,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.17 - <a href='https://alan.computer'
+          v1.10.18 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
