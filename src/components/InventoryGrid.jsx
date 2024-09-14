@@ -33,9 +33,10 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
     e.preventDefault();
     if (item) {
       const rect = e.currentTarget.getBoundingClientRect();
+      console.log(e.clientX, e.clientY, rect.left, rect.top);
       setContextMenu({
-        x: (e.clientX - rect.left) / scale,
-        y: (e.clientY - rect.top) / scale,
+        x: (e.clientX - 30) / scale,
+        y: (e.clientY - 100) / scale,
         item: item
       });
     }
@@ -155,19 +156,25 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
                   <div
                     style={{
                       position: 'absolute',
-                      bottom: '100%',
                       left: '50%',
-                      transform: 'translateX(-50%)',
-                      backgroundColor: 'rgba(0,0,0,0.8)',
-                      color: 'white',
-                      padding: '5px',
+                      top: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      lineHeight: '1',
+                      color: '#f0f0f0',
+                      textShadow: '1px 1px 1px rgba(0,0,0,1)',
+                      fontSize: '10px',
+                      fontFamily: 'Arial, sans-serif',
+                      padding: '0',
                       borderRadius: '3px',
                       whiteSpace: 'nowrap',
                       zIndex: 1000,
                     }}
                   >
-                    {`${flattenedItems[index].name} (${flattenedItems[index].rarity})`}
-                    {actionLabel && ` - ${actionLabel}`}
+                    <div>
+                      <div>{flattenedItems[index].rarity.toUpperCase()}</div>
+                      <div>{flattenedItems[index].name.toUpperCase()}</div>
+                    </div>
+                    {actionLabel && ` - ${actionLabel.toUpperCase()}`}
                   </div>
                 )}
               </>
@@ -181,12 +188,24 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
             position: 'absolute',
             top: `${contextMenu.y}px`,
             left: `${contextMenu.x}px`,
-            backgroundColor: 'white',
-            border: '1px solid black',
+            backgroundColor: '#f0f0f0',
+            color: '#111',
+            border: '1px solid #aaa',
             borderRadius: '4px',
-            padding: '5px',
+            padding: '0 5px',
             zIndex: 1000,
             boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+            lineHeight: '1',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'background-color 0.3s',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#aaa';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#f0f0f0';
           }}
         >
           <button
@@ -194,13 +213,14 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
             style={{
               background: 'none',
               border: 'none',
-              padding: '5px 10px',
+              padding: '0',
               cursor: 'pointer',
               color: '#333',
-              fontSize: '14px',
+              fontSize: '12px',
+              textTransform: 'uppercase',
             }}
           >
-            Drop {contextMenu.item.name}
+            Drop {contextMenu.item.name.toUpperCase()}
           </button>
         </div>
       )}
