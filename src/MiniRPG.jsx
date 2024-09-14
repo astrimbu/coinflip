@@ -622,15 +622,22 @@ const MiniRPG = () => {
             right: '0', 
             textAlign: 'center'
           }}>
-            <p style={{ 
-              fontSize: '10px',
-              fontWeight: 'bold',
-              color: '#999',
-              margin: '0',
-              fontFamily: 'Arial, sans-serif',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>{currentMonster}</p>
+            <p
+              style={{
+                fontSize: '10px',
+                fontWeight: 'bold',
+                color: '#999',
+                margin: '0',
+                fontFamily: 'Arial, sans-serif',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+              }}
+            >
+              {currentMonster}{' '}
+              <span style={{ fontWeight: 'normal', fontSize: '8px' }}>
+                (LV {monsterTypes[currentMonster].level})
+              </span>
+            </p>
           </div>
           <TimerDisplay crystalTimer={crystalTimer} potionTimer={potionTimer} fireTimer={fireTimer} />
           <Area monster={currentMonster}>
@@ -868,7 +875,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.18 - <a href='https://alan.computer'
+          v1.10.19 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

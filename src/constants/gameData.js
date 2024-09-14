@@ -11,6 +11,7 @@ export const monsterTypes = {
     damage: 1,
     attack: 1,
     defense: 1,
+    level: 3,
   },
   Ogre: {
     label: "Ogre",
@@ -24,6 +25,7 @@ export const monsterTypes = {
     damage: 2,
     attack: 3,
     defense: 3,
+    level: 20,
   },
   Demon: {
     label: "Demon",
@@ -35,8 +37,9 @@ export const monsterTypes = {
     ticketCost: 2,
     order: 2,
     damage: 4,
-    attack: 7,
-    defense: 6,
+    attack: 5,
+    defense: 5,
+    level: 50,
   },
   Dragon: {
     label: "Dragon",
@@ -49,7 +52,8 @@ export const monsterTypes = {
     order: 3,
     damage: 6,
     attack: 5,
-    defense: 6,
+    defense: 7,
+    level: 120,
   },
 };
 
