@@ -586,12 +586,51 @@ const MiniRPG = () => {
         {isSoundEnabled ? '🔊' : '🔇'}
       </button>
 
+      { /* Game area */ }
       <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-        <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
+
+        { /* Left panel */ }
+        <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px', position: 'relative' }}>
+          <div style={{ 
+            position: 'absolute', 
+            top: '-16px', 
+            left: '0', 
+            right: '0', 
+            textAlign: 'center'
+          }}>
+            <p style={{ 
+              fontSize: '10px',
+              fontWeight: 'bold',
+              color: '#999',
+              margin: '0',
+              fontFamily: 'Arial, sans-serif',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>Inventory</p>
+          </div>
           {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire)}
           {renderPets(pets, monsterTypes, getColor, hoveredPet, setHoveredPet)}
         </div>
+
+        { /* Center panel */ }
         <div style={{ width: '50%', maxWidth: '400px', position: 'relative' }}>
+          <div style={{ 
+            position: 'absolute', 
+            top: '-16px', 
+            left: '0', 
+            right: '0', 
+            textAlign: 'center'
+          }}>
+            <p style={{ 
+              fontSize: '10px',
+              fontWeight: 'bold',
+              color: '#999',
+              margin: '0',
+              fontFamily: 'Arial, sans-serif',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>{currentMonster}</p>
+          </div>
           <TimerDisplay crystalTimer={crystalTimer} potionTimer={potionTimer} fireTimer={fireTimer} />
           <Area monster={currentMonster}>
             <MonsterAnimation
@@ -629,19 +668,21 @@ const MiniRPG = () => {
             position: 'absolute',
             bottom: '23px',
             right: '10px',
+            fontFamily: 'monospace',
             fontSize: '14px',
             fontWeight: 'bold',
             backgroundColor: userHitpoints === 0 ? 'black' : 
               damageFlash ? `rgba(150, 0, 0, ${0.5 + 0.5 * (1 - userHitpoints / maxUserHitpoints)})` : 
               `rgb(${150 - (150 * (userHitpoints / maxUserHitpoints))}, ${150 * (userHitpoints / maxUserHitpoints)}, 0)`,
             color: 'white',
-            padding: '2px 6px',
-            borderRadius: '4px',
+            padding: '4px',
+            lineHeight: '0.8',
+            borderRadius: '2px',
             transition: 'all 0.3s ease',
             boxShadow: damageFlash ? '0 0 10px rgba(255, 0, 0, 0.3)' : 'none',
             animation: isLowHP ? 'pulse 1s infinite' : 'none',
           }}>
-            HP: {userHitpoints} / {maxUserHitpoints}
+            {userHitpoints}/{maxUserHitpoints}
           </div>
           {fire.isLit && (
             <div
@@ -656,8 +697,26 @@ const MiniRPG = () => {
             </div>
           )}
         </div>
-        
-        <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px' }}>
+
+        { /* Right panel */ }
+        <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px', position: 'relative' }}>
+          <div style={{ 
+            position: 'absolute',
+            top: '-16px',
+            left: '0',
+            right: '0',
+            textAlign: 'center'
+          }}>
+            <p style={{ 
+              fontSize: '10px',
+              fontWeight: 'bold',
+              color: '#999',
+              margin: '0',
+              fontFamily: 'Arial, sans-serif',
+              textTransform: 'uppercase',
+              letterSpacing: '1px'
+            }}>Worn Equipment</p>
+          </div>
           {renderEquipment(equipment, unequipItem)}
           <StatsInfo 
             equipment={equipment}

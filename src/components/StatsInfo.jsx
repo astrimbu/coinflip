@@ -2,7 +2,7 @@ import React from 'react';
 import { calcStats, calcAccuracy, calcItemDropRate, calcMonsterAccuracy } from '../utils';
 
 const StatsInfo = ({ equipment, currentMonster, monsterTypes, crystalTimer }) => {
-  const [showDetailedStats, setShowDetailedStats] = React.useState(false);
+  const [showDetailedStats, setShowDetailedStats] = React.useState(true);
 
   const toggleDetailedStats = () => setShowDetailedStats(!showDetailedStats);
 
