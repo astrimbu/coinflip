@@ -115,20 +115,31 @@ const MiniRPG = () => {
       removeItem('Logs', logItem);
       setFire({ isLit: true, lastUpdated: Date.now() });
       setFireTimer(FIRE_LENGTH);
-
+  
       if (fireTimeoutRef.current) {
         clearTimeout(fireTimeoutRef.current);
       }
-
+  
       fireTimeoutRef.current = setTimeout(() => {
         setFire({ isLit: false, lastUpdated: Date.now() });
         setFireTimer(0);
         fireTimeoutRef.current = null;
       }, FIRE_LENGTH * 1000);
     } else if (fire.isLit && logItem) {
-      // Add a delay to the fire extinguishing
+      removeItem('Logs', logItem);
+      setFireTimer(prevTimer => prevTimer + 60);
+      
+      if (fireTimeoutRef.current) {
+        clearTimeout(fireTimeoutRef.current);
+      }
+  
+      fireTimeoutRef.current = setTimeout(() => {
+        setFire({ isLit: false, lastUpdated: Date.now() });
+        setFireTimer(0);
+        fireTimeoutRef.current = null;
+      }, (fireTimer + 60) * 1000);
     }
-  }, [fire.isLit, removeItem]);
+  }, [fire.isLit, removeItem, fireTimer]);
 
   const extinguishFire = () => {
     setFire({isLit: false});
@@ -875,7 +886,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.20 - <a href='https://alan.computer'
+          v1.10.21 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

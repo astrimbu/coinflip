@@ -35,8 +35,8 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
       const rect = e.currentTarget.getBoundingClientRect();
       console.log(e.clientX, e.clientY, rect.left, rect.top);
       setContextMenu({
-        x: (e.clientX - 30) / scale,
-        y: (e.clientY - 100) / scale,
+        x: (e.clientX - (30 * scale)) / scale,
+        y: (e.clientY - rect.top + (60 * scale)) / scale,
         item: item
       });
     }
