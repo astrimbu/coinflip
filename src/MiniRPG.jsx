@@ -593,6 +593,7 @@ const MiniRPG = () => {
           fontSize: '24px',
           cursor: 'pointer',
           padding: '0',
+          zIndex: 1000,
         }}
       >
         {isSoundEnabled ? '🔊' : '🔇'}
@@ -886,7 +887,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.22 - <a href='https://alan.computer'
+          v1.10.23 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
