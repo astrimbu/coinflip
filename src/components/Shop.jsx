@@ -11,31 +11,30 @@ const Shop = ({ gold, inventoryFull, onPurchase }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        margin: '10px',
+        margin: '5px',
         backgroundColor: '#d5d5d5',
-        padding: '20px',
+        padding: '10px',
         position: 'relative',
-        gap: '10px',
+        gap: '5px',
+        cursor: 'pointer',
       }}
       onMouseEnter={() => setHoveredItem(itemName)}
       onMouseLeave={() => setHoveredItem(null)}
+      onClick={() => {
+        if (gold >= price && !(itemName === 'Crystal' && inventoryFull)) {
+          onPurchase(itemName);
+        }
+      }}
     >
-      <img src={getItemUrl(itemName.toLowerCase())} alt={itemName} />
+      <img src={getItemUrl(itemName.toLowerCase())} alt={itemName} style={{ width: '30px', height: '30px' }} />
       <span>{`${itemName} (${price}G)`}</span>
-      <button
-        onClick={() => onPurchase(itemName)}
-        disabled={gold < price || (itemName === 'Crystal' && inventoryFull)}
-        style={{ padding: '10px' }}
-      >
-        Buy
-      </button>
       {hoveredItem === itemName && (
         <div
           style={{
             position: 'absolute',
-            bottom: '100%',
+            bottom: '50%',
             left: '50%',
-            transform: 'translateX(-50%)',
+            transform: 'translate(-50%, -50%)',
             backgroundColor: 'rgba(0,0,0,0.8)',
             color: 'white',
             padding: '3px',
@@ -59,9 +58,9 @@ const Shop = ({ gold, inventoryFull, onPurchase }) => {
       flexDirection: 'column',
       justifyContent: 'center',
     }}>
-      {renderShopItem('Crystal', 1, '2x drop rate, 5:00')}
-      {renderShopItem('Potion', 1, '2x damage, 2:00')}
-      {renderShopItem('Logs', 1, 'Used to light a fire')}
+      {renderShopItem('Crystal', 1, 'Improves drop rate')}
+      {renderShopItem('Potion', 1, 'Improves damage')}
+      {renderShopItem('Logs', 1, 'Fire attracts monsters')}
     </div>
   );
 };
