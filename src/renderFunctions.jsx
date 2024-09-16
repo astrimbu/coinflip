@@ -234,7 +234,8 @@ export const renderMobileView = (props) => {
     isMonsterClickable,
     handleMonsterDied,
     spawnNewMonster,
-    lastAttack
+    lastAttack,
+    overrideMobileView
   } = props;
 
   return (
@@ -256,6 +257,21 @@ export const renderMobileView = (props) => {
         No support for mobile devices yet.<br />
         Landscape mode might work, but is untested.
       </p>
+      <button
+        onClick={overrideMobileView}
+        style={{
+          marginTop: '20px',
+          padding: '10px 20px',
+          fontSize: '16px',
+          backgroundColor: '#4CAF50',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+        }}
+      >
+        Load anyway
+      </button>
     </div>
   );
 };
@@ -411,6 +427,86 @@ export const renderStats = (killCount, scores, pets, userDeaths) => {
       <div style={{ marginTop: '20px', textAlign: 'center', color: '#666' }}>
         Total Deaths: <span style={{ fontWeight: 'bold' }}>{userDeaths}</span>
       </div>
+    </div>
+  );
+};
+
+export const renderSettings = (inventoryBackground, setInventoryBackground, equipmentBackground, setEquipmentBackground, toggleSettings) => {
+  const backgroundOptions = ['inventory', 'inventory2', 'inventory3', 'inventory4'];
+  const equipOptions = ['equip', 'equip2', 'equip3', 'equip4'];
+
+  const ImageOption = ({ src, current, onClick }) => (
+    <div
+      onClick={onClick}
+      style={{
+        width: '100px',
+        height: '100px',
+        backgroundImage: `url('/coinflip/assets/backgrounds/${src}.png')`,
+        backgroundSize: 'cover',
+        outline: current === src ? '5px solid black' : '5px solid transparent',
+        borderRadius: '5px',
+        margin: '5px',
+        cursor: 'pointer',
+      }}
+    />
+  );
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -55%)',
+      backgroundColor: 'rgb(235 221 178)',
+      padding: '20px',
+      borderRadius: '10px',
+      boxShadow: '0 0 10px rgba(0,0,0,0.5)',
+      zIndex: 1000,
+    }}>
+      <h2 style={{margin: '0 0 20px 0'}}>Settings</h2>
+      <div>
+        <h4 style={{margin: '10px 0 0 0'}}>Inventory Background:</h4>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {backgroundOptions.map(option => (
+            <ImageOption
+              key={option}
+              src={option}
+              current={inventoryBackground}
+              onClick={() => setInventoryBackground(option)}
+            />
+          ))}
+        </div>
+      </div>
+      <div>
+        <h4 style={{margin: '10px 0 0 0'}}>Equipment Background:</h4>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {equipOptions.map(option => (
+            <ImageOption
+              key={option}
+              src={option}
+              current={equipmentBackground}
+              onClick={() => setEquipmentBackground(option)}
+            />
+          ))}
+        </div>
+      </div>
+      <span 
+        onClick={toggleSettings}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          padding: '0',
+          color: '#111',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+          lineHeight: '1',
+          fontSize: '2em',
+        }}
+      >
+        ✖
+      </span>
     </div>
   );
 };

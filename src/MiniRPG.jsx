@@ -32,6 +32,7 @@ import {
   renderSkillTree,
   renderDeathScreen,
   renderStats,
+  renderSettings,
 } from './renderFunctions';
 
 
@@ -84,6 +85,13 @@ const MiniRPG = () => {
   const fireTimeoutRef = useRef(null);
   const isFightingRef = useRef(false);
   const [monsterAnimationState, setMonsterAnimationState] = useState('walking');
+  const [showSettings, setShowSettings] = useState(false);
+  const [inventoryBackground, setInventoryBackground] = useState('inventory');
+  const [equipmentBackground, setEquipmentBackground] = useState('equip');
+
+  const toggleSettings = () => {
+    setShowSettings(!showSettings);
+  };
 
   const handleAnimationStateChange = (newState) => {
     setMonsterAnimationState(newState);
@@ -209,7 +217,10 @@ const MiniRPG = () => {
 
   useEffect(() => { // Resize listener
     const handleResize = () => {
-      setIsDesktop(window.innerWidth >= 750);
+      setIsDesktop(window.innerWidth >= 800);
+      if (window.innerWidth >= 800) {
+        setOverrideMobile(false);
+      }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -217,8 +228,13 @@ const MiniRPG = () => {
 
   const [scale, setScale] = useState(1);
   const [alignToTop, setAlignToTop] = useState(false);
+  const [overrideMobile, setOverrideMobile] = useState(false);
 
-  useEffect(() => { // Resize scaling
+  const handleOverrideMobileView = () => {
+    setOverrideMobile(true);
+  };
+
+  useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
@@ -227,9 +243,13 @@ const MiniRPG = () => {
         const heightScale = height / 350;
         setScale(Math.max(1, Math.min(widthScale, heightScale)));
       } else {
-        setScale(1);
+        // Calculate scale for mobile devices
+        const mobileWidthScale = 800 / width;
+        const mobileHeightScale = 350 / height;
+        setScale(Math.max(1, Math.min(mobileWidthScale, mobileHeightScale)));
       }
       setAlignToTop(height < 350);
+      setIsDesktop(width >= 800);
     };
 
     window.addEventListener('resize', handleResize);
@@ -603,7 +623,17 @@ const MiniRPG = () => {
       <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
 
         { /* Left panel */ }
-        <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px', position: 'relative' }}>
+        <div style={{ 
+          width: '25%', 
+          maxWidth: '200px', 
+          paddingTop: '10px', 
+          position: 'relative', 
+          backgroundImage: `url('/coinflip/assets/backgrounds/${inventoryBackground}.png')`,
+          backgroundSize: overrideMobile ? 'cover' : 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundColor: '#111',
+        }}>
           <div style={{ 
             position: 'absolute', 
             top: '-16px', 
@@ -719,7 +749,17 @@ const MiniRPG = () => {
         </div>
 
         { /* Right panel */ }
-        <div style={{ width: '25%', maxWidth: '200px', paddingTop: '10px', position: 'relative' }}>
+        <div style={{
+          width: '25%', 
+          maxWidth: '200px', 
+          paddingTop: '10px', 
+          position: 'relative',
+          backgroundImage: `url('/coinflip/assets/backgrounds/${equipmentBackground}.png')`,
+          backgroundSize: overrideMobile ? 'cover' : 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundColor: '#111',
+        }}>
           <div style={{ 
             position: 'absolute',
             top: '-16px',
@@ -868,7 +908,7 @@ const MiniRPG = () => {
         transition: 'opacity 0.2s',
         opacity: isTransitioning ? 0 : 1,
       }}>
-        {isDesktop ? renderCurrentLocation() : renderMobileView({
+        {(isDesktop || overrideMobile) ? renderCurrentLocation() : renderMobileView({
           currentMonster,
           monsterTypes,
           monsterHitpoints,
@@ -876,7 +916,8 @@ const MiniRPG = () => {
           isMonsterClickable,
           handleMonsterDied,
           spawnNewMonster,
-          lastAttack
+          lastAttack,
+          overrideMobileView: handleOverrideMobileView
         })}
         <div
           style={{
@@ -887,14 +928,30 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.10.24 - <a href='https://alan.computer'
+          v1.11.0 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
               fontWeight: 'bold',
             }}>alan.computer</a>
+            <span 
+              onClick={toggleSettings}
+              style={{
+                marginLeft: '5px',
+                cursor: 'pointer',
+              }}
+            >
+              ⚙️
+            </span>
         </div>
       </div>
+      {showSettings && renderSettings(
+        inventoryBackground,
+        setInventoryBackground,
+        equipmentBackground,
+        setEquipmentBackground,
+        toggleSettings,
+      )}
     </div>
   );
 };

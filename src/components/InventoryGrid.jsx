@@ -85,6 +85,9 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
             justifyContent: 'center',
             outlineOffset: '-1px',
             fontSize: '12px',
+            backgroundBlendMode: 'multiply',
+            color: 'white',
+            fontWeight: 'bold',
           }}
         >
           <img src={getItemUrl('gold')} alt='Gold' style={{ width: '25px', height: '25px', marginRight: '5px' }} draggable="false" /> {items.Gold}
@@ -100,6 +103,8 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
             cursor: items.Potion > 0 ? 'pointer' : 'default',
             opacity: items.Potion > 0 ? 1 : 0.5,
             fontSize: '12px',
+            color: 'white',
+            fontWeight: 'bold',
           }}
           onClick={() => items.Potion > 0 && onUsePotion()}
         >
