@@ -9,6 +9,7 @@ const Town = ({ goToLocation }) => {
     { name: 'Shop', image: '🛒' },
     { name: 'Pond', image: '🎣' },
     { name: 'Stats', image: '📈' },
+    { name: 'Grid', image: '🔲' },
   ];
 
   return (
@@ -22,7 +23,7 @@ const Town = ({ goToLocation }) => {
     }}>
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
+        gridTemplateColumns: 'repeat(4, 1fr)',
         gap: '20px',
       }}>
         {services.map((service) => (

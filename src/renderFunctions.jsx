@@ -7,6 +7,7 @@ import Bank from './components/Bank';
 import Shop from './components/Shop';
 import WornEquipment from './components/WornEquipment';
 import Recycler from './components/Recycler';
+import Grid from './components/Grid';
 import { MIN_HEIGHT_VIEW } from './constants/gameData';
 
 export const renderPets = (pets, monsterTypes, getColor, hoveredPet, setHoveredPet) => (
@@ -507,6 +508,19 @@ export const renderSettings = (inventoryBackground, setInventoryBackground, equi
       >
         ✖
       </span>
+    </div>
+  );
+};
+
+export const renderGrid = () => {
+  return (
+    <div style={{
+      minHeight: MIN_HEIGHT_VIEW,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+    }}>
+      <Grid />
     </div>
   );
 };
