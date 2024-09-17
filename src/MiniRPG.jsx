@@ -89,6 +89,16 @@ const MiniRPG = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [inventoryBackground, setInventoryBackground] = useState('inventory');
   const [equipmentBackground, setEquipmentBackground] = useState('equip');
+  const [showCapybara, setShowCapybara] = useState(false);
+
+  useEffect(() => { // Pond capybara
+    const interval = setInterval(() => {
+      setShowCapybara(true);
+      setTimeout(() => setShowCapybara(false), 7200);
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const toggleSettings = () => {
     setShowSettings(!showSettings);
@@ -840,7 +850,7 @@ const MiniRPG = () => {
         case 'bank':
           return renderBank(inventory, bankItems, handleDeposit, handleWithdraw);
         case 'pond':
-          return renderPond();
+          return renderPond(showCapybara);
         case 'stats':
           return renderStats(killCount, scores, pets, userDeaths);
         case 'grid':
@@ -931,7 +941,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.11.1 - <a href='https://alan.computer'
+          v1.11.2 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

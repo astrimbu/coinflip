@@ -4,7 +4,7 @@ const GRID_SIZE = 10;
 const PLAYER_COLOR = "#ff0000";
 const OBSTACLE_COLOR = "#000000";
 const EMPTY_COLOR = "#ffffff";
-const MOVE_DELAY = 600; // milliseconds between moves
+const MOVE_DELAY = 300; // milliseconds between moves
 
 const createGrid = () => {
   const grid = [];

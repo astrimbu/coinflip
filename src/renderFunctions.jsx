@@ -208,23 +208,41 @@ export const renderBank = (inventory, bankItems, handleDeposit, handleWithdraw) 
   </Area>
 );
 
-export const renderPond = () => (
-  <Area monster="Pond">
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: MIN_HEIGHT_VIEW,
-    }}>
-      <div style={{ fontSize: '48px', marginBottom: '20px' }}>
+export const renderPond = (showCapybara) => {
+  return (
+    <Area monster="Pond">
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: MIN_HEIGHT_VIEW,
+        position: 'relative',
+      }}>
+        <div style={{ fontSize: '48px', marginBottom: '20px' }}>
         🎣🐟🌊🚣
+        </div>
+        <h2 style={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Pond</h2>
+        <p style={{ fontSize: '24px', fontStyle: 'italic', color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Coming soon™️</p>
+        {showCapybara && (
+          <img
+            key={Date.now()}
+            src="/coinflip/assets/backgrounds/capybara.gif"
+            alt="Capybara"
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              maxWidth: '200px',
+              maxHeight: '200px',
+            }}
+          />
+        )}
       </div>
-      <h2 style={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Pond</h2>
-      <p style={{ fontSize: '24px', fontStyle: 'italic', color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Coming soon™️</p>
-    </div>
-  </Area>
-);
+    </Area>
+  );
+};
 
 export const renderMobileView = (props) => {
   const {
