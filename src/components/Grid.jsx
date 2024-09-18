@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const GRID_SIZE = 50;
 const MIN_VIEWPORT_SIZE = 5;
@@ -68,12 +68,53 @@ const Grid = () => {
   const gridRef = useRef(null);
   const isPanningRef = useRef(false);
   const lastPanPosRef = useRef(null);
+  const requestRef = useRef();
+  const previousTimeRef = useRef();
 
   useEffect(() => {
     const newGrid = createGrid(GRID_SIZE);
     newGrid[0][0] = 0; // Ensure starting position is empty
     setGrid(newGrid);
   }, []);
+
+  const updateViewportOffset = useCallback((newOffset) => {
+    setViewportOffset((prevOffset) => {
+      const clampedX = Math.max(0, Math.min(GRID_SIZE - viewportSize, newOffset[0]));
+      const clampedY = Math.max(0, Math.min(GRID_SIZE - viewportSize, newOffset[1]));
+      return [clampedX, clampedY];
+    });
+  }, [viewportSize]);
+
+  const animatePan = useCallback((time) => {
+    if (previousTimeRef.current !== undefined) {
+      const deltaTime = time - previousTimeRef.current;
+      if (isPanningRef.current && lastPanPosRef.current) {
+        const currentPos = lastPanPosRef.current;
+        const dx = currentPos.targetX - currentPos.x;
+        const dy = currentPos.targetY - currentPos.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const speed = 0.5; // Adjust this value to change pan speed
+        const movement = Math.min(distance, speed * deltaTime);
+        const angle = Math.atan2(dy, dx);
+        const newX = currentPos.x + Math.cos(angle) * movement;
+        const newY = currentPos.y + Math.sin(angle) * movement;
+
+        lastPanPosRef.current = { x: newX, y: newY, targetX: currentPos.targetX, targetY: currentPos.targetY };
+
+        const tileSize = VIEWPORT_PIXEL_SIZE / viewportSize;
+        const offsetX = viewportOffset[0] - (newX - currentPos.x) / tileSize;
+        const offsetY = viewportOffset[1] - (newY - currentPos.y) / tileSize;
+        updateViewportOffset([offsetX, offsetY]);
+      }
+    }
+    previousTimeRef.current = time;
+    requestRef.current = requestAnimationFrame(animatePan);
+  }, [viewportSize, updateViewportOffset, viewportOffset]);
+
+  useEffect(() => {
+    requestRef.current = requestAnimationFrame(animatePan);
+    return () => cancelAnimationFrame(requestRef.current);
+  }, [animatePan]);
 
   useEffect(() => {
     const handleWheel = (e) => {
@@ -90,19 +131,14 @@ const Grid = () => {
       if (e.button === 1) { // Middle mouse button
         e.preventDefault();
         isPanningRef.current = true;
-        lastPanPosRef.current = { x: e.clientX, y: e.clientY };
+        lastPanPosRef.current = { x: e.clientX, y: e.clientY, targetX: e.clientX, targetY: e.clientY };
       }
     };
 
     const handleMouseMove = (e) => {
       if (isPanningRef.current) {
-        const dx = e.clientX - lastPanPosRef.current.x;
-        const dy = e.clientY - lastPanPosRef.current.y;
-        const tileSize = VIEWPORT_PIXEL_SIZE / viewportSize;
-        const offsetX = Math.max(0, Math.min(GRID_SIZE - viewportSize, viewportOffset[0] - dx / tileSize));
-        const offsetY = Math.max(0, Math.min(GRID_SIZE - viewportSize, viewportOffset[1] - dy / tileSize));
-        setViewportOffset([offsetX, offsetY]);
-        lastPanPosRef.current = { x: e.clientX, y: e.clientY };
+        lastPanPosRef.current.targetX = e.clientX;
+        lastPanPosRef.current.targetY = e.clientY;
       }
     };
 
@@ -135,7 +171,7 @@ const Grid = () => {
       window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [playerPos, viewportSize, viewportOffset]);
+  }, [playerPos, viewportSize, updateViewportOffset]);
 
   const movePlayer = (newPath) => {
     // Clear any existing movement
@@ -184,8 +220,14 @@ const Grid = () => {
   };
 
   const handleTileClick = (x, y) => {
-    const globalX = x + viewportOffset[0];
-    const globalY = y + viewportOffset[1];
+    const globalX = Math.floor(x + viewportOffset[0]);
+    const globalY = Math.floor(y + viewportOffset[1]);
+    
+    // Ensure we're within grid bounds
+    if (globalX < 0 || globalX >= GRID_SIZE || globalY < 0 || globalY >= GRID_SIZE) {
+      return; // Click is out of bounds, do nothing
+    }
+    
     if (grid[globalY][globalX] === 1) return; // Can't move to obstacles
 
     const newPath = findPath(playerPos, [globalX, globalY], grid);
@@ -197,23 +239,26 @@ const Grid = () => {
   const renderViewport = () => {
     const viewport = [];
     const tileSize = VIEWPORT_PIXEL_SIZE / viewportSize;
-    for (let y = Math.floor(viewportOffset[1]); y < Math.floor(viewportOffset[1]) + viewportSize; y++) {
-      for (let x = Math.floor(viewportOffset[0]); x < Math.floor(viewportOffset[0]) + viewportSize; x++) {
-        // Add boundary checks
-        if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
-          const isPlayer = playerPos[0] === x && playerPos[1] === y;
-          const isPathTile = path.some(([px, py]) => px === x && py === y);
+    for (let y = 0; y < viewportSize; y++) {
+      for (let x = 0; x < viewportSize; x++) {
+        const globalX = Math.floor(viewportOffset[0]) + x;
+        const globalY = Math.floor(viewportOffset[1]) + y;
+        
+        // Check if the tile is within the grid bounds
+        if (globalX >= 0 && globalX < GRID_SIZE && globalY >= 0 && globalY < GRID_SIZE) {
+          const isPlayer = playerPos[0] === globalX && playerPos[1] === globalY;
+          const isPathTile = path.some(([px, py]) => px === globalX && py === globalY);
           viewport.push(
             <div
-              key={`${x}-${y}`}
+              key={`${globalX}-${globalY}`}
               style={{
                 width: `${tileSize}px`,
                 height: `${tileSize}px`,
-                backgroundColor: grid[y][x] === 1 ? OBSTACLE_COLOR : isPlayer ? PLAYER_COLOR : EMPTY_COLOR,
+                backgroundColor: grid[globalY][globalX] === 1 ? OBSTACLE_COLOR : isPlayer ? PLAYER_COLOR : EMPTY_COLOR,
                 border: isPathTile ? '2px solid #0000ff' : '1px solid #000000',
                 boxSizing: 'border-box',
               }}
-              onClick={() => handleTileClick(x - Math.floor(viewportOffset[0]), y - Math.floor(viewportOffset[1]))}
+              onClick={() => handleTileClick(x, y)}
               className="cursor-pointer"
             />
           );
@@ -221,7 +266,7 @@ const Grid = () => {
           // Render an empty tile for out-of-bounds positions
           viewport.push(
             <div
-              key={`${x}-${y}`}
+              key={`${globalX}-${globalY}`}
               style={{
                 width: `${tileSize}px`,
                 height: `${tileSize}px`,

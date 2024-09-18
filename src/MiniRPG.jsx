@@ -941,7 +941,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.11.3 - <a href='https://alan.computer'
+          v1.11.4 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
