@@ -91,6 +91,14 @@ const MiniRPG = () => {
   const [equipmentBackground, setEquipmentBackground] = useState('equip');
   const [showCapybara, setShowCapybara] = useState(false);
 
+
+  const useTuna = () => {
+    if (inventory.Tuna.length > 0) {
+      removeItem('Tuna', inventory.Tuna[0]);
+      setUserHitpoints(prevHp => Math.min(prevHp + 10, maxUserHitpoints));
+    }
+  };
+
   useEffect(() => { // Pond capybara
     const interval = setInterval(() => {
       setShowCapybara(true);
@@ -284,6 +292,11 @@ const MiniRPG = () => {
     } else if (item === 'Logs' && inventory.Gold >= 1) {
       updateCurrency('Gold', -1);
       addItem('Logs', { name: 'Logs', rarity: 'Logs', id: itemId });
+      setPurchaseNotification(true);
+      setTimeout(() => setPurchaseNotification(false), 2000);
+    } else if (item === 'Tuna' && inventory.Gold >= 1) {
+      updateCurrency('Gold', -1);
+      addItem('Tuna', { name: 'Tuna', rarity: 'Tuna', id: itemId });
       setPurchaseNotification(true);
       setTimeout(() => setPurchaseNotification(false), 2000);
     }
@@ -941,7 +954,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.11.4 - <a href='https://alan.computer'
+          v1.11.5 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

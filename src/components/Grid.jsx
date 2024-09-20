@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const GRID_SIZE = 50;
 const MIN_VIEWPORT_SIZE = 5;
-const MAX_VIEWPORT_SIZE = 21;
+const MAX_VIEWPORT_SIZE = 31;
 const INITIAL_VIEWPORT_SIZE = 11;
 const PLAYER_COLOR = "#ff0000";
 const OBSTACLE_COLOR = "#000000";
@@ -255,7 +255,7 @@ const Grid = () => {
                 width: `${tileSize}px`,
                 height: `${tileSize}px`,
                 backgroundColor: grid[globalY][globalX] === 1 ? OBSTACLE_COLOR : isPlayer ? PLAYER_COLOR : EMPTY_COLOR,
-                border: isPathTile ? '2px solid #0000ff' : '1px solid #000000',
+                border: isPathTile ? '2px solid #0000ff' : '0px solid #000000',
                 boxSizing: 'border-box',
               }}
               onClick={() => handleTileClick(x, y)}
@@ -270,7 +270,7 @@ const Grid = () => {
               style={{
                 width: `${tileSize}px`,
                 height: `${tileSize}px`,
-                backgroundColor: '#cccccc', // Gray color for out-of-bounds tiles
+                backgroundColor: '#000',
                 border: '1px solid #000000',
                 boxSizing: 'border-box',
               }}

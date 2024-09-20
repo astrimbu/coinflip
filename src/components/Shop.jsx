@@ -61,6 +61,7 @@ const Shop = ({ gold, inventoryFull, onPurchase }) => {
       {renderShopItem('Crystal', 1, 'Improves drop rate')}
       {renderShopItem('Potion', 1, 'Improves damage')}
       {renderShopItem('Logs', 1, 'Fire attracts monsters')}
+      {renderShopItem('Tuna', 1, 'Heals 10 HP')}
     </div>
   );
 };

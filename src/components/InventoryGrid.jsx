@@ -2,7 +2,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { getColor, getBackgroundColor, getItemUrl, validEquipmentTypes } from '../utils';
 
-const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode, onDeposit, actionLabel, onDrop, scale, onLightFire }) => {
+const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode, onDeposit, actionLabel, onDrop, scale, onLightFire, onUseTuna }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
 
@@ -17,6 +17,8 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
       } else { return; }
     } else if (item.name === 'Crystal') {
       onUseCrystal(item);
+    } else if (item.name === 'Tuna') {
+      onUseTuna(item);
     } else if (item.name === 'Logs') {
       onLightFire(item);
     } else {
