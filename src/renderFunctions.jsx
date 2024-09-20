@@ -331,7 +331,7 @@ export const renderLevelUpButton = (openSkillTree) => (
   </button>
 );
 
-export const renderSkillTree = (closeSkillTree) => (
+export const renderSkillTree = (closeSkillTree, onSelectSkill, playerStats) => (
   <div
     style={{
       position: 'absolute',
@@ -351,11 +351,65 @@ export const renderSkillTree = (closeSkillTree) => (
         backgroundColor: '#f0f0f0',
         padding: '30px 40px',
         borderRadius: '10px',
+        textAlign: 'center',
       }}
     >
-      <h2 style={{ color: '#333', fontSize: '2em', textAlign: 'center', margin: '5px 0' }}>Skill Tree</h2>
-      <p style={{ color: '#666', fontSize: '1em', textAlign: 'center', margin: '0 0 20px 0' }}>Coming soon™️</p>
-      <button onClick={closeSkillTree}>Close</button>
+      <h2 style={{ color: '#333', fontSize: '2em', margin: '5px 0 20px' }}>Skill Tree</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '20px' }}>
+        <button
+          onClick={() => onSelectSkill('damage')}
+          style={{
+            padding: '10px 20px',
+            fontSize: '1em',
+            backgroundColor: '#ff4d4d',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            transition: 'background-color 0.3s',
+          }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#ff3333'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#ff4d4d'}
+        >
+          Increase Damage (+1)
+        </button>
+        <button
+          onClick={() => onSelectSkill('regeneration')}
+          style={{
+            padding: '10px 20px',
+            fontSize: '1em',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            transition: 'background-color 0.3s',
+          }}
+          onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
+          onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
+        >
+          Increase HP Regeneration (2x)
+        </button>
+      </div>
+      <div style={{ marginBottom: '20px', color: '#666' }}>
+        <p>Current Stats:</p>
+        <p>Damage Bonus: +{playerStats.damageBonus}</p>
+        <p>HP Regeneration: {playerStats.regenerationMultiplier}x</p>
+      </div>
+      <button 
+        onClick={closeSkillTree}
+        style={{
+          padding: '5px 10px',
+          fontSize: '0.9em',
+          backgroundColor: '#999',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+        }}
+      >
+        Close
+      </button>
     </div>
   </div>
 );

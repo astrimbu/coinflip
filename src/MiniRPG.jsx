@@ -90,7 +90,26 @@ const MiniRPG = () => {
   const [inventoryBackground, setInventoryBackground] = useState('inventory');
   const [equipmentBackground, setEquipmentBackground] = useState('equip');
   const [showCapybara, setShowCapybara] = useState(false);
+  const [playerStats, setPlayerStats] = useState({
+    damageBonus: 0,
+    regenerationMultiplier: 1,
+  });
 
+
+  const handleSelectSkill = (skill) => {
+    if (skill === 'damage') {
+      setPlayerStats(prevStats => ({
+        ...prevStats,
+        damageBonus: prevStats.damageBonus + 1,
+      }));
+    } else if (skill === 'regeneration') {
+      setPlayerStats(prevStats => ({
+        ...prevStats,
+        regenerationMultiplier: prevStats.regenerationMultiplier * 2,
+      }));
+    }
+    closeSkillTree();
+  };
 
   const useTuna = () => {
     if (inventory.Tuna.length > 0) {
@@ -213,12 +232,12 @@ const MiniRPG = () => {
   useEffect(() => { // Health regeneration
     const healthRegenInterval = setInterval(() => {
       if (!userIsDead && userHitpointsRef.current < maxUserHitpoints) {
-        setUserHitpoints(prevHp => Math.min(prevHp + 1, maxUserHitpoints));
+        setUserHitpoints(prevHp => Math.min(prevHp + (1 * playerStats.regenerationMultiplier), maxUserHitpoints));
       }
     }, 10000);
 
     return () => clearInterval(healthRegenInterval);
-  }, [userHitpointsRef, maxUserHitpoints]);
+  }, [userHitpointsRef, maxUserHitpoints, playerStats.regenerationMultiplier]);
 
   useEffect(() => { // Fire auto-clicker
     if (!fire.isLit || fireTimer <= 0) return;
@@ -530,7 +549,7 @@ const MiniRPG = () => {
       const userResult = Math.random() < userAdjustedRate;
       playAttackSound(userResult);
       const userDamage = userResult
-        ? (1 + Math.floor(calcStats(equipment) / 10)) * (potionTimerRef.current > 0 ? 2 : 1)
+        ? (1 + Math.floor(calcStats(equipment) / 10) + playerStats.damageBonus) * (potionTimerRef.current > 0 ? 2 : 1)
         : 0;
       setLastAttack({ damage: userDamage, id: Date.now() });
       if (userResult) {
@@ -574,7 +593,7 @@ const MiniRPG = () => {
     }
 
     return () => clearInterval(fightIntervalRef.current);
-  }, [isFighting, currentMonster]);
+  }, [isFighting, currentMonster, playerStats.damageBonus]);
 
   const [hoveredPet, setHoveredPet] = useState(null);
 
@@ -675,7 +694,7 @@ const MiniRPG = () => {
               letterSpacing: '1px'
             }}>Inventory</p>
           </div>
-          {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire)}
+          {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire, useTuna)}
           {renderPets(pets, monsterTypes, getColor, hoveredPet, setHoveredPet)}
         </div>
 
@@ -737,7 +756,7 @@ const MiniRPG = () => {
           </Area>
           {renderLevelAndExperience(level, experience, xpToNextLevel)}
           {showLevelUpButton && renderLevelUpButton(openSkillTree)}
-          {showSkillTree && renderSkillTree(closeSkillTree)}
+          {showSkillTree && renderSkillTree(closeSkillTree, handleSelectSkill, playerStats)}
           <div style={{
             position: 'absolute',
             bottom: '23px',
@@ -954,7 +973,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.11.5 - <a href='https://alan.computer'
+          v1.11.6 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
