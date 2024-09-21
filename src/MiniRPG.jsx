@@ -5,6 +5,8 @@ import Area from './components/Area';
 import MonsterAnimation from './components/MonsterAnimation';
 import NavigationArrow from './components/NavigationArrow';
 import TimerDisplay from './components/TimerDisplay';
+import GameLayout from './components/GameLayout';
+import Grid from './components/Grid';
 import StatsInfo from './components/StatsInfo';
 import { monsterTypes, petDropRates, FIRE_LENGTH, ATTACK_SPEED } from './constants/gameData';
 import './styles.css';
@@ -94,6 +96,7 @@ const MiniRPG = () => {
     damageBonus: 0,
     regenerationMultiplier: 1,
   });
+  const [gameView, setGameView] = useState('grid'); // 'grid' or 'battle'
 
 
   const handleSelectSkill = (skill) => {
@@ -633,204 +636,294 @@ const MiniRPG = () => {
     setShowSkillTree(false);
   };
 
-  const renderGame = () => (
-    <div id='renderGame'
-      style={{
-        width: '100%',
-        margin: '0 auto',
-        background: '#f0f0f0',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        position: 'relative',
-      }}
-    >
-      <button
-        onClick={toggleSound}
-        style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          background: 'none',
-          border: 'none',
-          fontSize: '24px',
-          cursor: 'pointer',
-          padding: '0',
-          zIndex: 1000,
-        }}
-      >
-        {isSoundEnabled ? '🔊' : '🔇'}
-      </button>
-
-      { /* Game area */ }
-      <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-
-        { /* Left panel */ }
+  const renderGame = () => {
+    const leftPanel = (
+      <>
         <div style={{ 
-          width: '25%', 
-          maxWidth: '200px', 
-          paddingTop: '10px', 
-          position: 'relative', 
-          backgroundImage: `url('/coinflip/assets/backgrounds/${inventoryBackground}.png')`,
-          backgroundSize: overrideMobile ? 'cover' : 'contain',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          backgroundColor: '#111',
+          position: 'absolute', 
+          top: '-16px', 
+          left: '0', 
+          right: '0', 
+          textAlign: 'center'
         }}>
-          <div style={{ 
-            position: 'absolute', 
-            top: '-16px', 
-            left: '0', 
-            right: '0', 
-            textAlign: 'center'
-          }}>
-            <p style={{ 
-              fontSize: '10px',
-              fontWeight: 'bold',
-              color: '#999',
-              margin: '0',
-              fontFamily: 'Arial, sans-serif',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>Inventory</p>
-          </div>
-          {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire, useTuna)}
-          {renderPets(pets, monsterTypes, getColor, hoveredPet, setHoveredPet)}
-        </div>
-
-        { /* Center panel */ }
-        <div style={{ width: '50%', maxWidth: '400px', position: 'relative' }}>
-          <div style={{ 
-            position: 'absolute', 
-            top: '-16px', 
-            left: '0', 
-            right: '0', 
-            textAlign: 'center'
-          }}>
-            <p
-              style={{
-                fontSize: '10px',
-                fontWeight: 'bold',
-                color: '#999',
-                margin: '0',
-                fontFamily: 'Arial, sans-serif',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-              }}
-            >
-              {currentMonster}{' '}
-              <span style={{ fontWeight: 'normal', fontSize: '8px' }}>
-                (LV {monsterTypes[currentMonster].level})
-              </span>
-            </p>
-          </div>
-          <TimerDisplay crystalTimer={crystalTimer} potionTimer={potionTimer} fireTimer={fireTimer} />
-          <Area monster={currentMonster}>
-            <MonsterAnimation
-              monster={currentMonster}
-              hitpoints={monsterHitpoints}
-              maxHP={monsterTypes[currentMonster].maxHP}
-              onMonsterClick={handleMonsterClick}
-              isClickable={isMonsterClickable}
-              handleMonsterDied={handleMonsterDied}
-              spawnNewMonster={spawnNewMonster}
-              experienceGained={monsterTypes[currentMonster].experience}
-              lastAttack={lastAttack}
-              isFighting={isFighting}
-              onAnimationStateChange={handleAnimationStateChange}
-            />
-            {currentMonster !== 'Goblin' && (
-              <NavigationArrow
-                direction="left"
-                onClick={() => navigateMonster('left')}
-                disabled={isFighting || monsterAnimationState === 'dying'}
-              />
-            )}
-            {currentMonster !== 'Dragon' && (
-              <NavigationArrow
-                direction="right"
-                onClick={() => navigateMonster('right')}
-                disabled={isFighting || monsterAnimationState === 'dying'}
-              />
-            )}
-          </Area>
-          {renderLevelAndExperience(level, experience, xpToNextLevel)}
-          {showLevelUpButton && renderLevelUpButton(openSkillTree)}
-          {showSkillTree && renderSkillTree(closeSkillTree, handleSelectSkill, playerStats)}
-          <div style={{
-            position: 'absolute',
-            bottom: '23px',
-            right: '10px',
-            fontFamily: 'monospace',
-            fontSize: '14px',
+          <p style={{ 
+            fontSize: '10px',
             fontWeight: 'bold',
-            backgroundColor: userHitpoints === 0 ? 'black' : 
-              damageFlash ? `rgba(150, 0, 0, ${0.5 + 0.5 * (1 - userHitpoints / maxUserHitpoints)})` : 
-              `rgb(${150 - (150 * (userHitpoints / maxUserHitpoints))}, ${150 * (userHitpoints / maxUserHitpoints)}, 0)`,
-            color: 'white',
-            padding: '4px',
-            lineHeight: '0.8',
-            borderRadius: '2px',
-            transition: 'all 0.3s ease',
-            boxShadow: damageFlash ? '0 0 10px rgba(255, 0, 0, 0.3)' : 'none',
-            animation: isLowHP ? 'pulse 1s infinite' : 'none',
-          }}>
-            {userHitpoints}/{maxUserHitpoints}
-          </div>
-          {fire.isLit && (
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '20px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-              }}
-            >
-              <img src={getItemUrl('fire')} alt='fire' style={{ width: '100px', height: '100px' }} />
-            </div>
-          )}
+            color: '#999',
+            margin: '0',
+            fontFamily: 'Arial, sans-serif',
+            textTransform: 'uppercase',
+            letterSpacing: '1px'
+          }}>Inventory</p>
         </div>
+        {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire, useTuna)}
+        {renderPets(pets, monsterTypes, getColor, hoveredPet, setHoveredPet)}
+      </>
+    );
 
-        { /* Right panel */ }
-        <div style={{
-          width: '25%', 
-          maxWidth: '200px', 
-          paddingTop: '10px', 
-          position: 'relative',
-          backgroundImage: `url('/coinflip/assets/backgrounds/${equipmentBackground}.png')`,
-          backgroundSize: overrideMobile ? 'cover' : 'contain',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          backgroundColor: '#111',
+    const rightPanel = (
+      <>
+        <div style={{ 
+          position: 'absolute',
+          top: '-16px',
+          left: '0',
+          right: '0',
+          textAlign: 'center'
         }}>
-          <div style={{ 
-            position: 'absolute',
-            top: '-16px',
-            left: '0',
-            right: '0',
-            textAlign: 'center'
-          }}>
-            <p style={{ 
-              fontSize: '10px',
-              fontWeight: 'bold',
-              color: '#999',
-              margin: '0',
-              fontFamily: 'Arial, sans-serif',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>Worn Equipment</p>
-          </div>
-          {renderEquipment(equipment, unequipItem)}
-          <StatsInfo 
-            equipment={equipment}
-            currentMonster={currentMonster}
-            monsterTypes={monsterTypes}
-            crystalTimer={crystalTimer}
-          />
+          <p style={{ 
+            fontSize: '10px',
+            fontWeight: 'bold',
+            color: '#999',
+            margin: '0',
+            fontFamily: 'Arial, sans-serif',
+            textTransform: 'uppercase',
+            letterSpacing: '1px'
+          }}>Worn Equipment</p>
         </div>
-      </div>
-    </div>
-  );
+        {renderEquipment(equipment, unequipItem)}
+        <StatsInfo 
+          equipment={equipment}
+          currentMonster={currentMonster}
+          monsterTypes={monsterTypes}
+          crystalTimer={crystalTimer}
+        />
+      </>
+    );
+
+    const middlePanel = gameView === 'grid' ? (
+      <Grid
+        onEncounter={() => setGameView('battle')}
+        // ... other props ...
+      />
+    ) : (
+      <BattleScreen
+        monster={currentMonster}
+        hitpoints={monsterHitpoints}
+        maxHP={monsterTypes[currentMonster].maxHP}
+        onMonsterClick={handleMonsterClick}
+        isClickable={isMonsterClickable}
+        handleMonsterDied={handleMonsterDied}
+        spawnNewMonster={spawnNewMonster}
+        experienceGained={monsterTypes[currentMonster].experience}
+        lastAttack={lastAttack}
+        isFighting={isFighting}
+        onAnimationStateChange={handleAnimationStateChange}
+        onBattleEnd={() => setGameView('grid')}
+      />
+    );
+
+    return (
+      <GameLayout
+        leftPanel={leftPanel}
+        middlePanel={middlePanel}
+        rightPanel={rightPanel}
+        toggleSound={toggleSound}
+        isSoundEnabled={isSoundEnabled}
+        inventoryBackground={inventoryBackground}
+        equipmentBackground={equipmentBackground}
+        overrideMobile={overrideMobile}
+      />
+    );
+  };
+
+  // const renderGame = () => (
+  //   <div id='renderGame'
+  //     style={{
+  //       width: '100%',
+  //       margin: '0 auto',
+  //       background: '#f0f0f0',
+  //       display: 'flex',
+  //       flexDirection: 'column',
+  //       alignItems: 'center',
+  //       position: 'relative',
+  //     }}
+  //   >
+  //     <button
+  //       onClick={toggleSound}
+  //       style={{
+  //         position: 'absolute',
+  //         top: '10px',
+  //         right: '10px',
+  //         background: 'none',
+  //         border: 'none',
+  //         fontSize: '24px',
+  //         cursor: 'pointer',
+  //         padding: '0',
+  //         zIndex: 1000,
+  //       }}
+  //     >
+  //       {isSoundEnabled ? '🔊' : '🔇'}
+  //     </button>
+
+  //     { /* Game area */ }
+  //     <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+
+  //       { /* Left panel */ }
+  //       <div style={{ 
+  //         width: '25%', 
+  //         maxWidth: '200px', 
+  //         paddingTop: '10px', 
+  //         position: 'relative', 
+  //         backgroundImage: `url('/coinflip/assets/backgrounds/${inventoryBackground}.png')`,
+  //         backgroundSize: overrideMobile ? 'cover' : 'contain',
+  //         backgroundRepeat: 'no-repeat',
+  //         backgroundPosition: 'center',
+  //         backgroundColor: '#111',
+  //       }}>
+  //         <div style={{ 
+  //           position: 'absolute', 
+  //           top: '-16px', 
+  //           left: '0', 
+  //           right: '0', 
+  //           textAlign: 'center'
+  //         }}>
+  //           <p style={{ 
+  //             fontSize: '10px',
+  //             fontWeight: 'bold',
+  //             color: '#999',
+  //             margin: '0',
+  //             fontFamily: 'Arial, sans-serif',
+  //             textTransform: 'uppercase',
+  //             letterSpacing: '1px'
+  //           }}>Inventory</p>
+  //         </div>
+  //         {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire, useTuna)}
+  //         {renderPets(pets, monsterTypes, getColor, hoveredPet, setHoveredPet)}
+  //       </div>
+
+  //       { /* Center panel */ }
+  //       <div style={{ width: '50%', maxWidth: '400px', position: 'relative' }}>
+  //         <div style={{ 
+  //           position: 'absolute', 
+  //           top: '-16px', 
+  //           left: '0', 
+  //           right: '0', 
+  //           textAlign: 'center'
+  //         }}>
+  //           <p
+  //             style={{
+  //               fontSize: '10px',
+  //               fontWeight: 'bold',
+  //               color: '#999',
+  //               margin: '0',
+  //               fontFamily: 'Arial, sans-serif',
+  //               textTransform: 'uppercase',
+  //               letterSpacing: '1px',
+  //             }}
+  //           >
+  //             {currentMonster}{' '}
+  //             <span style={{ fontWeight: 'normal', fontSize: '8px' }}>
+  //               (LV {monsterTypes[currentMonster].level})
+  //             </span>
+  //           </p>
+  //         </div>
+  //         <TimerDisplay crystalTimer={crystalTimer} potionTimer={potionTimer} fireTimer={fireTimer} />
+  //         <Area monster={currentMonster}>
+  //           <MonsterAnimation
+  //             monster={currentMonster}
+  //             hitpoints={monsterHitpoints}
+  //             maxHP={monsterTypes[currentMonster].maxHP}
+  //             onMonsterClick={handleMonsterClick}
+  //             isClickable={isMonsterClickable}
+  //             handleMonsterDied={handleMonsterDied}
+  //             spawnNewMonster={spawnNewMonster}
+  //             experienceGained={monsterTypes[currentMonster].experience}
+  //             lastAttack={lastAttack}
+  //             isFighting={isFighting}
+  //             onAnimationStateChange={handleAnimationStateChange}
+  //           />
+  //           {currentMonster !== 'Goblin' && (
+  //             <NavigationArrow
+  //               direction="left"
+  //               onClick={() => navigateMonster('left')}
+  //               disabled={isFighting || monsterAnimationState === 'dying'}
+  //             />
+  //           )}
+  //           {currentMonster !== 'Dragon' && (
+  //             <NavigationArrow
+  //               direction="right"
+  //               onClick={() => navigateMonster('right')}
+  //               disabled={isFighting || monsterAnimationState === 'dying'}
+  //             />
+  //           )}
+  //         </Area>
+  //         {renderLevelAndExperience(level, experience, xpToNextLevel)}
+  //         {showLevelUpButton && renderLevelUpButton(openSkillTree)}
+  //         {showSkillTree && renderSkillTree(closeSkillTree, handleSelectSkill, playerStats)}
+  //         <div style={{
+  //           position: 'absolute',
+  //           bottom: '23px',
+  //           right: '10px',
+  //           fontFamily: 'monospace',
+  //           fontSize: '14px',
+  //           fontWeight: 'bold',
+  //           backgroundColor: userHitpoints === 0 ? 'black' : 
+  //             damageFlash ? `rgba(150, 0, 0, ${0.5 + 0.5 * (1 - userHitpoints / maxUserHitpoints)})` : 
+  //             `rgb(${150 - (150 * (userHitpoints / maxUserHitpoints))}, ${150 * (userHitpoints / maxUserHitpoints)}, 0)`,
+  //           color: 'white',
+  //           padding: '4px',
+  //           lineHeight: '0.8',
+  //           borderRadius: '2px',
+  //           transition: 'all 0.3s ease',
+  //           boxShadow: damageFlash ? '0 0 10px rgba(255, 0, 0, 0.3)' : 'none',
+  //           animation: isLowHP ? 'pulse 1s infinite' : 'none',
+  //         }}>
+  //           {userHitpoints}/{maxUserHitpoints}
+  //         </div>
+  //         {fire.isLit && (
+  //           <div
+  //             style={{
+  //               position: 'absolute',
+  //               bottom: '20px',
+  //               left: '50%',
+  //               transform: 'translateX(-50%)',
+  //             }}
+  //           >
+  //             <img src={getItemUrl('fire')} alt='fire' style={{ width: '100px', height: '100px' }} />
+  //           </div>
+  //         )}
+  //       </div>
+
+  //       { /* Right panel */ }
+  //       <div style={{
+  //         width: '25%', 
+  //         maxWidth: '200px', 
+  //         paddingTop: '10px', 
+  //         position: 'relative',
+  //         backgroundImage: `url('/coinflip/assets/backgrounds/${equipmentBackground}.png')`,
+  //         backgroundSize: overrideMobile ? 'cover' : 'contain',
+  //         backgroundRepeat: 'no-repeat',
+  //         backgroundPosition: 'center',
+  //         backgroundColor: '#111',
+  //       }}>
+  //         <div style={{ 
+  //           position: 'absolute',
+  //           top: '-16px',
+  //           left: '0',
+  //           right: '0',
+  //           textAlign: 'center'
+  //         }}>
+  //           <p style={{ 
+  //             fontSize: '10px',
+  //             fontWeight: 'bold',
+  //             color: '#999',
+  //             margin: '0',
+  //             fontFamily: 'Arial, sans-serif',
+  //             textTransform: 'uppercase',
+  //             letterSpacing: '1px'
+  //           }}>Worn Equipment</p>
+  //         </div>
+  //         {renderEquipment(equipment, unequipItem)}
+  //         <StatsInfo 
+  //           equipment={equipment}
+  //           currentMonster={currentMonster}
+  //           monsterTypes={monsterTypes}
+  //           crystalTimer={crystalTimer}
+  //         />
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
 
   const toggleSound = () => {
     setIsSoundEnabled(prev => !prev);
@@ -966,18 +1059,17 @@ const MiniRPG = () => {
         })}
         <div
           style={{
-            marginTop: '10px',
+            marginTop: '2px',
             textAlign: 'center',
-            fontSize: '12px',
+            fontSize: '10px',
             fontFamily: 'monospace',
             color: '#b0b0b0',
           }}
         >
-          v1.11.6 - <a href='https://alan.computer'
+          v1.12.0 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
-              fontWeight: 'bold',
             }}>alan.computer</a>
             <span 
               onClick={toggleSettings}
