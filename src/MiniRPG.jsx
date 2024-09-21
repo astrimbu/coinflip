@@ -692,9 +692,12 @@ const MiniRPG = () => {
 
     const middlePanel = gameView === 'grid' ? (
       <Grid
-        onEncounter={() => setGameView('battle')}
-        // ... other props ...
+        onEncounter={() => {
+          setGameView('battle')
+          setCurrentMonster(monster)
+        }}
       />
+
     ) : (
       <BattleScreen
         monster={currentMonster}
@@ -1066,7 +1069,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.12.0 - <a href='https://alan.computer'
+          v1.12.1 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
