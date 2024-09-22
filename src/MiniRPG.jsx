@@ -642,7 +642,7 @@ const MiniRPG = () => {
       <>
         <div style={{ 
           position: 'absolute', 
-          top: '-16px', 
+          top: '-14px', 
           left: '0', 
           right: '0', 
           textAlign: 'center'
@@ -666,7 +666,7 @@ const MiniRPG = () => {
       <>
         <div style={{ 
           position: 'absolute',
-          top: '-16px',
+          top: '-14px',
           left: '0',
           right: '0',
           textAlign: 'center'
@@ -713,6 +713,12 @@ const MiniRPG = () => {
         isFighting={isFighting}
         onAnimationStateChange={handleAnimationStateChange}
         onBattleEnd={() => setGameView('grid')}
+        userHitpoints={userHitpoints}
+        maxUserHitpoints={maxUserHitpoints}
+        level={level}
+        experience={experience}
+        damageFlash={damageFlash}
+        isLowHP={isLowHP}
       />
     );
 
@@ -1070,7 +1076,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.12.2 - <a href='https://alan.computer'
+          v1.12.3 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
