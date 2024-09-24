@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ATTACK_SPEED, MIN_HEIGHT_VIEW } from '../constants/gameData';
-import { getBackgroundImage, xpToNextLevel } from '../utils';
+import { getBackgroundImage } from '../utils';
 
 const BattleScreen = ({
   monster,
@@ -14,13 +14,7 @@ const BattleScreen = ({
   lastAttack,
   isFighting,
   onAnimationStateChange,
-  onBattleEnd,
-  userHitpoints,
-  maxUserHitpoints,
-  level,
-  experience,
-  damageFlash,
-  isLowHP
+  onBattleEnd
 }) => {
   const [animationState, setAnimationState] = useState('idle');
   const [showExperience, setShowExperience] = useState(false);
@@ -38,7 +32,6 @@ const BattleScreen = ({
     if (hitpoints <= 0 && animationState !== 'dying') {
       setAnimationState('dying');
       onAnimationStateChange('dying');
-      startDyingAnimation();
     }
   }, [hitpoints, animationState, onAnimationStateChange]);
 
@@ -55,7 +48,7 @@ const BattleScreen = ({
     setShowExperience(true);
     setTimeout(() => {
       setShowExperience(false);
-      spawnNewMonster();
+      onBattleEnd();
     }, DEATH_DURATION);
   };
 
@@ -101,31 +94,9 @@ const BattleScreen = ({
           width: '100px',
           height: '100px',
           backgroundColor: 'red',
-          position: 'relative',
+
         }}
-      >
-        {/* User HP Display */}
-        <div style={{
-          position: 'absolute',
-          bottom: '-23px',
-          right: '-10px',
-          fontFamily: 'monospace',
-          fontSize: '14px',
-          fontWeight: 'bold',
-          backgroundColor: userHitpoints === 0 ? 'black' : 
-            damageFlash ? `rgba(150, 0, 0, ${0.5 + 0.5 * (1 - userHitpoints / maxUserHitpoints)})` : 
-            `rgb(${150 - (150 * (userHitpoints / maxUserHitpoints))}, ${150 * (userHitpoints / maxUserHitpoints)}, 0)`,
-          color: 'white',
-          padding: '4px',
-          lineHeight: '0.8',
-          borderRadius: '2px',
-          transition: 'all 0.3s ease',
-          boxShadow: damageFlash ? '0 0 10px rgba(255, 0, 0, 0.3)' : 'none',
-          animation: isLowHP ? 'pulse 1s infinite' : 'none',
-        }}>
-          {userHitpoints}/{maxUserHitpoints}
-        </div>
-      </div>
+      />
 
       {/* Monster */}
       <div
@@ -198,36 +169,6 @@ const BattleScreen = ({
             {hitsplat.damage}
           </div>
         ))}
-      </div>
-
-      {/* Level and Experience Display */}
-      <div style={{
-        position: 'absolute',
-        bottom: '10px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        textAlign: 'center',
-        fontFamily: 'Arial, sans-serif',
-        fontSize: '12px',
-        color: '#333',
-      }}>
-        <div>Level: {level}</div>
-        <div>XP: {experience} / {xpToNextLevel(level)}</div>
-        <div style={{
-          width: '100px',
-          height: '10px',
-          backgroundColor: '#ddd',
-          borderRadius: '5px',
-          overflow: 'hidden',
-          margin: '5px auto',
-        }}>
-          <div style={{
-            width: `${(experience / xpToNextLevel(level)) * 100}%`,
-            height: '100%',
-            backgroundColor: '#4CAF50',
-            transition: 'width 0.3s ease-out',
-          }} />
-        </div>
       </div>
 
       {/* Flee Button */}
