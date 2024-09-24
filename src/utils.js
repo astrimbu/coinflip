@@ -96,22 +96,3 @@ export const getNextRarity = (currentRarity) => {
   const currentIndex = rarityOrder.findIndex(rarity => compareRarity(rarity, currentRarity) === 0);
   return currentIndex < rarityOrder.length - 1 ? rarityOrder[currentIndex + 1] : null;
 };
-
-export const getBackgroundImage = (monster) => {
-  switch (monster) {
-    case 'Goblin':
-      return 'forest.png';
-    case 'Ogre':
-      return 'dirt.png';
-    case 'Demon':
-      return 'hellscape.png';
-    case 'Dragon':
-      return 'wild.png';
-    case 'Bank':
-      return 'bank.png';
-    case 'Pond':
-      return 'water.png';
-    default:
-      return 'forest.png';
-  }
-};

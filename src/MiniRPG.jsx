@@ -7,7 +7,6 @@ import NavigationArrow from './components/NavigationArrow';
 import TimerDisplay from './components/TimerDisplay';
 import GameLayout from './components/GameLayout';
 import Grid from './components/Grid';
-import BattleScreen from './components/BattleScreen';
 import StatsInfo from './components/StatsInfo';
 import { monsterTypes, petDropRates, FIRE_LENGTH, ATTACK_SPEED } from './constants/gameData';
 import './styles.css';
@@ -693,7 +692,7 @@ const MiniRPG = () => {
 
     const middlePanel = gameView === 'grid' ? (
       <Grid
-        onEncounter={(monster) => {
+        onEncounter={() => {
           setGameView('battle')
           setCurrentMonster(monster)
         }}
@@ -1070,7 +1069,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.12.2 - <a href='https://alan.computer'
+          v1.12.1 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

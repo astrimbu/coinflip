@@ -1,13 +1,31 @@
 import React from 'react';
-import { getBackgroundImage } from '../utils';
 
 const Area = ({ children, monster }) => {
+  const getBackgroundImage = () => {
+    switch (monster) {
+      case 'Goblin':
+        return 'forest.png';
+      case 'Ogre':
+        return 'dirt.png';
+      case 'Demon':
+        return 'hellscape.png';
+      case 'Dragon':
+        return 'wild.png';
+      case 'Bank':
+        return 'bank.png';
+      case 'Pond':
+        return 'water.png';
+      default:
+        return 'forest.png';
+    }
+  };
+
   return (
     <div
       style={{
         width: '100%',
         height: '300px',
-        backgroundImage: `url(/coinflip/assets/backgrounds/${getBackgroundImage(monster)})`,
+        backgroundImage: `url(/coinflip/assets/backgrounds/${getBackgroundImage()})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         display: 'flex',

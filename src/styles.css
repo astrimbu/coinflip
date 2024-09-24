@@ -73,10 +73,3 @@ html::-webkit-scrollbar {
     box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
   }
 }
-
-@keyframes monsterAttack {
-  0% { transform: translateX(0); }
-  25% { transform: translateX(-10px); }
-  75% { transform: translateX(10px); }
-  100% { transform: translateX(0); }
-}
