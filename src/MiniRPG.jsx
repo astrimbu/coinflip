@@ -98,7 +98,17 @@ const MiniRPG = () => {
     regenerationMultiplier: 1,
   });
   const [gameView, setGameView] = useState('grid'); // 'grid' or 'battle'
+  const [playerGridPosition, setPlayerGridPosition] = useState([3,3]);
+  
+  const handleEncounter = useCallback((monster, position) => {
+    setGameView('battle');
+    setCurrentMonster(monster);
+    setPlayerGridPosition(position);
+  }, []);
 
+  const handleReturnFromBattle = useCallback((position) => {
+    setGameView('grid');
+  }, []);
 
   const handleSelectSkill = (skill) => {
     if (skill === 'damage') {
@@ -693,10 +703,9 @@ const MiniRPG = () => {
 
     const middlePanel = gameView === 'grid' ? (
       <Grid
-        onEncounter={(monster) => {
-          setGameView('battle')
-          setCurrentMonster(monster)
-        }}
+        onEncounter={handleEncounter}
+        onReturnFromBattle={handleReturnFromBattle}
+        initialPlayerPosition={playerGridPosition}
       />
 
     ) : (
@@ -712,7 +721,7 @@ const MiniRPG = () => {
         lastAttack={lastAttack}
         isFighting={isFighting}
         onAnimationStateChange={handleAnimationStateChange}
-        onBattleEnd={() => setGameView('grid')}
+        onBattleEnd={handleReturnFromBattle}
         userHitpoints={userHitpoints}
         maxUserHitpoints={maxUserHitpoints}
         level={level}
@@ -971,6 +980,9 @@ const MiniRPG = () => {
       setCurrentLocation(location);
       setIsTransitioning(false);
     }, 300);
+    if (location === 'game') {
+      setGameView('grid');
+    }
   }, []);
 
   const renderCurrentLocation = () => {
@@ -1076,7 +1088,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.12.3 - <a href='https://alan.computer'
+          v1.12.4 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

@@ -11,7 +11,7 @@ const Town = ({ goToLocation }) => {
     { name: 'Grid', image: '🔲' },
   ];
 
-  const monsterService = { name: 'Monster', image: '👹' };
+  const monsterService = { name: 'Grid', image: '🔲' }; // Changed from 'Monster' to 'Grid'
 
   return (
     <div style={{
@@ -56,15 +56,15 @@ const Town = ({ goToLocation }) => {
 };
 
 const ServiceButton = ({ service, goToLocation, style }) => {
-  const isMonster = service.name === 'Monster';
+  const isGrid = service.name === 'Grid'; // Changed from 'Monster' to 'Grid'
 
   return (
     <div
-      onClick={() => goToLocation(isMonster ? 'game' : service.name.toLowerCase())}
+      onClick={() => goToLocation(isGrid ? 'game' : service.name.toLowerCase())}
       style={{
         width: '100px',
         height: '100px',
-        backgroundColor: isMonster ? '#CD5C5C' : '#ddd',
+        backgroundColor: isGrid ? '#CD5C5C' : '#ddd',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
@@ -72,22 +72,22 @@ const ServiceButton = ({ service, goToLocation, style }) => {
         cursor: 'pointer',
         borderRadius: '10px',
         transition: 'background-color 0.3s, transform 0.3s',
-        transform: isMonster ? 'scale(1.1)' : 'scale(1)',
+        transform: isGrid ? 'scale(1.1)' : 'scale(1)',
         transformOrigin: 'top left',
-        boxShadow: isMonster ? '0 0 15px rgba(0,0,0,0.2)' : 'none',
+        boxShadow: isGrid ? '0 0 15px rgba(0,0,0,0.2)' : 'none',
         ...style,
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = isMonster ? '#A52A2A' : '#bbb';
-        e.currentTarget.style.transform = `${isMonster ? 'scale(1.15)' : 'scale(1.05)'} translate(-50%, -50%)`;
+        e.currentTarget.style.backgroundColor = isGrid ? '#A52A2A' : '#bbb';
+        e.currentTarget.style.transform = `${isGrid ? 'scale(1.15)' : 'scale(1.05)'} translate(-50%, -50%)`;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = isMonster ? '#CD5C5C' : '#ddd';
-        e.currentTarget.style.transform = `${isMonster ? 'scale(1.1)' : 'scale(1)'} translate(-50%, -50%)`;
+        e.currentTarget.style.backgroundColor = isGrid ? '#CD5C5C' : '#ddd';
+        e.currentTarget.style.transform = `${isGrid ? 'scale(1.1)' : 'scale(1)'} translate(-50%, -50%)`;
       }}
     >
       <div style={{ fontSize: '48px' }}>{service.image}</div>
-      <div style={{ color: isMonster ? 'white' : 'black', fontWeight: isMonster ? 'bold' : 'normal' }}>
+      <div style={{ color: isGrid ? 'white' : 'black', fontWeight: isGrid ? 'bold' : 'normal' }}>
         {service.name}
       </div>
     </div>

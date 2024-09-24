@@ -14,6 +14,13 @@ const ASPECT_RATIO = 16 / 9; // Wider aspect ratio for the grid
 const START_POS = [3, 3];
 
 const createGrid = (size) => {
+  // Check if a grid already exists in localStorage
+  const storedGrid = localStorage.getItem('gameGrid');
+  if (storedGrid) {
+    return JSON.parse(storedGrid);
+  }
+
+  // If no stored grid, create a new one
   const grid = [];
   for (let y = 0; y < size; y++) {
     const row = [];
@@ -62,6 +69,9 @@ const createGrid = (size) => {
     }
   });
 
+  // Store the newly created grid in localStorage
+  localStorage.setItem('gameGrid', JSON.stringify(grid));
+
   return grid;
 };
 
@@ -101,9 +111,9 @@ const findPath = (start, end, grid) => {
   return null; // No path found
 };
 
-const Grid = ({ onEncounter }) => {
-  const [grid, setGrid] = useState(createGrid(GRID_SIZE));
-  const [playerPos, setPlayerPos] = useState(START_POS);
+const Grid = ({ onEncounter, onReturnFromBattle, initialPlayerPosition }) => {
+  const [grid, setGrid] = useState(() => createGrid(GRID_SIZE));
+  const [playerPos, setPlayerPos] = useState(initialPlayerPosition);
   const [viewportOffset, setViewportOffset] = useState([0, 0]);
   const [path, setPath] = useState([]);
   const [viewportWidth, setViewportWidth] = useState(Math.floor(INITIAL_VIEWPORT_SIZE * ASPECT_RATIO));
@@ -117,10 +127,9 @@ const Grid = ({ onEncounter }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    const newGrid = createGrid(GRID_SIZE);
-    newGrid[START_POS[1]][START_POS[0]] = { type: 'empty' }; // Ensure starting position is empty
-    setGrid(newGrid);
-  }, []);
+    setPlayerPos(initialPlayerPosition);
+    updateViewport(initialPlayerPosition[0], initialPlayerPosition[1]);
+  }, [initialPlayerPosition]);
 
   const updateViewportOffset = useCallback((newOffset) => {
     setViewportOffset((prevOffset) => {
@@ -242,7 +251,12 @@ const Grid = ({ onEncounter }) => {
           setIsTransitioning(true);
           setTimeout(() => {
             setIsTransitioning(false);
-            onEncounter(grid[newY][newX].monster);
+            onEncounter(grid[newY][newX].monster, [newX, newY]);
+            // Update the grid in state and localStorage
+            const updatedGrid = [...grid];
+            updatedGrid[newY][newX] = { type: 'empty' };
+            setGrid(updatedGrid);
+            localStorage.setItem('gameGrid', JSON.stringify(updatedGrid));
           }, 1000); // 1 second transition
         }
 
