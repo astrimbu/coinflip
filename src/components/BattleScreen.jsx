@@ -39,7 +39,6 @@ const BattleScreen = ({
       setAnimationState('dying');
       onAnimationStateChange('dying');
       startDyingAnimation();
-      onBattleEnd();
     }
   }, [hitpoints, animationState, onAnimationStateChange]);
 
