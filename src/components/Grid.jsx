@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MIN_HEIGHT_VIEW, monsterTypes } from '../constants/gameData';
+import { MIN_HEIGHT_VIEW } from '../constants/gameData';
 
 const GRID_SIZE = 50;
 const MIN_VIEWPORT_SIZE = 5;
@@ -8,60 +8,19 @@ const INITIAL_VIEWPORT_SIZE = 11;
 const PLAYER_COLOR = "#ff0000";
 const OBSTACLE_COLOR = "#000000";
 const EMPTY_COLOR = "#ffffff";
-const MOVE_DELAY = 200; // milliseconds between moves
+const MOVE_DELAY = 300; // milliseconds between moves
 const VIEWPORT_PIXEL_SIZE = 300; // Fixed pixel size for the viewport
 const ASPECT_RATIO = 16 / 9; // Wider aspect ratio for the grid
-const START_POS = [3, 3];
 
 const createGrid = (size) => {
   const grid = [];
-  for (let y = 0; y < size; y++) {
+  for (let i = 0; i < size; i++) {
     const row = [];
-    for (let x = 0; x < size; x++) {
-      if (x === 0 || x === size - 1 || y === 0 || y === size - 1) {
-        row.push({ type: 'wall' });
-      } else {
-        row.push({ type: 'empty' });
-      }
+    for (let j = 0; j < size; j++) {
+      row.push(Math.random() < 0.2 ? 1 : 0); // 20% chance of obstacle
     }
     grid.push(row);
   }
-
-  // Calculate max distance from start
-  const maxDistance = Math.sqrt(Math.pow(size - START_POS[0], 2) + Math.pow(size - START_POS[1], 2));
-
-  // Place monsters based on distance from start
-  const monsterCounts = {
-    Goblin: 15,
-    Ogre: 10,
-    Demon: 6,
-    Dragon: 3,
-  };
-
-  const monsterOrder = ['Goblin', 'Ogre', 'Demon', 'Dragon'];
-
-  monsterOrder.forEach((monsterName) => {
-    let monstersPlaced = 0;
-    while (monstersPlaced < monsterCounts[monsterName]) {
-      const x = Math.floor(Math.random() * (size - 2)) + 1;
-      const y = Math.floor(Math.random() * (size - 2)) + 1;
-      const distance = Math.sqrt(Math.pow(x - START_POS[0], 2) + Math.pow(y - START_POS[1], 2));
-      const normalizedDistance = distance / maxDistance;
-
-      // Adjust these thresholds as needed
-      const shouldPlace = 
-        (monsterName === 'Goblin' && normalizedDistance < 0.3) ||
-        (monsterName === 'Ogre' && normalizedDistance >= 0.3 && normalizedDistance < 0.6) ||
-        (monsterName === 'Demon' && normalizedDistance >= 0.6 && normalizedDistance < 0.8) ||
-        (monsterName === 'Dragon' && normalizedDistance >= 0.8);
-
-      if (grid[y][x].type === 'empty' && shouldPlace) {
-        grid[y][x] = { type: 'monster', monster: monsterName };
-        monstersPlaced++;
-      }
-    }
-  });
-
   return grid;
 };
 
@@ -89,7 +48,7 @@ const findPath = (start, end, grid) => {
       if (
         newX >= 0 && newX < GRID_SIZE &&
         newY >= 0 && newY < GRID_SIZE &&
-        grid[newY][newX].type !== 'wall' &&
+        grid[newY][newX] === 0 &&
         !visited.has(key)
       ) {
         visited.add(key);
@@ -101,9 +60,9 @@ const findPath = (start, end, grid) => {
   return null; // No path found
 };
 
-const Grid = ({ onEncounter }) => {
+const Grid = () => {
   const [grid, setGrid] = useState(createGrid(GRID_SIZE));
-  const [playerPos, setPlayerPos] = useState(START_POS);
+  const [playerPos, setPlayerPos] = useState([0, 0]);
   const [viewportOffset, setViewportOffset] = useState([0, 0]);
   const [path, setPath] = useState([]);
   const [viewportWidth, setViewportWidth] = useState(Math.floor(INITIAL_VIEWPORT_SIZE * ASPECT_RATIO));
@@ -114,11 +73,10 @@ const Grid = ({ onEncounter }) => {
   const lastPanPosRef = useRef(null);
   const requestRef = useRef();
   const previousTimeRef = useRef();
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     const newGrid = createGrid(GRID_SIZE);
-    newGrid[START_POS[1]][START_POS[0]] = { type: 'empty' }; // Ensure starting position is empty
+    newGrid[0][0] = 0; // Ensure starting position is empty
     setGrid(newGrid);
   }, []);
 
@@ -233,19 +191,6 @@ const Grid = ({ onEncounter }) => {
         const [newX, newY] = newPath[i];
         setPlayerPos([newX, newY]);
         updateViewport(newX, newY);
-
-        // Check if the new position is a monster tile
-        if (grid[newY][newX].type === 'monster') {
-          clearInterval(moveIntervalRef.current);
-          moveIntervalRef.current = null;
-          setPath([]);
-          setIsTransitioning(true);
-          setTimeout(() => {
-            setIsTransitioning(false);
-            onEncounter(grid[newY][newX].monster);
-          }, 1000); // 1 second transition
-        }
-
         i++;
       } else {
         clearInterval(moveIntervalRef.current);
@@ -288,7 +233,7 @@ const Grid = ({ onEncounter }) => {
       return; // Click is out of bounds, do nothing
     }
     
-    if (grid[globalY][globalX].type === 'wall') return; // Can't move to obstacles
+    if (grid[globalY][globalX] === 1) return; // Can't move to obstacles
 
     const newPath = findPath(playerPos, [globalX, globalY], grid);
     if (newPath) {
@@ -306,50 +251,19 @@ const Grid = ({ onEncounter }) => {
         if (globalX >= 0 && globalX < GRID_SIZE && globalY >= 0 && globalY < GRID_SIZE) {
           const isPlayer = playerPos[0] === globalX && playerPos[1] === globalY;
           const isPathTile = path.some(([px, py]) => px === globalX && py === globalY);
-          const tile = grid[globalY][globalX];
           viewport.push(
             <div
               key={`${globalX}-${globalY}`}
               style={{
                 width: '100%',
                 height: '100%',
-                backgroundColor: tile.type === 'wall' ? OBSTACLE_COLOR : EMPTY_COLOR,
+                backgroundColor: grid[globalY][globalX] === 1 ? OBSTACLE_COLOR : isPlayer ? PLAYER_COLOR : EMPTY_COLOR,
                 border: isPathTile ? '2px solid #0000ff' : '0px solid #000000',
                 boxSizing: 'border-box',
-                position: 'relative',
-                cursor: tile.type === 'monster' ? 'pointer' : 'default',
-                opacity: isTransitioning ? 0 : 1,
-                transition: 'opacity 1s ease-in-out',
               }}
               onClick={() => handleTileClick(x, y)}
-            >
-              {isPlayer && (
-                <div
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: PLAYER_COLOR,
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                  }}
-                />
-              )}
-              {tile.type === 'monster' && (
-                <img
-                  src={`/coinflip/assets/monsters/${tile.monster.toLowerCase()}.png`}
-                  alt={tile.monster}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                  }}
-                />
-              )}
-            </div>
+              className="cursor-pointer"
+            />
           );
         } else {
           viewport.push(
@@ -383,8 +297,6 @@ const Grid = ({ onEncounter }) => {
         minHeight: MIN_HEIGHT_VIEW,
         overflow: 'hidden',
         alignContent: 'center',
-        opacity: isTransitioning ? 0 : 1,
-        transition: 'opacity 1s ease-in-out',
       }}
     >
       {renderViewport()}
