@@ -1,16 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { MIN_HEIGHT_VIEW } from '../constants/gameData';
 
 const GRID_SIZE = 50;
 const MIN_VIEWPORT_SIZE = 5;
-const MAX_VIEWPORT_SIZE = 15;
+const MAX_VIEWPORT_SIZE = 31;
 const INITIAL_VIEWPORT_SIZE = 11;
 const PLAYER_COLOR = "#ff0000";
 const OBSTACLE_COLOR = "#000000";
 const EMPTY_COLOR = "#ffffff";
 const MOVE_DELAY = 300; // milliseconds between moves
 const VIEWPORT_PIXEL_SIZE = 300; // Fixed pixel size for the viewport
-const ASPECT_RATIO = 16 / 9; // Wider aspect ratio for the grid
 
 const createGrid = (size) => {
   const grid = [];
@@ -65,8 +63,7 @@ const Grid = () => {
   const [playerPos, setPlayerPos] = useState([0, 0]);
   const [viewportOffset, setViewportOffset] = useState([0, 0]);
   const [path, setPath] = useState([]);
-  const [viewportWidth, setViewportWidth] = useState(Math.floor(INITIAL_VIEWPORT_SIZE * ASPECT_RATIO));
-  const [viewportHeight, setViewportHeight] = useState(INITIAL_VIEWPORT_SIZE);
+  const [viewportSize, setViewportSize] = useState(INITIAL_VIEWPORT_SIZE);
   const moveIntervalRef = useRef(null);
   const gridRef = useRef(null);
   const isPanningRef = useRef(false);
@@ -82,11 +79,11 @@ const Grid = () => {
 
   const updateViewportOffset = useCallback((newOffset) => {
     setViewportOffset((prevOffset) => {
-      const clampedX = Math.max(0, Math.min(GRID_SIZE - viewportWidth, newOffset[0]));
-      const clampedY = Math.max(0, Math.min(GRID_SIZE - viewportHeight, newOffset[1]));
+      const clampedX = Math.max(0, Math.min(GRID_SIZE - viewportSize, newOffset[0]));
+      const clampedY = Math.max(0, Math.min(GRID_SIZE - viewportSize, newOffset[1]));
       return [clampedX, clampedY];
     });
-  }, [viewportWidth, viewportHeight]);
+  }, [viewportSize]);
 
   const animatePan = useCallback((time) => {
     if (previousTimeRef.current !== undefined) {
@@ -96,7 +93,7 @@ const Grid = () => {
         const dx = currentPos.targetX - currentPos.x;
         const dy = currentPos.targetY - currentPos.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const speed = 1; // Adjust this value to change pan speed
+        const speed = 0.5; // Adjust this value to change pan speed
         const movement = Math.min(distance, speed * deltaTime);
         const angle = Math.atan2(dy, dx);
         const newX = currentPos.x + Math.cos(angle) * movement;
@@ -104,7 +101,7 @@ const Grid = () => {
 
         lastPanPosRef.current = { x: newX, y: newY, targetX: currentPos.targetX, targetY: currentPos.targetY };
 
-        const tileSize = VIEWPORT_PIXEL_SIZE / viewportHeight;
+        const tileSize = VIEWPORT_PIXEL_SIZE / viewportSize;
         const offsetX = viewportOffset[0] - (newX - currentPos.x) / tileSize;
         const offsetY = viewportOffset[1] - (newY - currentPos.y) / tileSize;
         updateViewportOffset([offsetX, offsetY]);
@@ -112,7 +109,7 @@ const Grid = () => {
     }
     previousTimeRef.current = time;
     requestRef.current = requestAnimationFrame(animatePan);
-  }, [viewportHeight, updateViewportOffset, viewportOffset]);
+  }, [viewportSize, updateViewportOffset, viewportOffset]);
 
   useEffect(() => {
     requestRef.current = requestAnimationFrame(animatePan);
@@ -123,9 +120,8 @@ const Grid = () => {
     const handleWheel = (e) => {
       e.preventDefault();
       const zoomDirection = e.deltaY > 0 ? 2 : -2; // Zoom by 2 steps at a time
-      setViewportHeight((prevSize) => {
+      setViewportSize((prevSize) => {
         const newSize = Math.max(MIN_VIEWPORT_SIZE, Math.min(MAX_VIEWPORT_SIZE, prevSize + zoomDirection));
-        setViewportWidth(Math.floor(newSize * ASPECT_RATIO));
         updateViewport(playerPos[0], playerPos[1], newSize);
         return newSize;
       });
@@ -175,7 +171,7 @@ const Grid = () => {
       window.removeEventListener('mouseup', handleMouseUp);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [playerPos, viewportHeight, updateViewportOffset]);
+  }, [playerPos, viewportSize, updateViewportOffset]);
 
   const movePlayer = (newPath) => {
     // Clear any existing movement
@@ -200,25 +196,24 @@ const Grid = () => {
     }, MOVE_DELAY);
   };
 
-  const updateViewport = (playerX, playerY, size = viewportHeight) => {
-    const halfHeight = Math.floor(size / 2);
-    const halfWidth = Math.floor(size * ASPECT_RATIO / 2);
+  const updateViewport = (playerX, playerY, size = viewportSize) => {
+    const halfSize = Math.floor(size / 2);
     const centerSize = Math.max(1, Math.floor(size / 3)); // Adjust center size based on viewport size
     const centerHalfSize = Math.floor(centerSize / 2);
 
     let [offsetX, offsetY] = viewportOffset;
 
     // Check if player is outside the center area
-    if (playerX < offsetX + halfWidth - centerHalfSize) {
-      offsetX = Math.max(0, playerX - (halfWidth - centerHalfSize));
-    } else if (playerX > offsetX + halfWidth + centerHalfSize) {
-      offsetX = Math.min(GRID_SIZE - viewportWidth, playerX - (halfWidth + centerHalfSize));
+    if (playerX < offsetX + halfSize - centerHalfSize) {
+      offsetX = Math.max(0, playerX - (halfSize - centerHalfSize));
+    } else if (playerX > offsetX + halfSize + centerHalfSize) {
+      offsetX = Math.min(GRID_SIZE - size, playerX - (halfSize + centerHalfSize));
     }
 
-    if (playerY < offsetY + halfHeight - centerHalfSize) {
-      offsetY = Math.max(0, playerY - (halfHeight - centerHalfSize));
-    } else if (playerY > offsetY + halfHeight + centerHalfSize) {
-      offsetY = Math.min(GRID_SIZE - viewportHeight, playerY - (halfHeight + centerHalfSize));
+    if (playerY < offsetY + halfSize - centerHalfSize) {
+      offsetY = Math.max(0, playerY - (halfSize - centerHalfSize));
+    } else if (playerY > offsetY + halfSize + centerHalfSize) {
+      offsetY = Math.min(GRID_SIZE - size, playerY - (halfSize + centerHalfSize));
     }
 
     setViewportOffset([offsetX, offsetY]);
@@ -243,11 +238,13 @@ const Grid = () => {
 
   const renderViewport = () => {
     const viewport = [];
-    for (let y = 0; y < viewportHeight; y++) {
-      for (let x = 0; x < viewportWidth; x++) {
+    const tileSize = VIEWPORT_PIXEL_SIZE / viewportSize;
+    for (let y = 0; y < viewportSize; y++) {
+      for (let x = 0; x < viewportSize; x++) {
         const globalX = Math.floor(viewportOffset[0]) + x;
         const globalY = Math.floor(viewportOffset[1]) + y;
         
+        // Check if the tile is within the grid bounds
         if (globalX >= 0 && globalX < GRID_SIZE && globalY >= 0 && globalY < GRID_SIZE) {
           const isPlayer = playerPos[0] === globalX && playerPos[1] === globalY;
           const isPathTile = path.some(([px, py]) => px === globalX && py === globalY);
@@ -255,8 +252,8 @@ const Grid = () => {
             <div
               key={`${globalX}-${globalY}`}
               style={{
-                width: '100%',
-                height: '100%',
+                width: `${tileSize}px`,
+                height: `${tileSize}px`,
                 backgroundColor: grid[globalY][globalX] === 1 ? OBSTACLE_COLOR : isPlayer ? PLAYER_COLOR : EMPTY_COLOR,
                 border: isPathTile ? '2px solid #0000ff' : '0px solid #000000',
                 boxSizing: 'border-box',
@@ -266,12 +263,13 @@ const Grid = () => {
             />
           );
         } else {
+          // Render an empty tile for out-of-bounds positions
           viewport.push(
             <div
               key={`${globalX}-${globalY}`}
               style={{
-                width: '100%',
-                height: '100%',
+                width: `${tileSize}px`,
+                height: `${tileSize}px`,
                 backgroundColor: '#000',
                 border: '1px solid #000000',
                 boxSizing: 'border-box',
@@ -289,14 +287,11 @@ const Grid = () => {
       ref={gridRef}
       style={{ 
         display: 'grid',
-        gridTemplateColumns: `repeat(${viewportWidth}, 1fr)`,
-        gridTemplateRows: `repeat(${viewportHeight}, 1fr)`,
-        width: '100%',
-        height: '100%',
-        aspectRatio: ASPECT_RATIO,
-        minHeight: MIN_HEIGHT_VIEW,
+        gridTemplateColumns: `repeat(${viewportSize}, ${VIEWPORT_PIXEL_SIZE / viewportSize}px)`,
+        gridTemplateRows: `repeat(${viewportSize}, ${VIEWPORT_PIXEL_SIZE / viewportSize}px)`,
+        width: `${VIEWPORT_PIXEL_SIZE}px`,
+        height: `${VIEWPORT_PIXEL_SIZE}px`,
         overflow: 'hidden',
-        alignContent: 'center',
       }}
     >
       {renderViewport()}
