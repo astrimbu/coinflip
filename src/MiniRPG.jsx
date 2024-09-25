@@ -944,6 +944,7 @@ const MiniRPG = () => {
       justifyContent: 'center',
       alignItems: alignToTop ? 'flex-start' : 'center',
       overflow: 'hidden',
+      paddingTop: alignToTop ? '0' : '12px',
     }}>
       {userIsDead && renderDeathScreen(handleContinue)}
       <div style={{
@@ -966,14 +967,14 @@ const MiniRPG = () => {
         })}
         <div
           style={{
-            marginTop: '10px',
+            marginTop: '2px',
             textAlign: 'center',
             fontSize: '12px',
             fontFamily: 'monospace',
             color: '#b0b0b0',
           }}
         >
-          v1.11.6 - <a href='https://alan.computer'
+          v1.11.7 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
