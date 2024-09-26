@@ -2,15 +2,31 @@
 import { useState, useCallback, useEffect } from 'react';
 import { getColor, getBackgroundColor, getItemUrl, validEquipmentTypes } from '../utils';
 
-const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, recycleMode, onDeposit, actionLabel, onDrop, scale, onLightFire, onUseTuna }) => {
-  const [hoveredItem, setHoveredItem] = useState(null);
+const InventoryGrid = ({ 
+  items, 
+  onEquip, 
+  onUsePotion, 
+  onUseCrystal, 
+  onRecycle, 
+  recycleMode, 
+  onDeposit, 
+  actionLabel, 
+  onDrop, 
+  scale, 
+  onLightFire, 
+  onUseTuna,
+  isHighlightingFirstSlot,
+  onTutorialEquip,
+  isHighlightingPotion,
+  onTutorialPotionUse,
+}) => {  const [hoveredItem, setHoveredItem] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
 
   const handleClick = (flattenedItems, index) => {
     if (!flattenedItems[index]) return;
     const item = flattenedItems[index];
     if (onDeposit) {
-      onDeposit(item.name, item);  // Bank view
+      onDeposit(item.name, item);
     } else if (recycleMode) {
       if (validEquipmentTypes.includes(item.name)) {
         onRecycle([item]);
@@ -23,6 +39,9 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
       onLightFire(item);
     } else {
       onEquip(item, item.name);
+      if (isHighlightingFirstSlot && index === 0 && onTutorialEquip) {
+        onTutorialEquip();
+      }
     }
   };
 
@@ -107,6 +126,8 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
             fontSize: '12px',
             color: 'white',
             fontWeight: 'bold',
+            boxShadow: isHighlightingPotion ? '0 0 10px 5px yellow' : 'none',
+            animation: isHighlightingPotion ? 'pulse 1s infinite' : 'none',
           }}
           onClick={() => items.Potion > 0 && onUsePotion()}
         >
@@ -142,6 +163,8 @@ const InventoryGrid = ({ items, onEquip, onUsePotion, onUseCrystal, onRecycle, r
                   ? getBackgroundColor(flattenedItems[index].rarity)
                   : 'transparent',
               cursor: recycleMode && flattenedItems[index] ? 'grab' : 'pointer',
+              boxShadow: isHighlightingFirstSlot && index === 0 ? '0 0 10px 5px yellow' : 'none',
+              animation: isHighlightingFirstSlot && index === 0 ? 'pulse 1s infinite' : 'none',
             }}
             onClick={() => handleClick(flattenedItems, index)}
             onContextMenu={(e) => handleContextMenu(e, flattenedItems[index])}

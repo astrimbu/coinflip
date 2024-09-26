@@ -111,7 +111,7 @@ export const renderLevelAndExperience = (level, experience, experienceToNextLeve
   </div>
 );
 
-export const renderInventory = (inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire, useTuna) => (
+export const renderInventory = (inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire, useTuna, isHighlightingFirstSlot, handleTutorialEquip, isHighlightingPotion) => (
   <div>
     <InventoryGrid
       items={inventory}
@@ -124,6 +124,9 @@ export const renderInventory = (inventory, equipItem, usePotion, useCrystal, han
       scale={scale}
       onLightFire={lightFire}
       onUseTuna={useTuna}
+      isHighlightingFirstSlot={isHighlightingFirstSlot}
+      onTutorialEquip={handleTutorialEquip}
+      isHighlightingPotion={isHighlightingPotion}
     />
   </div>
 );
@@ -296,7 +299,7 @@ export const renderMobileView = (props) => {
   );
 };
 
-export const renderTown = (goToLocation) => <Town goToLocation={goToLocation} />;
+export const renderTown = (goToLocation, isHighlightingMonster) => <Town goToLocation={goToLocation} isHighlightingMonster={isHighlightingMonster} />;
 
 export const renderLevelUpButton = (openSkillTree) => (
   <button

@@ -1,7 +1,7 @@
 import React from 'react';
 import { MIN_HEIGHT_VIEW } from '../constants/gameData';
 
-const Town = ({ goToLocation }) => {
+const Town = ({ goToLocation, isHighlightingMonster }) => {
   const services = [
     { name: 'Recycler', image: '🔄' },
     { name: 'Bank', image: '🏦' },
@@ -36,6 +36,7 @@ const Town = ({ goToLocation }) => {
             left: '50%',
             transform: 'translate(-50%, -50%)',
           }}
+          isHighlighted={isHighlightingMonster}
         />
         {services.map((service, index) => (
           <ServiceButton
@@ -55,7 +56,7 @@ const Town = ({ goToLocation }) => {
   );
 };
 
-const ServiceButton = ({ service, goToLocation, style }) => {
+const ServiceButton = ({ service, goToLocation, style, isHighlighted }) => {
   const isMonster = service.name === 'Monster';
 
   return (
@@ -74,7 +75,8 @@ const ServiceButton = ({ service, goToLocation, style }) => {
         transition: 'background-color 0.3s, transform 0.3s',
         transform: isMonster ? 'scale(1.1)' : 'scale(1)',
         transformOrigin: 'top left',
-        boxShadow: isMonster ? '0 0 15px rgba(0,0,0,0.2)' : 'none',
+        boxShadow: isHighlighted ? '0 0 15px yellow' : (isMonster ? '0 0 15px rgba(0,0,0,0.2)' : 'none'),
+        animation: isHighlighted ? 'pulse 1s infinite' : 'none',
         ...style,
       }}
       onMouseEnter={(e) => {

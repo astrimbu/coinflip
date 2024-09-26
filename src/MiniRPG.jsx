@@ -6,6 +6,8 @@ import MonsterAnimation from './components/MonsterAnimation';
 import NavigationArrow from './components/NavigationArrow';
 import TimerDisplay from './components/TimerDisplay';
 import StatsInfo from './components/StatsInfo';
+import Tutorial from './components/Tutorial';
+import TutorialCompletionCertificate from './components/TutorialCompletionCertificate';
 import { monsterTypes, petDropRates, FIRE_LENGTH, ATTACK_SPEED } from './constants/gameData';
 import './styles.css';
 import {
@@ -94,7 +96,88 @@ const MiniRPG = () => {
     damageBonus: 0,
     regenerationMultiplier: 1,
   });
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [showTutorial, setShowTutorial] = useState(true);
+  const isHighlightingFirstSlot = showTutorial && tutorialStep === 2;
+  const isHighlightingPotion = showTutorial && tutorialStep === 3;
+  const isHighlightingMonster = showTutorial && tutorialStep === 4;
+  const [showTutorialCompletion, setShowTutorialCompletion] = useState(false);
 
+  const getTutorialText = () => {
+    if (showTutorial && tutorialStep === 1) {
+      return "This is the monster's health bar.";
+    }
+    return null;
+  };
+
+  const getTutorialPositions = () => {
+    switch (tutorialStep) {
+      case 1:
+        return {
+          main: {
+            top: 'calc(50% + 90px)',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          },
+          additional: [
+            {
+              top: 'calc(100% - 120px)',
+              left: '70%',
+              transform: 'translate(-50%, 0)',
+              text: 'This is your health bar.',
+            },
+          ],
+        };
+      case 2:
+        return {
+          main: {
+            top: '100px',
+            left: '10px',
+            transform: 'none',
+          },
+        };
+      case 3:
+        return {
+          main: {
+            top: '60px',
+            left: '100px',
+            transform: 'none',
+          },
+        };
+      case 4:
+        return {
+          main: {
+            top: 'calc(100% - 85px)',
+            left: '75px',
+            transform: 'none',
+          },
+        };
+      default:
+        return {
+          main: {
+            top: 'calc(50% + 90px)',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+          },
+        };
+    }
+  };
+
+  const handleTutorialEquip = () => {
+    if (showTutorial && tutorialStep === 2) {
+      setTutorialStep(tutorialStep + 1);
+    }
+  };
+  const handleTutorialComplete = () => {
+    setShowTutorial(false);
+    setShowTutorialCompletion(true);
+  };
+  const handleCloseTutorialCompletion = () => {
+    setShowTutorialCompletion(false);
+  };
+  const handleSkipTutorial = () => {
+    setShowTutorial(false);
+  };
 
   const handleSelectSkill = (skill) => {
     if (skill === 'damage') {
@@ -137,9 +220,15 @@ const MiniRPG = () => {
 
   const handleMonsterClick = () => {
     if (isMonsterClickable) {
+      if (showTutorial && tutorialStep === 0) {
+        setTutorialStep(1);
+        setItemSeed(0.1);
+        setCheckSeed(0.1);
+      } else {
+        setItemSeed(Math.random());
+        setCheckSeed(Math.random());
+      }
       fightMonster();
-      setItemSeed(Math.random());
-      setCheckSeed(Math.random());
     }
   };
 
@@ -332,6 +421,9 @@ const MiniRPG = () => {
       updateCurrency('Potion', -1);
       setPotionTimer((prevTimer) => prevTimer + 120);
     }
+    if (showTutorial && tutorialStep === 3) {
+      setTutorialStep(4);
+    }
   };
 
   useEffect(() => { // Crystal/Potion effect
@@ -507,6 +599,9 @@ const MiniRPG = () => {
       ...prevKillCount,
       [currentMonster]: prevKillCount[currentMonster] + 1,
     }));
+    if (showTutorial && tutorialStep === 1) {
+      setTutorialStep(2);
+    }
 
     const expGained = monsterTypes[currentMonster].experience;
     setExperience((prevExp) => {
@@ -694,7 +789,7 @@ const MiniRPG = () => {
               letterSpacing: '1px'
             }}>Inventory</p>
           </div>
-          {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire, useTuna)}
+          {renderInventory(inventory, equipItem, usePotion, useCrystal, handleRecycle, recycleMode, handleDrop, scale, lightFire, useTuna, isHighlightingFirstSlot, handleTutorialEquip, isHighlightingPotion)}
           {renderPets(pets, monsterTypes, getColor, hoveredPet, setHoveredPet)}
         </div>
 
@@ -738,6 +833,8 @@ const MiniRPG = () => {
               lastAttack={lastAttack}
               isFighting={isFighting}
               onAnimationStateChange={handleAnimationStateChange}
+              isHighlighted={showTutorial && tutorialStep === 0}
+              tutorialText={getTutorialText()}
             />
             {currentMonster !== 'Goblin' && (
               <NavigationArrow
@@ -860,9 +957,15 @@ const MiniRPG = () => {
     }, 300);
     setIsFighting(false);
     extinguishFire();
+    if (showTutorial) {
+      setTutorialStep(5);
+    }
   }, []);
 
   const goToLocation = useCallback((location) => {
+    if (showTutorial && tutorialStep === 5 && location === 'game') {
+      handleTutorialComplete();
+    }
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentLocation(location);
@@ -874,7 +977,7 @@ const MiniRPG = () => {
     const content = (() => {
       switch (currentLocation) {
         case 'town':
-          return renderTown(goToLocation);
+          return renderTown(goToLocation, isHighlightingMonster);
         case 'recycler':
           return renderRecycler(inventory, inventoryFull, scrap, handleRecycle, recycleMode, toggleRecycleMode, equipment, equipItem, unequipItem, handleUpgradeSlot);
         case 'shop':
@@ -944,7 +1047,6 @@ const MiniRPG = () => {
       justifyContent: 'center',
       alignItems: alignToTop ? 'flex-start' : 'center',
       overflow: 'hidden',
-      paddingTop: alignToTop ? '0' : '12px',
     }}>
       {userIsDead && renderDeathScreen(handleContinue)}
       <div style={{
@@ -954,6 +1056,14 @@ const MiniRPG = () => {
         transition: 'opacity 0.2s',
         opacity: isTransitioning ? 0 : 1,
       }}>
+        {showTutorial && (
+          <Tutorial
+            step={tutorialStep}
+            onComplete={handleTutorialComplete}
+            onSkip={handleSkipTutorial}
+            positions={getTutorialPositions()}
+          />
+        )}
         {(isDesktop || overrideMobile) ? renderCurrentLocation() : renderMobileView({
           currentMonster,
           monsterTypes,
@@ -974,7 +1084,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.11.7 - <a href='https://alan.computer'
+          v1.11.8 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
@@ -991,6 +1101,9 @@ const MiniRPG = () => {
             </span>
         </div>
       </div>
+      {showTutorialCompletion && (
+        <TutorialCompletionCertificate onClose={handleCloseTutorialCompletion} />
+      )}
       {showSettings && renderSettings(
         inventoryBackground,
         setInventoryBackground,
