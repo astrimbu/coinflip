@@ -4,7 +4,7 @@ const TutorialCompletionCertificate = ({ onClose }) => {
   return (
     <div style={{
       position: 'fixed',
-      top: '50%',
+      top: '45%',
       left: '50%',
       transform: 'translate(-50%, -50%)',
       backgroundColor: '#f0f0f0',
@@ -15,15 +15,22 @@ const TutorialCompletionCertificate = ({ onClose }) => {
       maxWidth: '80%',
       zIndex: 1000,
     }}>
-      <h2 style={{ marginTop: 0 }}>Congratulations!</h2>
-      <p>You've completed the basic tutorial.</p>
-      <p>You're now ready to explore the game on your own. Good luck!</p>
+      <h2 style={{ marginBottom: 0 }}>Congratulations!</h2>
+      <p style={{ margin: 0 }}>You've completed the basic tutorial.</p>
+      <p style={{ margin: 0, fontSize: '12px', color: '#666', fontStyle: 'italic' }}>Go forth and click some monsters!</p>
+      <p style={{ margin: '10px 0 0 0', fontSize: '12px', color: '#666', fontStyle: 'italic' }}>Other important tips:</p>
+      <ul style={{ textAlign: 'left', fontSize: '11px' }}>
+        <li>There's good stuff in the Shop</li>
+        <li>You can always fast-travel to Town</li>
+        <li>Recycle dupes to upgrade equipment</li>
+        <li>Arrows navigate between monsters</li>
+      </ul>
       <button 
         onClick={onClose}
         style={{
           position: 'absolute',
-          top: '10px',
-          right: '10px',
+          top: 0,
+          right: 0,
           background: 'none',
           border: 'none',
           fontSize: '20px',

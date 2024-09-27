@@ -974,7 +974,7 @@ const MiniRPG = () => {
       setCurrentLocation(location);
       setIsTransitioning(false);
     }, 300);
-  }, []);
+  }, [showTutorial, handleTutorialComplete]);
 
   const renderCurrentLocation = () => {
     const content = (() => {
