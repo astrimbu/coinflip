@@ -1059,7 +1059,7 @@ const MiniRPG = () => {
         transition: 'opacity 0.2s',
         opacity: isTransitioning ? 0 : 1,
       }}>
-        {showTutorial && (
+        {((isDesktop || overrideMobile) && showTutorial) && (
           <Tutorial
             step={tutorialStep}
             onComplete={handleTutorialComplete}
@@ -1087,7 +1087,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.12.1 - <a href='https://alan.computer'
+          v1.12.3 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

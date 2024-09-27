@@ -61,14 +61,14 @@ const Tutorial = ({ step, onSkip, positions }) => {
           <p style={{ fontSize: '12px', padding: '0 14px 0 0', margin: '0' }}>{steps[step]}</p>
         </div>
         {step === 0 && (
-          <button onClick={onSkip} style={{ fontSize: '10px', padding: '5px' }}>
+          <button onClick={onSkip} style={{ fontSize: '12px', padding: '5px 10px', backgroundColor: '#9a9a9a' }}>
             Skip Tutorial
           </button>
         )}
       </div>
       {positions.additional && positions.additional.map((pos, index) => (
         <div key={index} style={getStyle(pos)}>
-          <p style={{ fontSize: '10px', padding: '0', margin: '5px' }}>{pos.text}</p>
+          <p style={{ fontSize: '12px', padding: '0', margin: '0' }}>{pos.text}</p>
         </div>
       ))}
     </>
