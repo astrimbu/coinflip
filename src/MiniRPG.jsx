@@ -112,7 +112,7 @@ const MiniRPG = () => {
 
   const getTutorialPositions = () => {
     switch (tutorialStep) {
-      case 1:
+      case 1: // Fighting...
         return {
           main: {
             top: 'calc(50% + 90px)',
@@ -128,23 +128,23 @@ const MiniRPG = () => {
             },
           ],
         };
-      case 2:
+      case 2: // Equip item
         return {
           main: {
             top: '100px',
-            left: '10px',
+            left: '30px',
             transform: 'none',
           },
         };
-      case 3:
+      case 3: // Potion
         return {
           main: {
             top: '60px',
-            left: '100px',
+            left: '110px',
             transform: 'none',
           },
         };
-      case 4:
+      case 4: // Town
         return {
           main: {
             top: 'calc(100% - 85px)',
@@ -926,6 +926,9 @@ const MiniRPG = () => {
           />
         </div>
       </div>
+      {showTutorialCompletion && (
+        <TutorialCompletionCertificate onClose={handleCloseTutorialCompletion} />
+      )}
     </div>
   );
 
@@ -963,7 +966,7 @@ const MiniRPG = () => {
   }, []);
 
   const goToLocation = useCallback((location) => {
-    if (showTutorial && tutorialStep === 5 && location === 'game') {
+    if (showTutorial && location === 'game') {
       handleTutorialComplete();
     }
     setIsTransitioning(true);
@@ -1084,7 +1087,7 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.11.8 - <a href='https://alan.computer'
+          v1.12.1 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
@@ -1101,9 +1104,7 @@ const MiniRPG = () => {
             </span>
         </div>
       </div>
-      {showTutorialCompletion && (
-        <TutorialCompletionCertificate onClose={handleCloseTutorialCompletion} />
-      )}
+      
       {showSettings && renderSettings(
         inventoryBackground,
         setInventoryBackground,

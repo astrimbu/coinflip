@@ -18,7 +18,6 @@ const InventoryGrid = ({
   isHighlightingFirstSlot,
   onTutorialEquip,
   isHighlightingPotion,
-  onTutorialPotionUse,
 }) => {  const [hoveredItem, setHoveredItem] = useState(null);
   const [contextMenu, setContextMenu] = useState(null);
 

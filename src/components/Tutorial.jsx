@@ -17,7 +17,7 @@ const Tutorial = ({ step, onSkip, positions }) => {
   const getStyle = (position) => {
     const baseStyle = {
       position: 'absolute',
-      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
       color: 'white',
       padding: '10px',
       borderRadius: '10px',
@@ -41,7 +41,25 @@ const Tutorial = ({ step, onSkip, positions }) => {
   return (
     <>
       <div style={getStyle(positions.main)}>
-        <p style={{ fontSize: '10px', padding: '0', margin: '5px' }}>{steps[step]}</p>
+        <div style={{ position: 'relative' }}>
+          <button
+            onClick={onSkip}
+            style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              background: 'none',
+              border: 'none',
+              color: 'white',
+              fontSize: '12px',
+              cursor: 'pointer',
+              padding: '0px 0px',
+            }}
+          >
+            ✖
+          </button>
+          <p style={{ fontSize: '12px', padding: '0 14px 0 0', margin: '0' }}>{steps[step]}</p>
+        </div>
         {step === 0 && (
           <button onClick={onSkip} style={{ fontSize: '10px', padding: '5px' }}>
             Skip Tutorial
