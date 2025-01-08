@@ -509,8 +509,8 @@ export const renderStats = (killCount, scores, pets, userDeaths) => {
 };
 
 export const renderSettings = (inventoryBackground, setInventoryBackground, equipmentBackground, setEquipmentBackground, toggleSettings) => {
-  const backgroundOptions = ['inventory', 'inventory2', 'inventory3', 'inventory4'];
-  const equipOptions = ['equip', 'equip2', 'equip3', 'equip4'];
+  const backgroundOptions = ['i', 'inventory', 'inventory2', 'inventory3', 'inventory4'];
+  const equipOptions = ['e', 'equip', 'equip2', 'equip3', 'equip4'];
 
   const ImageOption = ({ src, current, onClick }) => (
     <div

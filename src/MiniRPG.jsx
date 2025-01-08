@@ -89,8 +89,8 @@ const MiniRPG = () => {
   const isFightingRef = useRef(false);
   const [monsterAnimationState, setMonsterAnimationState] = useState('walking');
   const [showSettings, setShowSettings] = useState(false);
-  const [inventoryBackground, setInventoryBackground] = useState('inventory');
-  const [equipmentBackground, setEquipmentBackground] = useState('equip');
+  const [inventoryBackground, setInventoryBackground] = useState('i');
+  const [equipmentBackground, setEquipmentBackground] = useState('e');
   const [showCapybara, setShowCapybara] = useState(false);
   const [playerStats, setPlayerStats] = useState({
     damageBonus: 0,

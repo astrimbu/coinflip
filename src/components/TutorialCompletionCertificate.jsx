@@ -20,8 +20,7 @@ const TutorialCompletionCertificate = ({ onClose }) => {
       <p style={{ margin: 0, fontSize: '12px', color: '#666', fontStyle: 'italic' }}>Go forth and click some monsters!</p>
       <p style={{ margin: '10px 0 0 0', fontSize: '12px', color: '#666', fontStyle: 'italic' }}>Other important tips:</p>
       <ul style={{ textAlign: 'left', fontSize: '11px' }}>
-        <li>There's good stuff in the Shop</li>
-        <li>You can always fast-travel to Town</li>
+        <li>Go to Town to escape monsters</li>
         <li>Recycle dupes to upgrade equipment</li>
         <li>Arrows navigate between monsters</li>
       </ul>

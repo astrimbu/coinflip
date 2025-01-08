@@ -2,6 +2,6 @@
 
 A mini RPG I made to practice React / JSX
 
-Started out as a coinflip simulator, thus the URL B)
+This started out as a simple coinflip simulator / game, thus the title
 
 [alan.computer/coinflip](http://alan.computer/coinflip)
