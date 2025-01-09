@@ -55,10 +55,11 @@ export const getItemUrl = (name, rarity) => {
   return `/coinflip/assets/items/${name}-${rarity}.png`;
 };
 
-export const calcStats = (equipment) => {
-  return Object.values(equipment).reduce((total, item) => {
+export const calcStats = (equipment, playerStats = {}) => {
+  const equipmentStats = Object.values(equipment).reduce((total, item) => {
     return total + (item && item.stat ? item.stat : 0);
   }, 0);
+  return equipmentStats + (playerStats.statsBonus || 0);
 };
 
 export const calcWinRate = (totalStats, baseRate) => {
@@ -77,14 +78,14 @@ export const calcItemDropRate = (baseChance, modifier, crystalTimer) => {
   return (baseChance * modifier * (crystalTimer > 0 ? 2 : 1) * 100);
 };
 
-export const calcAccuracy = (userStats, monster) => {
+export const calcAccuracy = (userStats, monster, playerStats = {}) => {
   const baseAccuracy = 0.6;
   const statDifference = userStats - monster.defense;
   const accuracyModifier = Math.min(Math.max(statDifference * 0.02, -0.3), 0.3);
   return Math.min(Math.max(baseAccuracy + accuracyModifier, 0.1), 0.95);
 };
 
-export const calcMonsterAccuracy = (monsterAttack, userStats) => {
+export const calcMonsterAccuracy = (monsterAttack, userStats, playerStats = {}) => {
   const baseAccuracy = 0.3;
   const statDifference = monsterAttack - userStats;
   const accuracyModifier = Math.min(Math.max(statDifference * 0.02, -0.3), 0.3);

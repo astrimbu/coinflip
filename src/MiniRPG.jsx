@@ -37,6 +37,7 @@ import {
   renderGrid,
 } from './renderFunctions';
 import Tree from './components/Tree';
+import Toast from './components/Toast';
 
 
 const MiniRPG = () => {
@@ -100,7 +101,10 @@ const MiniRPG = () => {
     treeInvestments: {
       auto: 0,
       damage: 0,
-      regeneration: 0
+      regeneration: 0,
+      nodeA: 0,
+      nodeB: 0,
+      stats: 0
     }
   });
   const [tutorialStep, setTutorialStep] = useState(0);
@@ -111,6 +115,8 @@ const MiniRPG = () => {
   const isHighlightingMonster = showTutorial && currentTutorialStep?.highlight?.type === 'monster_icon';
   const [showTutorialCompletion, setShowTutorialCompletion] = useState(false);
   const [autoMode, setAutoMode] = useState(false);
+  const [showSetCompletion, setShowSetCompletion] = useState(false);
+  const [hasShownSetNotification, setHasShownSetNotification] = useState(false);
 
   const handleTutorialEquip = () => {
     if (showTutorial && tutorialStep === 2) {
@@ -153,6 +159,8 @@ const MiniRPG = () => {
         newStats.damageBonus = prevStats.damageBonus + 1;
       } else if (node === 'regeneration') {
         newStats.regenerationMultiplier = prevStats.regenerationMultiplier * 2;
+      } else if (node === 'stats') {
+        newStats.statsBonus = (prevStats.statsBonus || 0) + 1;
       }
       
       return newStats;
@@ -458,11 +466,11 @@ const MiniRPG = () => {
 
   useEffect(() => {
     isSoundEnabledRef.current = isSoundEnabled;
-    attack1Sound.current.volume = 0.5;
-    attack2Sound.current.volume = 0.5;
-    getPetSound.current.volume = 0.1;
-    fireworksSound.current.volume = 0.1;
-    deathSound.current.volume = 0.1;
+    attack1Sound.current.volume = 0.05;
+    attack2Sound.current.volume = 0.05;
+    getPetSound.current.volume = 0.01;
+    fireworksSound.current.volume = 0.01;
+    deathSound.current.volume = 0.01;
   }, [isSoundEnabled]);
 
   const playSound = (sound) => {
@@ -912,6 +920,7 @@ const MiniRPG = () => {
             currentMonster={currentMonster}
             monsterTypes={monsterTypes}
             crystalTimer={crystalTimer}
+            playerStats={playerStats}
           />
         </div>
       </div>
@@ -1038,7 +1047,7 @@ const MiniRPG = () => {
             style={{
               padding: '10px',
               fontSize: '24px',
-              backgroundColor: treeAvailable ? '#c8b400' : '#C0C0C0',
+              backgroundColor: playerStats.treePoints > 0 ? '#c8b400' : '#C0C0C0',
               border: 'none',
               borderRadius: '10px',
               cursor: 'pointer',
@@ -1064,6 +1073,25 @@ const MiniRPG = () => {
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [showTree]);
+
+  const checkFullCommonSet = useCallback(() => {
+    if (hasShownSetNotification) return;
+    
+    const requiredSlots = ['Hat', 'Cape', 'Amulet', 'Weapon', 'Body', 'Pants', 'Gloves', 'Boots', 'Ring'];
+    const hasFullCommonSet = requiredSlots.every(slot => 
+      equipment[slot] && equipment[slot].rarity === 'Common'
+    );
+
+    if (hasFullCommonSet) {
+      setShowSetCompletion(true);
+      setHasShownSetNotification(true);
+      setTimeout(() => setShowSetCompletion(false), 5000);
+    }
+  }, [equipment, hasShownSetNotification]);
+
+  useEffect(() => {
+    checkFullCommonSet();
+  }, [equipment, checkFullCommonSet]);
 
   return (
     <div style={{
@@ -1119,7 +1147,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.3 - <a href='https://alan.computer'
+          v1.13.4 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
@@ -1134,6 +1162,12 @@ const MiniRPG = () => {
         equipmentBackground,
         setEquipmentBackground,
         toggleSettings,
+      )}
+      {showSetCompletion && (
+        <Toast
+          message="Achievement: Full Common Set Equipped"
+          onClose={() => setShowSetCompletion(false)}
+        />
       )}
     </div>
   );

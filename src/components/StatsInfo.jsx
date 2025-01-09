@@ -1,7 +1,7 @@
 import React from 'react';
 import { calcStats, calcAccuracy, calcItemDropRate, calcMonsterAccuracy } from '../utils';
 
-const StatsInfo = ({ equipment, currentMonster, monsterTypes, crystalTimer }) => {
+const StatsInfo = ({ equipment, currentMonster, monsterTypes, crystalTimer, playerStats }) => {
   const [showDetailedStats, setShowDetailedStats] = React.useState(true);
 
   const toggleDetailedStats = () => setShowDetailedStats(!showDetailedStats);
@@ -27,7 +27,7 @@ const StatsInfo = ({ equipment, currentMonster, monsterTypes, crystalTimer }) =>
       >
         <span style={{ fontSize: '1.2em' }}>Stats:</span>
         <span style={{ fontSize: '1.4em', fontWeight: 'bold', marginLeft: '5px' }}>
-          {calcStats(equipment)}
+          {calcStats(equipment, playerStats)}
         </span>
         <span style={{ marginLeft: '10px', fontSize: '0.8em' }}>
           {showDetailedStats ? '▲' : '▼'}
@@ -38,7 +38,7 @@ const StatsInfo = ({ equipment, currentMonster, monsterTypes, crystalTimer }) =>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span style={{ fontSize: '1em' }}>Accuracy:</span>
             <span style={{ fontSize: '1em' }}>
-              {(calcAccuracy(calcStats(equipment), monsterTypes[currentMonster]) * 100).toFixed(2)}%
+              {(calcAccuracy(calcStats(equipment, playerStats), monsterTypes[currentMonster]) * 100).toFixed(2)}%
             </span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -50,7 +50,7 @@ const StatsInfo = ({ equipment, currentMonster, monsterTypes, crystalTimer }) =>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span style={{ fontSize: '1em' }}>Monster accuracy:</span>
             <span style={{ fontSize: '1em' }}>
-              {(calcMonsterAccuracy(monsterTypes[currentMonster].attack, calcStats(equipment)) * 100).toFixed(2)}%
+              {(calcMonsterAccuracy(monsterTypes[currentMonster].attack, calcStats(equipment, playerStats)) * 100).toFixed(2)}%
             </span>
           </div>
         </>

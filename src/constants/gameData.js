@@ -5,7 +5,7 @@ export const monsterTypes = {
     maxHP: 4,
     modifier: 6,
     rarity: "Common",
-    experience: 20,
+    experience: 40,
     ticketCost: 0,
     order: 0,
     damage: 1,
@@ -19,7 +19,7 @@ export const monsterTypes = {
     maxHP: 6,
     modifier: 4,
     rarity: "Magic",
-    experience: 50,
+    experience: 200,
     ticketCost: 1,
     order: 1,
     damage: 2,
@@ -33,7 +33,7 @@ export const monsterTypes = {
     maxHP: 10,
     modifier: 2,
     rarity: "Rare",
-    experience: 100,
+    experience: 500,
     ticketCost: 2,
     order: 2,
     damage: 4,
@@ -47,7 +47,7 @@ export const monsterTypes = {
     maxHP: 34,
     modifier: 1,
     rarity: "Unique",
-    experience: 200,
+    experience: 2000,
     ticketCost: 3,
     order: 3,
     damage: 6,
@@ -70,6 +70,7 @@ export const TREE_LIMITS = {
   damage: 5,
   regeneration: 3,
   nodeA: 3,
-  nodeB: 3
+  nodeB: 3,
+  stats: 10
 };
 
