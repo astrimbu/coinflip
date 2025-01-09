@@ -62,7 +62,7 @@ const WornEquipment = ({ equipment, onUnequip, onUpgrade, upgradeMode }) => {
                 color: '#f0f0f0',
                 textShadow: '1px 1px 1px rgba(0,0,0,1)',
                 fontSize: '10px',
-                fontFamily: 'Arial, sans-serif',
+                fontFamily: 'monospace',
                 padding: '0',
                 borderRadius: '3px',
                 whiteSpace: 'nowrap',

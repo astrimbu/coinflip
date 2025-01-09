@@ -784,7 +784,7 @@ const MiniRPG = () => {
               fontWeight: 'bold',
               color: '#999',
               margin: '0',
-              fontFamily: 'Arial, sans-serif',
+              fontFamily: 'monospace',
               textTransform: 'uppercase',
               letterSpacing: '1px'
             }}>Inventory</p>
@@ -808,7 +808,7 @@ const MiniRPG = () => {
                 fontWeight: 'bold',
                 color: '#999',
                 margin: '0',
-                fontFamily: 'Arial, sans-serif',
+                fontFamily: 'monospace',
                 textTransform: 'uppercase',
                 letterSpacing: '1px',
               }}
@@ -912,10 +912,10 @@ const MiniRPG = () => {
               fontWeight: 'bold',
               color: '#999',
               margin: '0',
-              fontFamily: 'Arial, sans-serif',
+              fontFamily: 'monospace',
               textTransform: 'uppercase',
               letterSpacing: '1px'
-            }}>Worn Equipment</p>
+            }}>Equipment</p>
           </div>
           {renderEquipment(equipment, unequipItem)}
           <StatsInfo 
@@ -1087,21 +1087,21 @@ const MiniRPG = () => {
             color: '#b0b0b0',
           }}
         >
-          v1.12.4 - <a href='https://alan.computer'
+          <span 
+            onClick={toggleSettings}
+            style={{
+              marginRight: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            ⚙️ -
+          </span>
+          v1.12.5 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
               fontWeight: 'bold',
             }}>alan.computer</a>
-            <span 
-              onClick={toggleSettings}
-              style={{
-                marginLeft: '5px',
-                cursor: 'pointer',
-              }}
-            >
-              ⚙️
-            </span>
         </div>
       </div>
       

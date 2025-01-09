@@ -36,19 +36,19 @@ const StatsInfo = ({ equipment, currentMonster, monsterTypes, crystalTimer }) =>
       {showDetailedStats && (
         <>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span style={{ fontSize: '0.8em' }}>Accuracy:</span>
+            <span style={{ fontSize: '1em' }}>Accuracy:</span>
             <span style={{ fontSize: '1em' }}>
               {(calcAccuracy(calcStats(equipment), monsterTypes[currentMonster]) * 100).toFixed(2)}%
             </span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span style={{ fontSize: '0.8em' }}>Drop rate:</span>
+            <span style={{ fontSize: '1em' }}>Drop rate:</span>
             <span style={{ fontSize: '1em' }}>
               {calcItemDropRate(0.1, monsterTypes[currentMonster].modifier, crystalTimer).toFixed(2)}%
             </span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <span style={{ fontSize: '0.8em' }}>Monster accuracy:</span>
+            <span style={{ fontSize: '1em' }}>Monster accuracy:</span>
             <span style={{ fontSize: '1em' }}>
               {(calcMonsterAccuracy(monsterTypes[currentMonster].attack, calcStats(equipment)) * 100).toFixed(2)}%
             </span>

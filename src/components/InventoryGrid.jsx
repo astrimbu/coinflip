@@ -106,7 +106,7 @@ const InventoryGrid = ({
             outlineOffset: '-1px',
             fontSize: '12px',
             backgroundBlendMode: 'multiply',
-            color: 'white',
+            color: 'black',
             fontWeight: 'bold',
           }}
         >
@@ -123,7 +123,7 @@ const InventoryGrid = ({
             cursor: items.Potion > 0 ? 'pointer' : 'default',
             opacity: items.Potion > 0 ? 1 : 0.5,
             fontSize: '12px',
-            color: 'white',
+            color: 'black',
             fontWeight: 'bold',
             boxShadow: isHighlightingPotion ? '0 0 10px 5px yellow' : 'none',
             animation: isHighlightingPotion ? 'pulse 1s infinite' : 'none',
@@ -192,7 +192,7 @@ const InventoryGrid = ({
                       color: '#f0f0f0',
                       textShadow: '1px 1px 1px rgba(0,0,0,1)',
                       fontSize: '10px',
-                      fontFamily: 'Arial, sans-serif',
+                      fontFamily: 'monospace',
                       padding: '0',
                       borderRadius: '3px',
                       whiteSpace: 'nowrap',
