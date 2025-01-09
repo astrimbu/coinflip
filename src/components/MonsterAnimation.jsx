@@ -311,6 +311,10 @@ const MonsterAnimation = ({
             fontFamily: 'monospace',
             color: '#f0f0f0',
             animation: 'floatUp 3s forwards',
+            width: 'auto',
+            whiteSpace: 'nowrap',
+            zIndex: 5,
+            padding: '4px 8px',
           }}
         >
           +{experienceGained} XP

@@ -8,7 +8,7 @@ import TimerDisplay from './components/TimerDisplay';
 import StatsInfo from './components/StatsInfo';
 import Tutorial from './components/Tutorial';
 import TutorialCompletionCertificate from './components/TutorialCompletionCertificate';
-import { monsterTypes, petDropRates, FIRE_LENGTH, ATTACK_SPEED } from './constants/gameData';
+import { monsterTypes, petDropRates, FIRE_LENGTH, ATTACK_SPEED, TREE_LIMITS } from './constants/gameData';
 import './styles.css';
 import {
   getColor,
@@ -30,13 +30,13 @@ import {
   renderPond,
   renderMobileView,
   renderTown,
-  renderLevelUpButton,
-  renderSkillTree,
+  renderTree,
   renderDeathScreen,
   renderStats,
   renderSettings,
   renderGrid,
 } from './renderFunctions';
+import Tree from './components/Tree';
 
 
 const MiniRPG = () => {
@@ -75,8 +75,8 @@ const MiniRPG = () => {
   const [level, setLevel] = useState(1);
   const [experience, setExperience] = useState(0);
   const [recycleMode, setRecycleMode] = useState(false);
-  const [showLevelUpButton, setShowLevelUpButton] = useState(false);
-  const [showSkillTree, setShowSkillTree] = useState(false);
+  const [treeAvailable, setTreeAvailable] = useState(false);
+  const [showTree, setShowTree] = useState(false);
   const [userHitpoints, setUserHitpoints] = useState(10);
   const [maxUserHitpoints, setMaxUserHitpoints] = useState(10);
   const [damageFlash, setDamageFlash] = useState(false);
@@ -95,6 +95,13 @@ const MiniRPG = () => {
   const [playerStats, setPlayerStats] = useState({
     damageBonus: 0,
     regenerationMultiplier: 1,
+    autoUnlocked: false,
+    treePoints: 0,
+    treeInvestments: {
+      auto: 0,
+      damage: 0,
+      regeneration: 0
+    }
   });
   const [tutorialStep, setTutorialStep] = useState(0);
   const [showTutorial, setShowTutorial] = useState(true);
@@ -102,6 +109,7 @@ const MiniRPG = () => {
   const isHighlightingPotion = showTutorial && tutorialStep === 3;
   const isHighlightingMonster = showTutorial && tutorialStep === 4;
   const [showTutorialCompletion, setShowTutorialCompletion] = useState(false);
+  const [autoMode, setAutoMode] = useState(false);
 
   const getTutorialText = () => {
     if (showTutorial && tutorialStep === 1) {
@@ -179,19 +187,35 @@ const MiniRPG = () => {
     setShowTutorial(false);
   };
 
-  const handleSelectSkill = (skill) => {
-    if (skill === 'damage') {
-      setPlayerStats(prevStats => ({
-        ...prevStats,
-        damageBonus: prevStats.damageBonus + 1,
-      }));
-    } else if (skill === 'regeneration') {
-      setPlayerStats(prevStats => ({
-        ...prevStats,
-        regenerationMultiplier: prevStats.regenerationMultiplier * 2,
-      }));
-    }
-    closeSkillTree();
+  const handleSelectNode = (node) => {
+    if (playerStats.treePoints <= 0) return;
+
+    setPlayerStats(prevStats => {
+      // Check if node is already maxed based on investment count
+      if (prevStats.treeInvestments[node] >= TREE_LIMITS[node]) {
+        return prevStats;
+      }
+
+      const newStats = { 
+        ...prevStats, 
+        treePoints: prevStats.treePoints - 1,
+        treeInvestments: {
+          ...prevStats.treeInvestments,
+          [node]: prevStats.treeInvestments[node] + 1
+        }
+      };
+      
+      // Apply the effects based on the node
+      if (node === 'auto') {
+        newStats.autoUnlocked = true;
+      } else if (node === 'damage') {
+        newStats.damageBonus = prevStats.damageBonus + 1;
+      } else if (node === 'regeneration') {
+        newStats.regenerationMultiplier = prevStats.regenerationMultiplier * 2;
+      }
+      
+      return newStats;
+    });
   };
 
   const useTuna = () => {
@@ -304,14 +328,17 @@ const MiniRPG = () => {
     return () => clearInterval(interval);
   }, [fireTimer]);
 
-  useEffect(() => { // Fire auto-clicker
-    if (fire.isLit && monsterAnimationState === 'walking' && !isFighting && isMonsterClickable) {
+  useEffect(() => {
+    if ((fire.isLit || (playerStats.autoUnlocked && autoMode)) && 
+        monsterAnimationState === 'walking' && 
+        !isFighting && 
+        isMonsterClickable) {
       const timer = setTimeout(() => {
         handleMonsterClick();
-      }, 1000);
+      }, 100);
       return () => clearTimeout(timer);
     }
-  }, [fire.isLit, monsterAnimationState, isFighting, isMonsterClickable]);
+  }, [fire.isLit, autoMode, playerStats.autoUnlocked, monsterAnimationState, isFighting, isMonsterClickable, handleMonsterClick]);
 
   const userHitpointsRef = useRef(userHitpoints);
   useEffect(() => { // Health ref
@@ -621,6 +648,8 @@ const MiniRPG = () => {
     setIsFighting(false);
     setUserIsDead(true);
     extinguishFire();
+    setUserDeaths(prev => prev + 1);
+    setAutoMode(false);
     playDeathSound();
   };
 
@@ -709,23 +738,28 @@ const MiniRPG = () => {
   };
 
   const handleLevelUp = () => {
-    setLevel((prevLevel) => {
+    setLevel(prevLevel => {
       const newLevel = prevLevel + 1;
-      setShowLevelUpButton(true);
+      setExperience(0);
+      setMaxUserHitpoints(10 + newLevel * 2);
+      setUserHitpoints(10 + newLevel * 2);
+      setPlayerStats(prevStats => ({
+        ...prevStats,
+        treePoints: prevStats.treePoints + 1
+      }));
+      setTreeAvailable(true);
       playLevelUpSound();
-      setMaxUserHitpoints(prevMax => prevMax + 2);
-      setUserHitpoints(prevHp => prevHp + 2);
       return newLevel;
     });
   };
 
-  const openSkillTree = () => {
-    setShowSkillTree(true);
-    setShowLevelUpButton(false);
+  const openTree = () => {
+    setShowTree(true);
+    setTreeAvailable(false);
   };
 
-  const closeSkillTree = () => {
-    setShowSkillTree(false);
+  const closeTree = () => {
+    setShowTree(false);
   };
 
   const renderGame = () => (
@@ -851,9 +885,19 @@ const MiniRPG = () => {
               />
             )}
           </Area>
-          {renderLevelAndExperience(level, experience, xpToNextLevel)}
-          {showLevelUpButton && renderLevelUpButton(openSkillTree)}
-          {showSkillTree && renderSkillTree(closeSkillTree, handleSelectSkill, playerStats)}
+          {renderLevelAndExperience(
+            level,
+            experience,
+            xpToNextLevel,
+            playerStats.autoUnlocked,
+            autoMode,
+            () => setAutoMode(prev => !prev)
+          )}
+          {showTree && <Tree 
+            onClose={closeTree} 
+            onSelectNode={handleSelectNode} 
+            playerStats={playerStats}
+          />}
           <div style={{
             position: 'absolute',
             bottom: '23px',
@@ -892,7 +936,7 @@ const MiniRPG = () => {
         <div style={{
           width: '25%', 
           maxWidth: '200px', 
-          paddingTop: '10px', 
+          paddingTop: '20px', 
           position: 'relative',
           backgroundImage: `url('/coinflip/assets/backgrounds/${equipmentBackground}.png')`,
           backgroundSize: overrideMobile ? 'cover' : 'contain',
@@ -960,6 +1004,7 @@ const MiniRPG = () => {
     }, 300);
     setIsFighting(false);
     extinguishFire();
+    setAutoMode(false);
     if (showTutorial) {
       setTutorialStep(5);
     }
@@ -1010,14 +1055,20 @@ const MiniRPG = () => {
         alignItems: 'center',
       }}>
         {content}
+        {showTree && <Tree 
+          onClose={closeTree} 
+          onSelectNode={handleSelectNode} 
+          playerStats={playerStats}
+        />}
         <div
           style={{
             position: 'absolute',
             bottom: '10px',
             left: '10px',
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: 'row',
             alignItems: 'flex-start',
+            gap: '10px',
           }}
         >
           <button
@@ -1037,10 +1088,37 @@ const MiniRPG = () => {
           >
             🏠
           </button>
+          <button
+            onClick={openTree}
+            style={{
+              padding: '10px',
+              fontSize: '24px',
+              backgroundColor: treeAvailable ? '#c8b400' : '#C0C0C0',
+              border: 'none',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            🌳
+          </button>
         </div>
       </div>
     );
   };
+
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && showTree) {
+        closeTree();
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [showTree]);
 
   return (
     <div style={{

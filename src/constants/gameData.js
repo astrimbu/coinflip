@@ -5,7 +5,7 @@ export const monsterTypes = {
     maxHP: 4,
     modifier: 6,
     rarity: "Common",
-    experience: 10,
+    experience: 20,
     ticketCost: 0,
     order: 0,
     damage: 1,
@@ -64,4 +64,10 @@ export const petDropRates = Object.fromEntries(
 export const MIN_HEIGHT_VIEW = "314px";
 export const ATTACK_SPEED = 1200;
 export const FIRE_LENGTH = 60;
+
+export const TREE_LIMITS = {
+  auto: 1,
+  damage: 5,
+  regeneration: 3
+};
 

@@ -1,0 +1,190 @@
+import React from 'react';
+import { TREE_LIMITS } from '../constants/gameData';
+
+const TreeNode = ({ title, description, color, onClick, disabled, isRoot, currentValue, unlocked, isMaxed }) => (
+  <div
+    onClick={(disabled || !unlocked || isMaxed) ? undefined : onClick}
+    style={{
+      width: '120px',
+      height: '50px',
+      backgroundColor: isMaxed ? '#2e7d32' : disabled ? '#ccc' : unlocked ? color : '#666',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      cursor: (disabled || !unlocked || isMaxed) ? 'default' : 'pointer',
+      fontSize: '0.9em',
+      padding: '5px',
+      border: isRoot ? '2px solid #333' : 'none',
+      transition: 'transform 0.2s, box-shadow 0.2s',
+      position: 'relative',
+    }}
+    onMouseEnter={e => {
+      if (!disabled && unlocked && !isMaxed) {
+        e.currentTarget.style.transform = 'scale(1.05)';
+      }
+    }}
+    onMouseLeave={e => {
+      if (!disabled && unlocked && !isMaxed) {
+        e.currentTarget.style.transform = 'scale(1)';
+      }
+    }}
+  >
+    <div style={{ fontWeight: 'bold', fontSize: '0.9em' }}>{title}</div>
+    <div style={{ fontSize: '0.7em' }}>
+      {isMaxed ? 'MAXED' : description}
+    </div>
+    {(currentValue !== undefined && currentValue !== null) && (
+      <div style={{
+        position: 'absolute',
+        bottom: '-20px',
+        backgroundColor: '#333',
+        color: 'white',
+        padding: '2px 6px',
+        borderRadius: '10px',
+        fontSize: '0.7em',
+        fontWeight: 'bold',
+      }}>
+        {currentValue}
+      </div>
+    )}
+  </div>
+);
+
+const Tree = ({ onClose, onSelectNode, playerStats }) => {
+  // Helper function to check if a node is maxed
+  const isNodeMaxed = (nodeType) => {
+    return playerStats.treeInvestments[nodeType] >= TREE_LIMITS[nodeType];
+  };
+
+  return (
+    <div style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 20,
+    }}>
+      <div style={{
+        backgroundColor: '#f0f0f0',
+        padding: '30px 40px',
+        borderRadius: '10px',
+        textAlign: 'center',
+        minWidth: '500px',
+        minHeight: '255px',
+        position: 'relative'
+      }}>
+        <h2 style={{ color: '#333', margin: '0' }}>Tree</h2>
+        <div style={{ 
+          color: '#666', 
+          fontSize: '0.9em', 
+          marginBottom: '20px' 
+        }}>
+          Available Points: {playerStats.treePoints}
+        </div>
+
+        {/* Close button in top right */}
+        <span 
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            color: '#666',
+            fontSize: '1.2em',
+            cursor: 'pointer',
+          }}
+        >
+          ✖
+        </span>
+
+        <div style={{ 
+          position: 'relative',
+          height: '160px',
+          display: 'flex',
+          justifyContent: 'center'
+        }}>
+          {/* Connecting lines */}
+          <svg style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            zIndex: 1
+          }}>
+            <path d="M250,50 L175,100" stroke="#666" strokeWidth="2" />
+            <path d="M250,50 L325,100" stroke="#666" strokeWidth="2" />
+          </svg>
+
+          {/* Root node */}
+          <div style={{
+            position: 'absolute',
+            top: '0',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 2
+          }}>
+            <TreeNode
+              title="Core"
+              description="Unlock AUTO"
+              color="#6d4c41"
+              isRoot={true}
+              unlocked={true}
+              disabled={playerStats.treePoints <= 0}
+              onClick={() => onSelectNode('auto')}
+              currentValue={playerStats.autoUnlocked ? "ON" : undefined}
+              isMaxed={isNodeMaxed('auto')}
+            />
+          </div>
+
+          {/* Second level nodes */}
+          <div style={{ 
+            position: 'absolute', 
+            top: '100px',
+            left: '50%', 
+            transform: 'translateX(-165px)', 
+            zIndex: 2 
+          }}>
+            <TreeNode
+              title="Combat"
+              description={`Damage +1 (${playerStats.treeInvestments.damage}/${TREE_LIMITS.damage})`}
+              color="#c62828"
+              onClick={() => onSelectNode('damage')}
+              currentValue={playerStats.damageBonus}
+              unlocked={playerStats.autoUnlocked}
+              disabled={playerStats.treePoints <= 0}
+              isMaxed={isNodeMaxed('damage')}
+            />
+          </div>
+          <div style={{ 
+            position: 'absolute', 
+            top: '100px',
+            left: '50%', 
+            transform: 'translateX(45px)', 
+            zIndex: 2 
+          }}>
+            <TreeNode
+              title="Vitality"
+              description={`HP Regen x2 (${playerStats.treeInvestments.regeneration}/${TREE_LIMITS.regeneration})`}
+              color="#2e7d32"
+              onClick={() => onSelectNode('regeneration')}
+              currentValue={`${playerStats.regenerationMultiplier}x`}
+              unlocked={playerStats.autoUnlocked}
+              disabled={playerStats.treePoints <= 0}
+              isMaxed={isNodeMaxed('regeneration')}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Tree; 

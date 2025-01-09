@@ -9,6 +9,8 @@ import WornEquipment from './components/WornEquipment';
 import Recycler from './components/Recycler';
 import Grid from './components/Grid';
 import { MIN_HEIGHT_VIEW } from './constants/gameData';
+import AutoToggle from './components/AutoToggle';
+import Tree from './components/Tree';
 
 export const renderPets = (pets, monsterTypes, getColor, hoveredPet, setHoveredPet) => (
   (pets.Goblin.count > 0 ||
@@ -68,14 +70,22 @@ export const renderPets = (pets, monsterTypes, getColor, hoveredPet, setHoveredP
   )
 );
 
-export const renderLevelAndExperience = (level, experience, experienceToNextLevel) => (
+export const renderLevelAndExperience = (level, experience, experienceToNextLevel, autoUnlocked, autoMode, onAutoToggle) => (
   <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
+    {/* Auto Toggle */}
+    <AutoToggle 
+      isEnabled={autoMode}
+      onToggle={onAutoToggle}
+      isUnlocked={autoUnlocked}
+    />
+    
+    {/* XP Bar */}
     <div style={{
       width: '100%',
       backgroundColor: 'rgb(50, 50, 50)',
       overflow: 'hidden',
       position: 'relative',
-      height: '14px'
+      height: '14px',
     }}>
       <div
         style={{
@@ -301,120 +311,12 @@ export const renderMobileView = (props) => {
 
 export const renderTown = (goToLocation, isHighlightingMonster) => <Town goToLocation={goToLocation} isHighlightingMonster={isHighlightingMonster} />;
 
-export const renderLevelUpButton = (openSkillTree) => (
-  <button
-    onClick={openSkillTree}
-    style={{
-      position: 'absolute',
-      bottom: '23px',
-      left: '10px',
-      padding: '10px',
-      backgroundColor: '#c8b400',
-      color: 'black',
-      fontFamily: 'monospace',
-      fontWeight: 'bold',
-      border: 'none',
-      borderRadius: '5px',
-      cursor: 'pointer',
-      zIndex: 10,
-      transition: 'all 0.3s ease',
-    }}
-    onMouseEnter={(e) => {
-      e.target.style.color = 'white';
-      e.target.style.backgroundColor = '#a68d00';
-      e.target.style.transform = 'scale(1.05)';
-    }}
-    onMouseLeave={(e) => {
-      e.target.style.color = 'black';
-      e.target.style.backgroundColor = '#c8b400';
-      e.target.style.transform = 'scale(1)';
-    }}
-  >
-    Level Up!
-  </button>
-);
-
-export const renderSkillTree = (closeSkillTree, onSelectSkill, playerStats) => (
-  <div
-    style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 20,
-    }}
-  >
-    <div
-      style={{
-        backgroundColor: '#f0f0f0',
-        padding: '30px 40px',
-        borderRadius: '10px',
-        textAlign: 'center',
-      }}
-    >
-      <h2 style={{ color: '#333', fontSize: '2em', margin: '5px 0 20px' }}>Skill Tree</h2>
-      <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: '20px' }}>
-        <button
-          onClick={() => onSelectSkill('damage')}
-          style={{
-            padding: '10px 20px',
-            fontSize: '1em',
-            backgroundColor: '#ff4d4d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            transition: 'background-color 0.3s',
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#ff3333'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#ff4d4d'}
-        >
-          Increase Damage (+1)
-        </button>
-        <button
-          onClick={() => onSelectSkill('regeneration')}
-          style={{
-            padding: '10px 20px',
-            fontSize: '1em',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            border: 'none',
-            borderRadius: '5px',
-            cursor: 'pointer',
-            transition: 'background-color 0.3s',
-          }}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#45a049'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#4CAF50'}
-        >
-          Increase HP Regeneration (2x)
-        </button>
-      </div>
-      <div style={{ marginBottom: '20px', color: '#666' }}>
-        <p>Current Stats:</p>
-        <p>Damage Bonus: +{playerStats.damageBonus}</p>
-        <p>HP Regeneration: {playerStats.regenerationMultiplier}x</p>
-      </div>
-      <button 
-        onClick={closeSkillTree}
-        style={{
-          padding: '5px 10px',
-          fontSize: '0.9em',
-          backgroundColor: '#999',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-        }}
-      >
-        Close
-      </button>
-    </div>
-  </div>
+export const renderTree = (closeTree, onSelectUpgrade, playerStats) => (
+  <Tree 
+    onClose={closeTree}
+    onSelectUpgrade={onSelectUpgrade}
+    playerStats={playerStats}
+  />
 );
 
 export const renderDeathScreen = (handleContinue) => (
@@ -509,8 +411,8 @@ export const renderStats = (killCount, scores, pets, userDeaths) => {
 };
 
 export const renderSettings = (inventoryBackground, setInventoryBackground, equipmentBackground, setEquipmentBackground, toggleSettings) => {
-  const backgroundOptions = ['i', 'inventory', 'inventory2', 'inventory3', 'inventory4'];
-  const equipOptions = ['e', 'equip', 'equip2', 'equip3', 'equip4'];
+  const backgroundOptions = ['i'];
+  const equipOptions = ['e'];
 
   const ImageOption = ({ src, current, onClick }) => (
     <div
