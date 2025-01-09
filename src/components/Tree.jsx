@@ -92,8 +92,9 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
         borderRadius: '10px',
         textAlign: 'center',
         minWidth: '500px',
-        minHeight: '255px',
-        position: 'relative'
+        maxHeight: '254px',
+        position: 'relative',
+        overflowY: 'auto'
       }}>
         <h2 style={{ color: '#333', margin: '0' }}>Tree</h2>
         <div style={{ 
@@ -121,7 +122,7 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
 
         <div style={{ 
           position: 'relative',
-          height: '160px',
+          height: '260px',
           display: 'flex',
           justifyContent: 'center'
         }}>
@@ -136,7 +137,9 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
             zIndex: 1
           }}>
             <path d="M250,50 L175,100" stroke="#666" strokeWidth="2" />
-            <path d="M250,50 L325,100" stroke="#666" strokeWidth="2" />
+            <path d="M230,50 L310,100" stroke="#666" strokeWidth="2" />
+            <path d="M175,100 L175,200" stroke="#666" strokeWidth="2" />
+            <path d="M310,100 L310,200" stroke="#666" strokeWidth="2" />
           </svg>
 
           {/* Root node */}
@@ -198,6 +201,46 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
               unlocked={playerStats.autoUnlocked}
               disabled={playerStats.treePoints <= 0}
               isMaxed={isNodeMaxed('regeneration')}
+            />
+          </div>
+
+          {/* Third level nodes - under Combat */}
+          <div style={{ 
+            position: 'absolute', 
+            top: '200px',
+            left: '50%', 
+            transform: 'translateX(-165px)', 
+            zIndex: 2 
+          }}>
+            <TreeNode
+              title="Node A"
+              description={`Placeholder A (${playerStats.treeInvestments.nodeA}/${TREE_LIMITS.nodeA})`}
+              color="#d32f2f"
+              onClick={() => onSelectNode('nodeA')}
+              nodeType="nodeA"
+              playerStats={playerStats}
+              unlocked={playerStats.treeInvestments.damage > 0}
+              disabled={playerStats.treePoints <= 0}
+              isMaxed={isNodeMaxed('nodeA')}
+            />
+          </div>
+          <div style={{ 
+            position: 'absolute', 
+            top: '200px',
+            left: '50%', 
+            transform: 'translateX(45px)', 
+            zIndex: 2 
+          }}>
+            <TreeNode
+              title="Node B"
+              description={`Placeholder B (${playerStats.treeInvestments.nodeB}/${TREE_LIMITS.nodeB})`}
+              color="#bf360c"
+              onClick={() => onSelectNode('nodeB')}
+              nodeType="nodeB"
+              playerStats={playerStats}
+              unlocked={playerStats.treeInvestments.damage > 0}
+              disabled={playerStats.treePoints <= 0}
+              isMaxed={isNodeMaxed('nodeB')}
             />
           </div>
         </div>

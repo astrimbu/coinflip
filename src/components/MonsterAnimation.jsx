@@ -15,7 +15,6 @@ const MonsterAnimation = ({
   isFighting,
   onAnimationStateChange,
   isHighlighted,
-  tutorialText,
 }) => {
   const [animationState, setAnimationState] = useState('walking');
   const [showExperience, setShowExperience] = useState(false);
@@ -339,23 +338,6 @@ const MonsterAnimation = ({
           {hitsplat.damage}
         </div>
       ))}
-      {tutorialText && (
-        <div style={{
-          position: 'absolute',
-          top: '-40px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          color: 'white',
-          padding: '5px 10px',
-          borderRadius: '5px',
-          fontSize: '10px',
-          whiteSpace: 'nowrap',
-          zIndex: 1000,
-        }}>
-          {tutorialText}
-        </div>
-      )}
     </div>
   );
 };

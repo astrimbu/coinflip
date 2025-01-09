@@ -1,18 +1,12 @@
 import React from 'react';
+import { TUTORIAL_STEPS } from '../constants/tutorialData';
 
 const Tutorial = ({ step, onSkip, positions }) => {
-  const steps = [
-    "Click on the monster to fight",
-    "Fighting...",
-    "You got a new item! Click it to equip",
-    "Click the potion to boost your damage",
-    "Go to Town by clicking the house icon",
-    "Return to the game by clicking the Monster icon",
-  ];
-
-  if (step >= steps.length) {
+  if (step >= TUTORIAL_STEPS.length) {
     return null;
   }
+
+  const currentStep = TUTORIAL_STEPS[step];
 
   const getStyle = (position) => {
     const baseStyle = {
@@ -30,17 +24,12 @@ const Tutorial = ({ step, onSkip, positions }) => {
       return { ...baseStyle, ...position };
     }
 
-    return {
-      ...baseStyle,
-      top: 'calc(50% + 90px)',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-    };
+    return baseStyle;
   };
 
   return (
     <>
-      <div style={getStyle(positions.main)}>
+      <div style={getStyle(currentStep.position.main)}>
         <div style={{ position: 'relative' }}>
           <button
             onClick={onSkip}
@@ -58,17 +47,28 @@ const Tutorial = ({ step, onSkip, positions }) => {
           >
             ✖
           </button>
-          <p style={{ fontSize: '12px', padding: '0 14px 0 0', margin: '0' }}>{steps[step]}</p>
+          <p style={{ fontSize: '12px', padding: '0 14px 0 0', margin: '0' }}>
+            {currentStep.text}
+          </p>
         </div>
         {step === 0 && (
-          <button onClick={onSkip} style={{ fontSize: '12px', padding: '5px 10px', backgroundColor: '#9a9a9a' }}>
+          <button 
+            onClick={onSkip} 
+            style={{ 
+              fontSize: '12px', 
+              padding: '5px 10px', 
+              backgroundColor: '#9a9a9a' 
+            }}
+          >
             Skip Tutorial
           </button>
         )}
       </div>
-      {positions.additional && positions.additional.map((pos, index) => (
+      {currentStep.position.additional?.map((pos, index) => (
         <div key={index} style={getStyle(pos)}>
-          <p style={{ fontSize: '12px', padding: '0', margin: '0' }}>{pos.text}</p>
+          <p style={{ fontSize: '12px', padding: '0', margin: '0' }}>
+            {pos.text}
+          </p>
         </div>
       ))}
     </>

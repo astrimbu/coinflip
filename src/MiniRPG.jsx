@@ -9,6 +9,7 @@ import StatsInfo from './components/StatsInfo';
 import Tutorial from './components/Tutorial';
 import TutorialCompletionCertificate from './components/TutorialCompletionCertificate';
 import { monsterTypes, petDropRates, FIRE_LENGTH, ATTACK_SPEED, TREE_LIMITS } from './constants/gameData';
+import { TUTORIAL_STEPS } from './constants/tutorialData';
 import './styles.css';
 import {
   getColor,
@@ -30,7 +31,6 @@ import {
   renderPond,
   renderMobileView,
   renderTown,
-  renderTree,
   renderDeathScreen,
   renderStats,
   renderSettings,
@@ -105,71 +105,12 @@ const MiniRPG = () => {
   });
   const [tutorialStep, setTutorialStep] = useState(0);
   const [showTutorial, setShowTutorial] = useState(true);
-  const isHighlightingFirstSlot = showTutorial && tutorialStep === 2;
-  const isHighlightingPotion = showTutorial && tutorialStep === 3;
-  const isHighlightingMonster = showTutorial && tutorialStep === 4;
+  const currentTutorialStep = TUTORIAL_STEPS[tutorialStep];
+  const isHighlightingFirstSlot = showTutorial && currentTutorialStep?.highlight?.type === 'inventory_slot';
+  const isHighlightingPotion = showTutorial && currentTutorialStep?.highlight?.type === 'potion';
+  const isHighlightingMonster = showTutorial && currentTutorialStep?.highlight?.type === 'monster_icon';
   const [showTutorialCompletion, setShowTutorialCompletion] = useState(false);
   const [autoMode, setAutoMode] = useState(false);
-
-  const getTutorialText = () => {
-    if (showTutorial && tutorialStep === 1) {
-      return "This is the monster's health bar.";
-    }
-    return null;
-  };
-
-  const getTutorialPositions = () => {
-    switch (tutorialStep) {
-      case 1: // Fighting...
-        return {
-          main: {
-            top: 'calc(50% + 90px)',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-          },
-          additional: [
-            {
-              top: 'calc(100% - 120px)',
-              left: '70%',
-              transform: 'translate(-50%, 0)',
-              text: 'This is your health bar.',
-            },
-          ],
-        };
-      case 2: // Equip item
-        return {
-          main: {
-            top: '100px',
-            left: '30px',
-            transform: 'none',
-          },
-        };
-      case 3: // Potion
-        return {
-          main: {
-            top: '60px',
-            left: '110px',
-            transform: 'none',
-          },
-        };
-      case 4: // Town
-        return {
-          main: {
-            top: 'calc(100% - 85px)',
-            left: '75px',
-            transform: 'none',
-          },
-        };
-      default:
-        return {
-          main: {
-            top: 'calc(50% + 90px)',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-          },
-        };
-    }
-  };
 
   const handleTutorialEquip = () => {
     if (showTutorial && tutorialStep === 2) {
@@ -642,6 +583,11 @@ const MiniRPG = () => {
     });
 
     spawnNewMonster();
+
+    // Progress tutorial if on attack_monster step
+    if (showTutorial && TUTORIAL_STEPS[tutorialStep]?.id === 'attack_monster') {
+      setTutorialStep(tutorialStep + 1);
+    }
   };
 
   const handleUserDied = () => {
@@ -867,8 +813,7 @@ const MiniRPG = () => {
               lastAttack={lastAttack}
               isFighting={isFighting}
               onAnimationStateChange={handleAnimationStateChange}
-              isHighlighted={showTutorial && tutorialStep === 0}
-              tutorialText={getTutorialText()}
+              isHighlighted={showTutorial && currentTutorialStep?.highlight?.type === 'monster'}
             />
             {currentMonster !== 'Goblin' && (
               <NavigationArrow
@@ -1005,10 +950,10 @@ const MiniRPG = () => {
     setIsFighting(false);
     extinguishFire();
     setAutoMode(false);
-    if (showTutorial) {
-      setTutorialStep(5);
+    if (showTutorial && TUTORIAL_STEPS[tutorialStep]?.id === 'go_town') {
+      setTutorialStep(tutorialStep + 1);
     }
-  }, []);
+  }, [showTutorial, tutorialStep]);
 
   const goToLocation = useCallback((location) => {
     if (showTutorial && location === 'game') {
@@ -1142,7 +1087,7 @@ const MiniRPG = () => {
             step={tutorialStep}
             onComplete={handleTutorialComplete}
             onSkip={handleSkipTutorial}
-            positions={getTutorialPositions()}
+            positions={currentTutorialStep.position}
           />
         )}
         {(isDesktop || overrideMobile) ? renderCurrentLocation() : renderMobileView({
@@ -1174,7 +1119,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.2 - <a href='https://alan.computer'
+          v1.13.3 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
