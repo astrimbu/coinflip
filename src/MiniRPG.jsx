@@ -1174,7 +1174,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.12.5 - <a href='https://alan.computer'
+          v1.13.0 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
