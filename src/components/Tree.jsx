@@ -1,7 +1,7 @@
 import React from 'react';
 import { TREE_LIMITS } from '../constants/gameData';
 
-const TreeNode = ({ title, description, color, onClick, disabled, isRoot, currentValue, unlocked, isMaxed }) => (
+const TreeNode = ({ title, description, color, onClick, disabled, isRoot, unlocked, isMaxed, nodeType, playerStats }) => (
   <div
     onClick={(disabled || !unlocked || isMaxed) ? undefined : onClick}
     style={{
@@ -34,7 +34,7 @@ const TreeNode = ({ title, description, color, onClick, disabled, isRoot, curren
     <div style={{ fontSize: '0.7em' }}>
       {isMaxed ? 'MAXED' : description}
     </div>
-    {(currentValue !== undefined && currentValue !== null) && (
+    {nodeType && (
       <div style={{
         position: 'absolute',
         bottom: '-20px',
@@ -45,7 +45,7 @@ const TreeNode = ({ title, description, color, onClick, disabled, isRoot, curren
         fontSize: '0.7em',
         fontWeight: 'bold',
       }}>
-        {currentValue}
+        Lv.{playerStats.treeInvestments[nodeType]}
       </div>
     )}
   </div>
@@ -58,18 +58,26 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
   };
 
   return (
-    <div style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.8)',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 20,
-    }}>
+    <div 
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 20,
+      }}
+      onClick={(e) => {
+        // Only close if clicking the overlay itself, not its children
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div style={{
         backgroundColor: '#f0f0f0',
         padding: '30px 40px',
@@ -139,7 +147,8 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
               unlocked={true}
               disabled={playerStats.treePoints <= 0}
               onClick={() => onSelectNode('auto')}
-              currentValue={playerStats.autoUnlocked ? "ON" : undefined}
+              nodeType="auto"
+              playerStats={playerStats}
               isMaxed={isNodeMaxed('auto')}
             />
           </div>
@@ -157,7 +166,8 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
               description={`Damage +1 (${playerStats.treeInvestments.damage}/${TREE_LIMITS.damage})`}
               color="#c62828"
               onClick={() => onSelectNode('damage')}
-              currentValue={playerStats.damageBonus}
+              nodeType="damage"
+              playerStats={playerStats}
               unlocked={playerStats.autoUnlocked}
               disabled={playerStats.treePoints <= 0}
               isMaxed={isNodeMaxed('damage')}
@@ -175,7 +185,8 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
               description={`HP Regen x2 (${playerStats.treeInvestments.regeneration}/${TREE_LIMITS.regeneration})`}
               color="#2e7d32"
               onClick={() => onSelectNode('regeneration')}
-              currentValue={`${playerStats.regenerationMultiplier}x`}
+              nodeType="regeneration"
+              playerStats={playerStats}
               unlocked={playerStats.autoUnlocked}
               disabled={playerStats.treePoints <= 0}
               isMaxed={isNodeMaxed('regeneration')}
