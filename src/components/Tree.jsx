@@ -7,7 +7,7 @@ const TreeNode = ({ title, description, color, onClick, disabled, isRoot, unlock
     style={{
       width: '120px',
       height: '50px',
-      backgroundColor: isMaxed ? '#2e7d32' : disabled ? '#ccc' : unlocked ? color : '#666',
+      backgroundColor: isMaxed ? '#424242' : disabled ? '#ccc' : unlocked ? color : '#666',
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
@@ -15,9 +15,10 @@ const TreeNode = ({ title, description, color, onClick, disabled, isRoot, unlock
       cursor: (disabled || !unlocked || isMaxed) ? 'default' : 'pointer',
       fontSize: '0.9em',
       padding: '5px',
-      border: isRoot ? '2px solid #333' : 'none',
+      border: isMaxed ? '2px solid #ffd700' : isRoot ? '2px solid #333' : 'none',
       transition: 'transform 0.2s, box-shadow 0.2s',
       position: 'relative',
+      boxShadow: isMaxed ? '0 0 10px rgba(255, 215, 0, 0.3)' : 'none',
     }}
     onMouseEnter={e => {
       if (!disabled && unlocked && !isMaxed) {
@@ -30,16 +31,23 @@ const TreeNode = ({ title, description, color, onClick, disabled, isRoot, unlock
       }
     }}
   >
-    <div style={{ fontWeight: 'bold', fontSize: '0.9em' }}>{title}</div>
-    <div style={{ fontSize: '0.7em' }}>
+    <div style={{ 
+      fontWeight: 'bold', 
+      fontSize: '0.9em',
+      color: isMaxed ? '#ffd700' : 'inherit'
+    }}>{title}</div>
+    <div style={{ 
+      fontSize: '0.7em',
+      color: isMaxed ? '#fff' : 'inherit'
+    }}>
       {isMaxed ? 'MAXED' : description}
     </div>
     {nodeType && (
       <div style={{
         position: 'absolute',
         bottom: '-20px',
-        backgroundColor: '#333',
-        color: 'white',
+        backgroundColor: isMaxed ? '#ffd700' : '#333',
+        color: isMaxed ? '#000' : 'white',
         padding: '2px 6px',
         borderRadius: '10px',
         fontSize: '0.7em',
