@@ -31,7 +31,7 @@ export const TUTORIAL_STEPS = [
   },
   {
     id: 'equip_item',
-    text: "You got a new item! Click it to equip",
+    text: "You got a weapon! Click it to equip",
     position: {
       main: {
         top: '100px',
@@ -74,7 +74,7 @@ export const TUTORIAL_STEPS = [
   },
   {
     id: 'go_town',
-    text: "Go to Town by clicking the house icon",
+    text: "Go to Town by clicking the Town button",
     position: {
       main: {
         top: 'calc(100% - 85px)',
@@ -91,7 +91,15 @@ export const TUTORIAL_STEPS = [
         top: 'calc(50% + 90px)',
         left: '50%',
         transform: 'translate(-50%, -50%)',
-      }
+      },
+      additional: [
+        {
+          top: 'calc(50% - 110px)',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          text: 'Town is a safe place to escape monsters, buy items, and more.',
+        }
+      ]
     },
     highlight: {
       type: 'monster_icon'

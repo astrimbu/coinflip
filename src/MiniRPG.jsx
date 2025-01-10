@@ -16,9 +16,9 @@ import {
   getRarityStat,
   getItemUrl,
   xpToNextLevel,
-  calcWinRate,
   calcMonsterAccuracy,
   calcStats,
+  calcAccuracy,
 } from './utils';
 import {
   renderPets,
@@ -640,8 +640,8 @@ const MiniRPG = () => {
   useEffect(() => { // Fight Monster effect
     const performAttack = () => {
       // User attack
-      const userAdjustedRate = calcWinRate(calcStats(equipment), monsterTypes[currentMonster].rate);
-      const userResult = Math.random() < userAdjustedRate;
+      const userHitChance = calcAccuracy(calcStats(equipment), monsterTypes[currentMonster]);
+      const userResult = Math.random() < userHitChance;
       playAttackSound(userResult);
       const userDamage = userResult
         ? (1 + Math.floor(calcStats(equipment) / 10) + playerStats.damageBonus) * (potionTimerRef.current > 0 ? 2 : 1)
@@ -654,8 +654,8 @@ const MiniRPG = () => {
       }
 
       // Monster attack
-      const monsterAdjustedRate = calcMonsterAccuracy(monsterTypes[currentMonster].attack, calcStats(equipment));
-      const monsterResult = Math.random() < monsterAdjustedRate;
+      const monsterHitChance = calcMonsterAccuracy(monsterTypes[currentMonster], calcStats(equipment));
+      const monsterResult = Math.random() < monsterHitChance;
       if (monsterResult) {
         setDamageFlash(true);
         setTimeout(() => setDamageFlash(false), 200);
@@ -688,7 +688,7 @@ const MiniRPG = () => {
     }
 
     return () => clearInterval(fightIntervalRef.current);
-  }, [isFighting, currentMonster, playerStats.damageBonus]);
+  }, [isFighting, currentMonster, equipment, playerStats.damageBonus]);
 
   const [hoveredPet, setHoveredPet] = useState(null);
 
@@ -1164,7 +1164,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.7 - <a href='https://alan.computer'
+          v1.13.8 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

@@ -62,11 +62,6 @@ export const calcStats = (equipment, playerStats = {}) => {
   return equipmentStats + (playerStats.statsBonus || 0);
 };
 
-export const calcWinRate = (totalStats, baseRate) => {
-  const statBonus = Math.floor(totalStats / 6) + totalStats * 0.1;
-  return Math.min(baseRate * Math.pow(2, statBonus), 1);
-};
-
 export const xpToNextLevel = (currentLevel) => Math.floor(100 * Math.pow(1.5, currentLevel - 1));
 
 export const compareRarity = (rarity1, rarity2) => {
@@ -78,18 +73,14 @@ export const calcItemDropRate = (baseChance, modifier, crystalTimer) => {
   return (baseChance * modifier * (crystalTimer > 0 ? 2 : 1) * 100);
 };
 
-export const calcAccuracy = (userStats, monster, playerStats = {}) => {
-  const baseAccuracy = 0.6;
-  const statDifference = userStats - monster.defense;
-  const accuracyModifier = Math.min(Math.max(statDifference * 0.02, -0.3), 0.3);
-  return Math.min(Math.max(baseAccuracy + accuracyModifier, 0.1), 0.95);
+export const calcAccuracy = (userStats, monster) => {
+  const accuracy = (userStats + 10) / (monster.stats + 15);
+  return Math.min(accuracy, 1.0);
 };
 
-export const calcMonsterAccuracy = (monsterAttack, userStats, playerStats = {}) => {
-  const baseAccuracy = 0.3;
-  const statDifference = monsterAttack - userStats;
-  const accuracyModifier = Math.min(Math.max(statDifference * 0.02, -0.3), 0.3);
-  return Math.min(Math.max(baseAccuracy + accuracyModifier, 0.1), 0.95);
+export const calcMonsterAccuracy = (monster, userStats) => {
+  const accuracy = (monster.stats + 5) / (userStats + 20);
+  return Math.min(accuracy, 1.0);
 };
 
 export const getNextRarity = (currentRarity) => {

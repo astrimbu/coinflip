@@ -9,8 +9,7 @@ export const monsterTypes = {
     ticketCost: 0,
     order: 0,
     damage: 1,
-    attack: 1,
-    defense: 1,
+    stats: 1,
     level: 3,
   },
   Ogre: {
@@ -23,8 +22,7 @@ export const monsterTypes = {
     ticketCost: 1,
     order: 1,
     damage: 2,
-    attack: 3,
-    defense: 3,
+    stats: 10,
     level: 20,
   },
   Demon: {
@@ -37,8 +35,7 @@ export const monsterTypes = {
     ticketCost: 2,
     order: 2,
     damage: 4,
-    attack: 5,
-    defense: 5,
+    stats: 20,
     level: 50,
   },
   Dragon: {
@@ -51,8 +48,7 @@ export const monsterTypes = {
     ticketCost: 3,
     order: 3,
     damage: 6,
-    attack: 5,
-    defense: 7,
+    stats: 30,
     level: 120,
   },
 };
@@ -73,4 +69,3 @@ export const TREE_LIMITS = {
   goldBonus: 5,
   stats: 10
 };
-

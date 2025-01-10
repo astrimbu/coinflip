@@ -50,7 +50,7 @@ const StatsInfo = ({ equipment, currentMonster, monsterTypes, crystalTimer, play
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span style={{ fontSize: '1em' }}>Monster accuracy:</span>
             <span style={{ fontSize: '1em' }}>
-              {(calcMonsterAccuracy(monsterTypes[currentMonster].attack, calcStats(equipment, playerStats)) * 100).toFixed(2)}%
+              {(calcMonsterAccuracy(monsterTypes[currentMonster], calcStats(equipment, playerStats)) * 100).toFixed(2)}%
             </span>
           </div>
         </>
