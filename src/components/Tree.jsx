@@ -41,7 +41,7 @@ const TreeNode = ({ title, description, color, onClick, disabled, isRoot, unlock
         fontSize: '0.7em',
         color: isMaxed ? '#fff' : 'inherit'
       }}>
-        {nodeType === 'auto' ? 'Unlocked' : description}
+        {nodeType === 'auto' ? (playerStats.autoUnlocked ? 'Unlocked' : 'Select to unlock') : description}
       </div>
     )}
     {nodeType && (

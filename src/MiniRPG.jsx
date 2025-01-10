@@ -480,9 +480,9 @@ const MiniRPG = () => {
     isSoundEnabledRef.current = isSoundEnabled;
     attack1Sound.current.volume = 0.05;
     attack2Sound.current.volume = 0.05;
-    getPetSound.current.volume = 0.01;
+    getPetSound.current.volume = 0.05;
     fireworksSound.current.volume = 0.01;
-    deathSound.current.volume = 0.01;
+    deathSound.current.volume = 0.05;
   }, [isSoundEnabled]);
 
   const playSound = (sound) => {
@@ -1165,7 +1165,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.5 - <a href='https://alan.computer'
+          v1.13.6 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
