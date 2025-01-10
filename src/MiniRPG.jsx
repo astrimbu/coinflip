@@ -95,15 +95,16 @@ const MiniRPG = () => {
   const [showCapybara, setShowCapybara] = useState(false);
   const [playerStats, setPlayerStats] = useState({
     damageBonus: 0,
-    regenerationMultiplier: 1,
+    experienceBonus: 0,
+    goldMultiplier: 1,
     autoUnlocked: false,
     treePoints: 0,
     treeInvestments: {
       auto: 0,
       damage: 0,
-      regeneration: 0,
-      nodeA: 0,
-      nodeB: 0,
+      experience: 0,
+      moreDamage: 0,
+      goldBonus: 0,
       stats: 0
     }
   });
@@ -153,14 +154,25 @@ const MiniRPG = () => {
       };
       
       // Apply the effects based on the node
-      if (node === 'auto') {
-        newStats.autoUnlocked = true;
-      } else if (node === 'damage') {
-        newStats.damageBonus = prevStats.damageBonus + 1;
-      } else if (node === 'regeneration') {
-        newStats.regenerationMultiplier = prevStats.regenerationMultiplier * 2;
-      } else if (node === 'stats') {
-        newStats.statsBonus = (prevStats.statsBonus || 0) + 1;
+      switch(node) {
+        case 'auto':
+          newStats.autoUnlocked = true;
+          break;
+        case 'damage':
+          newStats.damageBonus = prevStats.damageBonus + 1;
+          break;
+        case 'experience':
+          newStats.experienceBonus = prevStats.experienceBonus + 10;
+          break;
+        case 'moreDamage':
+          newStats.damageBonus = prevStats.damageBonus + 2;
+          break;
+        case 'goldBonus':
+          newStats.goldMultiplier = prevStats.goldMultiplier * 2;
+          break;
+        case 'stats':
+          newStats.statsBonus = (prevStats.statsBonus || 0) + 1;
+          break;
       }
       
       return newStats;
@@ -297,12 +309,12 @@ const MiniRPG = () => {
   useEffect(() => { // Health regeneration
     const healthRegenInterval = setInterval(() => {
       if (!userIsDead && userHitpointsRef.current < maxUserHitpoints) {
-        setUserHitpoints(prevHp => Math.min(prevHp + (1 * playerStats.regenerationMultiplier), maxUserHitpoints));
+        setUserHitpoints(prevHp => Math.min(prevHp + 1, maxUserHitpoints));
       }
     }, 10000);
 
     return () => clearInterval(healthRegenInterval);
-  }, [userHitpointsRef, maxUserHitpoints, playerStats.regenerationMultiplier]);
+  }, [userHitpointsRef, maxUserHitpoints]);
 
   useEffect(() => { // Fire auto-clicker
     if (!fire.isLit || fireTimer <= 0) return;
@@ -569,17 +581,23 @@ const MiniRPG = () => {
     setMonsterHitpoints(0);
     checkForItem();
     checkForPet();
+    
+    // Apply gold multiplier
+    const baseGold = 1;
+    const goldGained = Math.floor(baseGold * playerStats.goldMultiplier);
     setTickets((prevTickets) => prevTickets + 10);
-    updateCurrency('Gold', 1);
+    updateCurrency('Gold', goldGained);
+    
     setKillCount((prevKillCount) => ({
       ...prevKillCount,
       [currentMonster]: prevKillCount[currentMonster] + 1,
     }));
-    if (showTutorial && tutorialStep === 1) {
-      setTutorialStep(2);
-    }
 
-    const expGained = monsterTypes[currentMonster].experience;
+    // Apply experience bonus
+    const baseExp = monsterTypes[currentMonster].experience;
+    const expMultiplier = 1 + (playerStats.experienceBonus / 100);
+    const expGained = Math.floor(baseExp * expMultiplier);
+    
     setExperience((prevExp) => {
       const newExp = prevExp + expGained;
       const expNeeded = xpToNextLevel(level);
@@ -817,7 +835,7 @@ const MiniRPG = () => {
               isClickable={isMonsterClickable}
               handleMonsterDied={handleMonsterDied}
               spawnNewMonster={spawnNewMonster}
-              experienceGained={monsterTypes[currentMonster].experience}
+              experienceGained={Math.floor(monsterTypes[currentMonster].experience * (1 + playerStats.experienceBonus / 100))}
               lastAttack={lastAttack}
               isFighting={isFighting}
               onAnimationStateChange={handleAnimationStateChange}
@@ -1147,7 +1165,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.4 - <a href='https://alan.computer'
+          v1.13.5 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

@@ -41,7 +41,7 @@ const TreeNode = ({ title, description, color, onClick, disabled, isRoot, unlock
         fontSize: '0.7em',
         color: isMaxed ? '#fff' : 'inherit'
       }}>
-        {isMaxed ? 'MAXED' : description}
+        {nodeType === 'auto' ? 'Unlocked' : description}
       </div>
     )}
     {nodeType && (
@@ -73,13 +73,13 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
       case 'auto':
         return true; // Root node is always visible
       case 'damage':
-      case 'regeneration':
+      case 'experience':
       case 'stats':
         return playerStats.autoUnlocked; // Second tier nodes visible after auto
-      case 'nodeA':
-        return playerStats.treeInvestments.damage > 0; // Only visible after investing in damage
-      case 'nodeB':
-        return playerStats.treeInvestments.regeneration > 0; // Only visible after investing in regeneration
+      case 'moreDamage':
+        return playerStats.treeInvestments.damage > 0;
+      case 'goldBonus':
+        return playerStats.treeInvestments.experience > 0;
       default:
         return false;
     }
@@ -159,14 +159,14 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
             {isNodeVisible('damage') && (
               <path d="M250,50 L175,100" stroke="#666" strokeWidth="2" />
             )}
-            {isNodeVisible('regeneration') && (
+            {isNodeVisible('experience') && (
               <path d="M230,50 L310,100" stroke="#666" strokeWidth="2" />
             )}
             {/* Second tier to third tier connections */}
-            {isNodeVisible('nodeA') && (
+            {isNodeVisible('moreDamage') && (
               <path d="M175,100 L175,200" stroke="#666" strokeWidth="2" />
             )}
-            {isNodeVisible('nodeB') && (
+            {isNodeVisible('goldBonus') && (
               <path d="M310,100 L310,200" stroke="#666" strokeWidth="2" />
             )}
           </svg>
@@ -204,7 +204,7 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
             }}>
               <TreeNode
                 title="Combat"
-                description={`Damage +1 (${playerStats.treeInvestments.damage}/${TREE_LIMITS.damage})`}
+                description={`Damage +${playerStats.treeInvestments.damage} (${playerStats.treeInvestments.damage}/${TREE_LIMITS.damage})`}
                 color="#c62828"
                 onClick={() => onSelectNode('damage')}
                 nodeType="damage"
@@ -215,7 +215,7 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
               />
             </div>
           )}
-          {isNodeVisible('regeneration') && (
+          {isNodeVisible('experience') && (
             <div style={{ 
               position: 'absolute', 
               top: '100px',
@@ -224,21 +224,21 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
               zIndex: 2 
             }}>
               <TreeNode
-                title="Vitality"
-                description={`HP Regen x2 (${playerStats.treeInvestments.regeneration}/${TREE_LIMITS.regeneration})`}
+                title="Experience"
+                description={`XP +${playerStats.treeInvestments.experience * 10}% (${playerStats.treeInvestments.experience}/${TREE_LIMITS.experience})`}
                 color="#2e7d32"
-                onClick={() => onSelectNode('regeneration')}
-                nodeType="regeneration"
+                onClick={() => onSelectNode('experience')}
+                nodeType="experience"
                 playerStats={playerStats}
                 unlocked={playerStats.autoUnlocked}
                 disabled={playerStats.treePoints <= 0}
-                isMaxed={isNodeMaxed('regeneration')}
+                isMaxed={isNodeMaxed('experience')}
               />
             </div>
           )}
 
           {/* Third level nodes - only show when their respective parent is invested */}
-          {isNodeVisible('nodeA') && (
+          {isNodeVisible('moreDamage') && (
             <div style={{ 
               position: 'absolute', 
               top: '200px',
@@ -247,36 +247,36 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
               zIndex: 2 
             }}>
               <TreeNode
-                title="Node A"
-                description={`Placeholder A (${playerStats.treeInvestments.nodeA}/${TREE_LIMITS.nodeA})`}
+                title="More Damage"
+                description={`Damage +${playerStats.treeInvestments.moreDamage * 2} (${playerStats.treeInvestments.moreDamage}/${TREE_LIMITS.moreDamage})`}
                 color="#d32f2f"
-                onClick={() => onSelectNode('nodeA')}
-                nodeType="nodeA"
+                onClick={() => onSelectNode('moreDamage')}
+                nodeType="moreDamage"
                 playerStats={playerStats}
                 unlocked={playerStats.treeInvestments.damage > 0}
                 disabled={playerStats.treePoints <= 0}
-                isMaxed={isNodeMaxed('nodeA')}
+                isMaxed={isNodeMaxed('moreDamage')}
               />
             </div>
           )}
-          {isNodeVisible('nodeB') && (
+          {isNodeVisible('goldBonus') && (
             <div style={{ 
               position: 'absolute', 
               top: '200px',
               left: '50%', 
-              transform: 'translateX(45px)', 
+              transform: 'translateX(35px)', 
               zIndex: 2 
             }}>
               <TreeNode
-                title="Node B"
-                description={`Placeholder B (${playerStats.treeInvestments.nodeB}/${TREE_LIMITS.nodeB})`}
-                color="#bf360c"
-                onClick={() => onSelectNode('nodeB')}
-                nodeType="nodeB"
+                title="Gold Bonus"
+                description={`Gold ${playerStats.treeInvestments.goldBonus > 0 ? `x${Math.pow(2, playerStats.treeInvestments.goldBonus)}` : 'x2'} (${playerStats.treeInvestments.goldBonus}/${TREE_LIMITS.goldBonus})`}
+                color="#ffd700"
+                onClick={() => onSelectNode('goldBonus')}
+                nodeType="goldBonus"
                 playerStats={playerStats}
-                unlocked={playerStats.treeInvestments.regeneration > 0}
+                unlocked={playerStats.treeInvestments.experience > 0}
                 disabled={playerStats.treePoints <= 0}
-                isMaxed={isNodeMaxed('nodeB')}
+                isMaxed={isNodeMaxed('goldBonus')}
               />
             </div>
           )}

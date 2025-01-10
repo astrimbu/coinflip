@@ -68,9 +68,9 @@ export const FIRE_LENGTH = 60;
 export const TREE_LIMITS = {
   auto: 1,
   damage: 5,
-  regeneration: 3,
-  nodeA: 3,
-  nodeB: 3,
+  experience: 5,
+  moreDamage: 5,
+  goldBonus: 5,
   stats: 10
 };
 
