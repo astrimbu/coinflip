@@ -76,7 +76,7 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
       case 'experience':
       case 'stats':
         return playerStats.autoUnlocked; // Second tier nodes visible after auto
-      case 'moreDamage':
+      case 'lifesteal':
         return playerStats.treeInvestments.damage > 0;
       case 'goldBonus':
         return playerStats.treeInvestments.experience > 0;
@@ -300,6 +300,28 @@ const Tree = ({ onClose, onSelectNode, playerStats }) => {
                 disabled={playerStats.treePoints <= 0}
                 isMaxed={isNodeMaxed('stats')}
                 isFloating={true}
+              />
+            </div>
+          )}
+
+          {isNodeVisible('lifesteal') && (
+            <div style={{ 
+              position: 'absolute', 
+              top: '200px',
+              left: '50%', 
+              transform: 'translateX(-165px)', 
+              zIndex: 2 
+            }}>
+              <TreeNode
+                title="Lifesteal"
+                description={`Heal ${playerStats.treeInvestments.lifesteal * 50}% of damage (${playerStats.treeInvestments.lifesteal}/${TREE_LIMITS.lifesteal})`}
+                color="#ff4081"
+                onClick={() => onSelectNode('lifesteal')}
+                nodeType="lifesteal"
+                playerStats={playerStats}
+                unlocked={playerStats.treeInvestments.damage > 0}
+                disabled={playerStats.treePoints <= 0}
+                isMaxed={isNodeMaxed('lifesteal')}
               />
             </div>
           )}

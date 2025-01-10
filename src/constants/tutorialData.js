@@ -94,10 +94,10 @@ export const TUTORIAL_STEPS = [
       },
       additional: [
         {
-          top: 'calc(50% - 110px)',
+          top: 'calc(50% - 93px)',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          text: 'Town is a safe place to escape monsters, buy items, and more.',
+          text: 'Welcome to Town!',
         }
       ]
     },

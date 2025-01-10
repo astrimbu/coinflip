@@ -59,13 +59,14 @@ export const petDropRates = Object.fromEntries(
 
 export const MIN_HEIGHT_VIEW = "314px";
 export const ATTACK_SPEED = 1200;
+export const MONSTER_ATTACK_OFFSET = 600;
 export const FIRE_LENGTH = 60;
 
 export const TREE_LIMITS = {
   auto: 1,
   damage: 5,
   experience: 5,
-  moreDamage: 5,
+  lifesteal: 2,
   goldBonus: 5,
   stats: 10
 };

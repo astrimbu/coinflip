@@ -8,7 +8,7 @@ import TimerDisplay from './components/TimerDisplay';
 import StatsInfo from './components/StatsInfo';
 import Tutorial from './components/Tutorial';
 import TutorialCompletionCertificate from './components/TutorialCompletionCertificate';
-import { monsterTypes, petDropRates, FIRE_LENGTH, ATTACK_SPEED, TREE_LIMITS } from './constants/gameData';
+import { monsterTypes, petDropRates, FIRE_LENGTH, ATTACK_SPEED, TREE_LIMITS, MONSTER_ATTACK_OFFSET } from './constants/gameData';
 import { TUTORIAL_STEPS } from './constants/tutorialData';
 import './styles.css';
 import {
@@ -103,7 +103,7 @@ const MiniRPG = () => {
       auto: 0,
       damage: 0,
       experience: 0,
-      moreDamage: 0,
+      lifesteal: 0,
       goldBonus: 0,
       stats: 0
     }
@@ -164,8 +164,8 @@ const MiniRPG = () => {
         case 'experience':
           newStats.experienceBonus = prevStats.experienceBonus + 10;
           break;
-        case 'moreDamage':
-          newStats.damageBonus = prevStats.damageBonus + 2;
+        case 'lifesteal':
+          newStats.lifestealPercent = (prevStats.lifestealPercent || 0) + 50;
           break;
         case 'goldBonus':
           newStats.goldMultiplier = prevStats.goldMultiplier * 2;
@@ -639,45 +639,50 @@ const MiniRPG = () => {
 
   useEffect(() => { // Fight Monster effect
     const performAttack = () => {
-      // User attack
-      const userHitChance = calcAccuracy(calcStats(equipment), monsterTypes[currentMonster]);
-      const userResult = Math.random() < userHitChance;
-      playAttackSound(userResult);
-      const userDamage = userResult
-        ? (1 + Math.floor(calcStats(equipment) / 10) + playerStats.damageBonus) * (potionTimerRef.current > 0 ? 2 : 1)
-        : 0;
-      setLastAttack({ damage: userDamage, id: Date.now() });
-      if (userResult) {
-        setMonsterHitpoints((prevHp) => {
-          return prevHp - userDamage;
+      const userStats = calcStats(equipment, playerStats);
+      const accuracy = calcAccuracy(userStats, monsterTypes[currentMonster]);
+      
+      // Player attacks first
+      if (Math.random() < accuracy) {
+        const damage = (Math.max(1, Math.floor(userStats / 3)) + (playerStats.damageBonus || 0)) * (potionTimer > 0 ? 2 : 1);
+        setMonsterHitpoints(prev => Math.max(0, prev - damage));
+        
+        // Apply lifesteal if the player has it
+        if (playerStats.lifestealPercent > 0) {
+          const healAmount = Math.floor((damage * playerStats.lifestealPercent) / 100);
+          setUserHitpoints(prev => Math.min(maxUserHitpoints, prev + healAmount));
+        }
+        
+        playAttackSound(true);
+        setLastAttack({
+          id: Date.now(),
+          damage: damage
+        });
+      } else {
+        playAttackSound(false);
+        setLastAttack({
+          id: Date.now(),
+          damage: 0
         });
       }
 
-      // Monster attack
-      const monsterHitChance = calcMonsterAccuracy(monsterTypes[currentMonster], calcStats(equipment));
-      const monsterResult = Math.random() < monsterHitChance;
-      if (monsterResult) {
-        setDamageFlash(true);
-        setTimeout(() => setDamageFlash(false), 200);
-        const monsterDamage = monsterTypes[currentMonster].damage;
-        setUserHitpoints((prevHp) => {
-          const newHp = Math.max(0, prevHp - monsterDamage);
-          if (newHp <= 0) {
-            handleUserDied();
-          }
-          return newHp;
-        });
-      }
-
+      // Monster attacks after 600ms (half of ATTACK_SPEED)
       setTimeout(() => {
-        setScores((prevScores) => ({
-          ...prevScores,
-          [currentMonster]: {
-            fights: prevScores[currentMonster].fights + 1,
-            wins: prevScores[currentMonster].wins + (userResult ? 1 : 0),
-          },
-        }));
-      }, 300);
+        if (!isFightingRef.current) return; // Check if still fighting
+        
+        if (Math.random() < calcMonsterAccuracy(monsterTypes[currentMonster], userStats)) {
+          const monsterDamage = monsterTypes[currentMonster].damage;
+          setUserHitpoints(prev => {
+            const newHp = Math.max(0, prev - monsterDamage);
+            if (newHp === 0) {
+              handleUserDied();
+            }
+            return newHp;
+          });
+          setDamageFlash(true);
+          setTimeout(() => setDamageFlash(false), 200);
+        }
+      }, MONSTER_ATTACK_OFFSET);
     };
 
     if (isFighting) {
@@ -1164,7 +1169,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.8 - <a href='https://alan.computer'
+          v1.13.9 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
