@@ -51,18 +51,6 @@ const Tutorial = ({ step, onSkip, positions }) => {
             {currentStep.text}
           </p>
         </div>
-        {step === 0 && (
-          <button 
-            onClick={onSkip} 
-            style={{ 
-              fontSize: '12px', 
-              padding: '5px 10px', 
-              backgroundColor: '#9a9a9a' 
-            }}
-          >
-            Skip Tutorial
-          </button>
-        )}
       </div>
       {currentStep.position.additional?.map((pos, index) => (
         <div key={index} style={getStyle(pos)}>

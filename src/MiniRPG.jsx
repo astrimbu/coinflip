@@ -38,6 +38,7 @@ import {
 } from './renderFunctions';
 import Tree from './components/Tree';
 import Toast from './components/Toast';
+import HealthBar from './components/HealthBar';
 
 
 const MiniRPG = () => {
@@ -873,26 +874,12 @@ const MiniRPG = () => {
             onSelectNode={handleSelectNode} 
             playerStats={playerStats}
           />}
-          <div style={{
-            position: 'absolute',
-            bottom: '23px',
-            right: '10px',
-            fontFamily: 'monospace',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            backgroundColor: userHitpoints === 0 ? 'black' : 
-              damageFlash ? `rgba(150, 0, 0, ${0.5 + 0.5 * (1 - userHitpoints / maxUserHitpoints)})` : 
-              `rgb(${150 - (150 * (userHitpoints / maxUserHitpoints))}, ${150 * (userHitpoints / maxUserHitpoints)}, 0)`,
-            color: 'white',
-            padding: '4px',
-            lineHeight: '0.8',
-            borderRadius: '2px',
-            transition: 'all 0.3s ease',
-            boxShadow: damageFlash ? '0 0 10px rgba(255, 0, 0, 0.3)' : 'none',
-            animation: isLowHP ? 'pulse 1s infinite' : 'none',
-          }}>
-            {userHitpoints}/{maxUserHitpoints}
-          </div>
+          <HealthBar 
+            current={userHitpoints}
+            max={maxUserHitpoints}
+            isFlashing={damageFlash}
+            isLowHP={isLowHP}
+          />
           {fire.isLit && (
             <div
               style={{
@@ -1169,7 +1156,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.9 - <a href='https://alan.computer'
+          v1.13.10 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

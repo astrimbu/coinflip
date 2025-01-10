@@ -1,7 +1,7 @@
 export const TUTORIAL_STEPS = [
   {
     id: 'monster_click',
-    text: "Click on the monster to fight",
+    text: "Click the Goblin to fight",
     position: {
       main: {
         top: 'calc(50% + 90px)',
@@ -21,10 +21,10 @@ export const TUTORIAL_STEPS = [
       },
       additional: [
         {
-          top: 'calc(100% - 110px)',
+          top: 'calc(100% - 105px)',
           left: '70%',
-          transform: 'translate(-48%, 0)',
-          text: 'This is your health bar.',
+          transform: 'translate(-65%, 0)',
+          text: 'This is your health',
         }
       ]
     }
@@ -85,7 +85,7 @@ export const TUTORIAL_STEPS = [
   },
   {
     id: 'return_game',
-    text: "Return to the game by clicking the Monster icon",
+    text: "Return to the game by clicking the Monster button",
     position: {
       main: {
         top: 'calc(50% + 90px)',
