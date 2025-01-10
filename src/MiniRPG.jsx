@@ -610,8 +610,7 @@ const MiniRPG = () => {
 
     spawnNewMonster();
 
-    // Progress tutorial if on attack_monster step
-    if (showTutorial && TUTORIAL_STEPS[tutorialStep]?.id === 'attack_monster') {
+    if (showTutorial && ['fighting', 'attack_monster'].includes(TUTORIAL_STEPS[tutorialStep]?.id)) {
       setTutorialStep(tutorialStep + 1);
     }
   };
@@ -1165,7 +1164,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.6 - <a href='https://alan.computer'
+          v1.13.7 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
