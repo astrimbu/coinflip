@@ -8,6 +8,7 @@ import TimerDisplay from './components/TimerDisplay';
 import StatsInfo from './components/StatsInfo';
 import Tutorial from './components/Tutorial';
 import TutorialCompletionCertificate from './components/TutorialCompletionCertificate';
+import Codex from './components/Codex';
 import { monsterTypes, petDropRates, FIRE_LENGTH, ATTACK_SPEED, TREE_LIMITS, MONSTER_ATTACK_OFFSET } from './constants/gameData';
 import { TUTORIAL_STEPS } from './constants/tutorialData';
 import './styles.css';
@@ -119,6 +120,8 @@ const MiniRPG = () => {
   const [autoMode, setAutoMode] = useState(false);
   const [showSetCompletion, setShowSetCompletion] = useState(false);
   const [hasShownSetNotification, setHasShownSetNotification] = useState(false);
+  const [showCodex, setShowCodex] = useState(false);
+  const [completedAchievements, setCompletedAchievements] = useState([]);
 
   const handleTutorialEquip = () => {
     if (showTutorial && tutorialStep === 2) {
@@ -783,6 +786,14 @@ const MiniRPG = () => {
     setShowTree(false);
   };
 
+  const openCodex = () => {
+    setShowCodex(true);
+  };
+
+  const closeCodex = () => {
+    setShowCodex(false);
+  };
+
   const renderGame = () => (
     <div id='renderGame'
       style={{
@@ -1113,6 +1124,22 @@ const MiniRPG = () => {
           >
             🌳
           </button>
+          <button
+            onClick={openCodex}
+            style={{
+              padding: '10px',
+              fontSize: '24px',
+              backgroundColor: '#8b4513',
+              border: 'none',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            📚
+          </button>
         </div>
       </div>
     );
@@ -1140,6 +1167,7 @@ const MiniRPG = () => {
     if (hasFullCommonSet) {
       setShowSetCompletion(true);
       setHasShownSetNotification(true);
+      setCompletedAchievements(prev => [...prev, 'common_set']);
     }
   }, [equipment, hasShownSetNotification]);
 
@@ -1164,6 +1192,7 @@ const MiniRPG = () => {
         transition: 'opacity 0.2s',
         opacity: isTransitioning ? 0 : 1,
       }}>
+        {showCodex && <Codex onClose={closeCodex} completedAchievements={completedAchievements} />}
         {((isDesktop || overrideMobile) && showTutorial) && (
           <Tutorial
             step={tutorialStep}
@@ -1202,7 +1231,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.15 - <a href='https://alan.computer'
+          v1.14.0 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
