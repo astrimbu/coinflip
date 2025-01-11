@@ -290,7 +290,7 @@ const MiniRPG = () => {
     return () => clearInterval(interval);
   }, [fireTimer]);
 
-  useEffect(() => {
+  useEffect(() => { // Auto-attack
     if ((fire.isLit || (playerStats.autoUnlocked && autoMode)) && 
         monsterAnimationState === 'walking' && 
         !isFighting && 
@@ -573,13 +573,16 @@ const MiniRPG = () => {
     setIsFighting(true);
   };
 
-  const spawnNewMonster = () => {
+  const handleMonsterRespawn = () => {
     setMonsterHitpoints(monsterTypes[currentMonster].maxHP);
   };
 
   const handleMonsterDied = () => {
+    // Stop combat immediately
     setIsFighting(false);
     setMonsterHitpoints(0);
+    
+    // Handle rewards/stats
     checkForItem();
     checkForPet();
     
@@ -608,8 +611,6 @@ const MiniRPG = () => {
       }
       return newExp;
     });
-
-    spawnNewMonster();
 
     if (showTutorial && ['fighting', 'attack_monster'].includes(TUTORIAL_STEPS[tutorialStep]?.id)) {
       setTutorialStep(tutorialStep + 1);
@@ -839,7 +840,7 @@ const MiniRPG = () => {
               onMonsterClick={handleMonsterClick}
               isClickable={isMonsterClickable}
               handleMonsterDied={handleMonsterDied}
-              spawnNewMonster={spawnNewMonster}
+              handleMonsterRespawn={handleMonsterRespawn}
               experienceGained={Math.floor(monsterTypes[currentMonster].experience * (1 + playerStats.experienceBonus / 100))}
               lastAttack={lastAttack}
               isFighting={isFighting}
@@ -968,10 +969,12 @@ const MiniRPG = () => {
     setIsFighting(false);
     extinguishFire();
     setAutoMode(false);
+    setMonsterHitpoints(monsterTypes[currentMonster].maxHP);
+    setMonsterAnimationState('walking');
     if (showTutorial && TUTORIAL_STEPS[tutorialStep]?.id === 'go_town') {
       setTutorialStep(tutorialStep + 1);
     }
-  }, [showTutorial, tutorialStep]);
+  }, [showTutorial, tutorialStep, currentMonster, monsterTypes]);
 
   const goToLocation = useCallback((location) => {
     if (showTutorial && location === 'game') {
@@ -1134,9 +1137,10 @@ const MiniRPG = () => {
           handleMonsterClick,
           isMonsterClickable,
           handleMonsterDied,
-          spawnNewMonster,
+          handleMonsterRespawn,
           lastAttack,
-          overrideMobileView: handleOverrideMobileView
+          overrideMobileView: handleOverrideMobileView,
+          onAnimationStateChange: handleAnimationStateChange,
         })}
         <div
           style={{
@@ -1156,7 +1160,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.10 - <a href='https://alan.computer'
+          v1.13.11 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

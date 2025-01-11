@@ -266,9 +266,10 @@ export const renderMobileView = (props) => {
     handleMonsterClick,
     isMonsterClickable,
     handleMonsterDied,
-    spawnNewMonster,
+    handleMonsterRespawn,
     lastAttack,
-    overrideMobileView
+    overrideMobileView,
+    onAnimationStateChange,
   } = props;
 
   return (
@@ -281,9 +282,10 @@ export const renderMobileView = (props) => {
           onMonsterClick={handleMonsterClick}
           isClickable={isMonsterClickable}
           handleMonsterDied={handleMonsterDied}
-          spawnNewMonster={spawnNewMonster}
+          handleMonsterRespawn={handleMonsterRespawn}
           experienceGained={monsterTypes[currentMonster].experience}
           lastAttack={lastAttack}
+          onAnimationStateChange={onAnimationStateChange}
         />
       </Area>
       <p style={{ marginTop: '20px', fontSize: '16px' }}>

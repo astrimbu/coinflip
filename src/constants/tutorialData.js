@@ -78,7 +78,7 @@ export const TUTORIAL_STEPS = [
     position: {
       main: {
         top: 'calc(100% - 85px)',
-        left: '75px',
+        left: '70px',
         transform: 'none',
       }
     }
@@ -88,13 +88,13 @@ export const TUTORIAL_STEPS = [
     text: "Return to the game by clicking the Monster button",
     position: {
       main: {
-        top: 'calc(50% + 90px)',
+        top: 'calc(50% + 92px)',
         left: '50%',
         transform: 'translate(-50%, -50%)',
       },
       additional: [
         {
-          top: 'calc(50% - 93px)',
+          top: 'calc(50% - 95px)',
           left: '50%',
           transform: 'translate(-50%, -50%)',
           text: 'Welcome to Town!',

@@ -9,7 +9,7 @@ const MonsterAnimation = ({
   onMonsterClick,
   isClickable,
   handleMonsterDied,
-  spawnNewMonster,
+  handleMonsterRespawn,
   experienceGained,
   lastAttack,
   isFighting,
@@ -162,10 +162,15 @@ const MonsterAnimation = ({
 
   const startDyingAnimation = () => {
     handleMonsterDied();
+    
     const img = monsterRef.current.children[1];
     const healthBar = monsterRef.current.children[0];
     const health = monsterRef.current.children[0].children[0];
     const DEATH_DURATION = 2000;
+
+    // Disable health bar transitions and set to 0%
+    health.style.transition = 'none';
+    health.style.width = '0%';
 
     const dyingAnimation = img.animate(
       [
@@ -181,34 +186,12 @@ const MonsterAnimation = ({
         fill: 'forwards',
       }
     );
+
     dyingAnimation.onfinish = () => {
+      health.style.transition = 'width 0.3s ease-out';
       setAnimationState('dead');
-      respawnMonster();
+      handleMonsterRespawn();
     };
-
-    const healthBarAnimation = healthBar.animate(
-      [
-        { opacity: 1, backgroundColor: 'red' },
-        { opacity: 1, offset: 0.8 },
-        { opacity: 0, offset: 0.8001 },
-        { opacity: 0, offset: 0.9999 },
-      ],
-      {
-        duration: DEATH_DURATION,
-        easing: 'ease-out',
-        fill: 'forwards',
-      }
-    );
-
-    const heathAnimation = health.animate(
-      [
-        { opacity: 0, },
-        { opacity: 0, offset: 0.9999 },
-      ],
-      {
-        duration: DEATH_DURATION,
-      }
-    );
 
     setShowExperience(true);
     setTimeout(() => setShowExperience(false), DEATH_DURATION);
@@ -225,11 +208,17 @@ const MonsterAnimation = ({
     if (div) div.style.opacity = '1';
     const img = monsterRef.current && monsterRef.current.children[1];
     if (img) img.style.transform = 'rotate(0deg)';
+    
+    const healthBar = monsterRef.current && monsterRef.current.children[0];
+    const health = healthBar && healthBar.children[0];
+    if (healthBar) healthBar.style.opacity = '1';
+    if (health) health.style.opacity = '1';
+
     currentPositionRef.current = 0;
     facingRightRef.current = false;
     setAnimationState('walking');
     onAnimationStateChange('walking');
-    spawnNewMonster();
+    handleMonsterRespawn();
 
     setTimeout(() => {
       img.style.transform = 'rotate(0deg)';
@@ -279,7 +268,11 @@ const MonsterAnimation = ({
       }}
       onClick={handleClick}
     >
-      <div style={{ width: '50px', height: '8px', backgroundColor: 'red', }}>
+      <div style={{ 
+        width: '50px', 
+        height: '8px', 
+        backgroundColor: 'red',
+      }}>
         <div
           style={{
             width: `${(hitpoints / maxHP) * 100}%`,
