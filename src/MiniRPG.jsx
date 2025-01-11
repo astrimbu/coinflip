@@ -588,6 +588,15 @@ const MiniRPG = () => {
   };
 
   const handleMonsterDied = () => {
+    // Update scores for the current monster
+    setScores(prevScores => ({
+      ...prevScores,
+      [currentMonster]: {
+        fights: prevScores[currentMonster].fights + 1,
+        wins: prevScores[currentMonster].wins + 1
+      }
+    }));
+    
     // Stop combat immediately
     setIsFighting(false);
     setMonsterHitpoints(0);
@@ -634,6 +643,15 @@ const MiniRPG = () => {
     setUserDeaths(prev => prev + 1);
     setAutoMode(false);
     playDeathSound();
+    
+    // Add score tracking for loss
+    setScores(prevScores => ({
+      ...prevScores,
+      [currentMonster]: {
+        fights: prevScores[currentMonster].fights + 1,
+        wins: prevScores[currentMonster].wins
+      }
+    }));
   };
 
   const handleContinue = () => {
@@ -1170,7 +1188,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.12 - <a href='https://alan.computer'
+          v1.13.13 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
