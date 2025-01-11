@@ -70,13 +70,13 @@ export const renderPets = (pets, monsterTypes, getColor, hoveredPet, setHoveredP
   )
 );
 
-export const renderLevelAndExperience = (level, experience, experienceToNextLevel, autoUnlocked, autoMode, onAutoToggle) => (
+export const renderLevelAndExperience = (level, experience, experienceToNextLevel, autoUnlocked, autoMode, onAutoToggle, isAutoHighlighted) => (
   <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
-    {/* Auto Toggle */}
     <AutoToggle 
       isEnabled={autoMode}
       onToggle={onAutoToggle}
       isUnlocked={autoUnlocked}
+      isHighlighted={isAutoHighlighted}
     />
     
     {/* XP Bar */}

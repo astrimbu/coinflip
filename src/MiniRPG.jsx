@@ -122,6 +122,8 @@ const MiniRPG = () => {
   const [hasShownSetNotification, setHasShownSetNotification] = useState(false);
   const [showCodex, setShowCodex] = useState(false);
   const [completedAchievements, setCompletedAchievements] = useState([]);
+  const [isTreeButtonHighlighted, setIsTreeButtonHighlighted] = useState(false);
+  const [isAutoHighlighted, setIsAutoHighlighted] = useState(false);
 
   const handleTutorialEquip = () => {
     if (showTutorial && tutorialStep === 2) {
@@ -161,6 +163,7 @@ const MiniRPG = () => {
       switch(node) {
         case 'auto':
           newStats.autoUnlocked = true;
+          setIsAutoHighlighted(true);
           break;
         case 'damage':
           newStats.damageBonus = prevStats.damageBonus + 1;
@@ -763,6 +766,9 @@ const MiniRPG = () => {
 
   const handleLevelUp = () => {
     setLevel(prevLevel => {
+      if (prevLevel === 1) {
+        setIsTreeButtonHighlighted(true);
+      }
       const newLevel = prevLevel + 1;
       setExperience(0);
       setMaxUserHitpoints(10 + newLevel * 2);
@@ -780,6 +786,7 @@ const MiniRPG = () => {
   const openTree = () => {
     setShowTree(true);
     setTreeAvailable(false);
+    setIsTreeButtonHighlighted(false);
   };
 
   const closeTree = () => {
@@ -922,7 +929,11 @@ const MiniRPG = () => {
             xpToNextLevel,
             playerStats.autoUnlocked,
             autoMode,
-            () => setAutoMode(prev => !prev)
+            () => {
+              setAutoMode(prev => !prev);
+              setIsAutoHighlighted(false);
+            },
+            isAutoHighlighted
           )}
           {showTree && <Tree 
             onClose={closeTree} 
@@ -1120,6 +1131,7 @@ const MiniRPG = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              animation: isTreeButtonHighlighted ? 'pulse 1s infinite' : 'none',
             }}
           >
             🌳
@@ -1231,7 +1243,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.14.0 - <a href='https://alan.computer'
+          v1.14.1 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

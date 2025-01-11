@@ -1,6 +1,6 @@
 import React from 'react';
 
-const AutoToggle = ({ isEnabled, onToggle, isUnlocked }) => {
+const AutoToggle = ({ isEnabled, onToggle, isUnlocked, isHighlighted }) => {
   if (!isUnlocked) return null;
   
   return (
@@ -23,6 +23,7 @@ const AutoToggle = ({ isEnabled, onToggle, isUnlocked }) => {
         display: 'flex',
         alignItems: 'center',
         gap: '6px',
+        animation: isHighlighted ? 'pulse 1s infinite' : 'none',
       }}
     >
       <span style={{ 
