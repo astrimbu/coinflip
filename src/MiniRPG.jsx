@@ -574,11 +574,25 @@ const MiniRPG = () => {
   };
 
   const handleMonsterRespawn = () => {
-    // Reset all monster-related states
-    setMonsterHitpoints(monsterTypes[currentMonster].maxHP);
-    setMonsterAnimationState('walking');
-    setIsFighting(false);
-    isFightingRef.current = false;
+    // Reset all monster-related states immediately without transition
+    requestAnimationFrame(() => {
+      // Force an instant HP update without animation
+      const monsterDiv = document.querySelector('.monster-health');  // Add a class to your health bar div
+      if (monsterDiv) {
+        monsterDiv.style.transition = 'none';
+        setMonsterHitpoints(monsterTypes[currentMonster].maxHP);
+        // Re-enable transitions after the next frame
+        requestAnimationFrame(() => {
+          monsterDiv.style.transition = 'width 0.3s ease-out';
+        });
+      } else {
+        setMonsterHitpoints(monsterTypes[currentMonster].maxHP);
+      }
+      
+      setMonsterAnimationState('walking');
+      setIsFighting(false);
+      isFightingRef.current = false;
+    });
     
     // Clear any existing fight intervals
     if (fightIntervalRef.current) {
@@ -1188,7 +1202,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.13 - <a href='https://alan.computer'
+          v1.13.14 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

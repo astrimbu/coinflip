@@ -168,8 +168,6 @@ const MonsterAnimation = ({
     const health = monsterRef.current.children[0].children[0];
     const DEATH_DURATION = 2000;
 
-    // Disable health bar transitions and set to 0%
-    health.style.transition = 'none';
     health.style.width = '0%';
 
     const dyingAnimation = img.animate(
@@ -188,7 +186,6 @@ const MonsterAnimation = ({
     );
 
     dyingAnimation.onfinish = () => {
-      health.style.transition = 'width 0.3s ease-out';
       setAnimationState('dead');
       handleMonsterRespawn();
     };
@@ -274,6 +271,7 @@ const MonsterAnimation = ({
         backgroundColor: 'red',
       }}>
         <div
+          className="monster-health"
           style={{
             width: `${(hitpoints / maxHP) * 100}%`,
             height: '8px',
