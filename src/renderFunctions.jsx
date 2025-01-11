@@ -80,13 +80,16 @@ export const renderLevelAndExperience = (level, experience, experienceToNextLeve
     />
     
     {/* XP Bar */}
-    <div style={{
-      width: '100%',
-      backgroundColor: 'rgb(50, 50, 50)',
-      overflow: 'hidden',
-      position: 'relative',
-      height: '14px',
-    }}>
+    <div 
+      style={{
+        width: '100%',
+        backgroundColor: 'rgb(50, 50, 50)',
+        overflow: 'hidden',
+        position: 'relative',
+        height: '14px',
+      }}
+      title={`${experienceToNextLevel(level) - experience} XP needed for next level`}
+    >
       <div
         style={{
           width: `${(experience / experienceToNextLevel(level)) * 100}%`,
@@ -114,7 +117,7 @@ export const renderLevelAndExperience = (level, experience, experienceToNextLeve
           Lv.{level}
         </div>
         <div style={{ fontSize: '10px', fontFamily: 'monospace', color: 'white' }}>
-          {experience} / {experienceToNextLevel(level)} XP
+          {experience} XP
         </div>
       </div>
     </div>

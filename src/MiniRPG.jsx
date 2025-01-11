@@ -683,6 +683,7 @@ const MiniRPG = () => {
 
   useEffect(() => { // Fight Monster effect
     const performAttack = () => {
+      // Move stat calculation outside to avoid recalculations
       const userStats = calcStats(equipment, playerStats);
       const accuracy = calcAccuracy(userStats, monsterTypes[currentMonster]);
       
@@ -737,7 +738,7 @@ const MiniRPG = () => {
     }
 
     return () => clearInterval(fightIntervalRef.current);
-  }, [isFighting, currentMonster, equipment, playerStats.damageBonus]);
+  }, [isFighting, currentMonster]);
 
   const [hoveredPet, setHoveredPet] = useState(null);
 
@@ -1139,7 +1140,6 @@ const MiniRPG = () => {
     if (hasFullCommonSet) {
       setShowSetCompletion(true);
       setHasShownSetNotification(true);
-      setTimeout(() => setShowSetCompletion(false), 5000);
     }
   }, [equipment, hasShownSetNotification]);
 
@@ -1202,7 +1202,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.14 - <a href='https://alan.computer'
+          v1.13.15 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
