@@ -574,7 +574,17 @@ const MiniRPG = () => {
   };
 
   const handleMonsterRespawn = () => {
+    // Reset all monster-related states
     setMonsterHitpoints(monsterTypes[currentMonster].maxHP);
+    setMonsterAnimationState('walking');
+    setIsFighting(false);
+    isFightingRef.current = false;
+    
+    // Clear any existing fight intervals
+    if (fightIntervalRef.current) {
+      clearInterval(fightIntervalRef.current);
+      fightIntervalRef.current = null;
+    }
   };
 
   const handleMonsterDied = () => {
@@ -1160,7 +1170,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.13.11 - <a href='https://alan.computer'
+          v1.13.12 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
