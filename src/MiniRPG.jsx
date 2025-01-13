@@ -34,12 +34,13 @@ import {
   renderTown,
   renderDeathScreen,
   renderStats,
-  renderSettings,
   renderGrid,
 } from './renderFunctions';
 import Tree from './components/Tree';
 import Toast from './components/Toast';
 import HealthBar from './components/HealthBar';
+import { saveGameState, loadGameState } from './utils/storage';
+import Settings from './components/Settings';
 
 
 const MiniRPG = () => {
@@ -61,23 +62,63 @@ const MiniRPG = () => {
     depositAll,
   } = useInventoryManager();
 
-  const [currentMonster, setCurrentMonster] = useState('Goblin');
-  const [scores, setScores] = useState(
-    Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, { fights: 0, wins: 0 }]))
-  );
+  const loadInitialState = () => {
+    const savedState = loadGameState() || {};
+    return {
+      currentMonster: savedState.currentMonster || 'Goblin',
+      scores: savedState.scores || Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, { fights: 0, wins: 0 }])),
+      level: savedState.level || 1,
+      experience: savedState.experience || 0,
+      userDeaths: savedState.userDeaths || 0,
+      playerStats: savedState.playerStats || {
+        damageBonus: 0,
+        experienceBonus: 0,
+        goldMultiplier: 1,
+        autoUnlocked: false,
+        treePoints: 0,
+        treeInvestments: {
+          auto: 0,
+          damage: 0,
+          experience: 0,
+          lifesteal: 0,
+          goldBonus: 0,
+          stats: 0
+        }
+      },
+      pets: savedState.pets || Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, { count: 0, kc: [] }])),
+      killCount: savedState.killCount || Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, 0])),
+      completedAchievements: savedState.completedAchievements || [],
+      tutorialState: savedState.tutorialState || {
+        completed: false,
+        skipped: false
+      }
+    };
+  };
+
+  const initialState = loadInitialState();
+
+  // Local Storage Related State
+  const [currentMonster, setCurrentMonster] = useState(initialState.currentMonster);
+  const [scores, setScores] = useState(initialState.scores);
+  const [level, setLevel] = useState(initialState.level);
+  const [experience, setExperience] = useState(initialState.experience);
+  const [userDeaths, setUserDeaths] = useState(initialState.userDeaths);
+  const [playerStats, setPlayerStats] = useState(initialState.playerStats);
+  const [pets, setPets] = useState(initialState.pets);
+  const [killCount, setKillCount] = useState(initialState.killCount);
+  const [completedAchievements, setCompletedAchievements] = useState(initialState.completedAchievements);
+  const [showTutorial, setShowTutorial] = useState(!initialState.tutorialState.completed && !initialState.tutorialState.skipped);
+  
+  // Regular State
   const [checkSeed, setCheckSeed] = useState(Math.random());
   const [itemSeed, setItemSeed] = useState(Math.random());
   const [isFighting, setIsFighting] = useState(false);
-  const fightIntervalRef = useRef(null);
   const [monsterHitpoints, setMonsterHitpoints] = useState(monsterTypes[currentMonster].maxHP);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 750);
   const [crystalTimer, setCrystalTimer] = useState(0);
   const [purchaseNotification, setPurchaseNotification] = useState(false);
   const [potionTimer, setPotionTimer] = useState(0);
   const [tickets, setTickets] = useState(0);
-  const isMonsterClickable = !isFighting && tickets >= monsterTypes[currentMonster].ticketCost;
-  const [level, setLevel] = useState(1);
-  const [experience, setExperience] = useState(0);
   const [recycleMode, setRecycleMode] = useState(false);
   const [treeAvailable, setTreeAvailable] = useState(false);
   const [showTree, setShowTree] = useState(false);
@@ -86,45 +127,71 @@ const MiniRPG = () => {
   const [damageFlash, setDamageFlash] = useState(false);
   const [isLowHP, setIsLowHP] = useState(false);
   const [userIsDead, setUserIsDead] = useState(false);
-  const [userDeaths, setUserDeaths] = useState(0);
   const [fire, setFire] = useState({ isLit: false, lastUpdated: Date.now() });
   const [fireTimer, setFireTimer] = useState(0);
-  const fireTimeoutRef = useRef(null);
-  const isFightingRef = useRef(false);
   const [monsterAnimationState, setMonsterAnimationState] = useState('walking');
   const [showSettings, setShowSettings] = useState(false);
   const [inventoryBackground, setInventoryBackground] = useState('i');
   const [equipmentBackground, setEquipmentBackground] = useState('e');
   const [showCapybara, setShowCapybara] = useState(false);
-  const [playerStats, setPlayerStats] = useState({
-    damageBonus: 0,
-    experienceBonus: 0,
-    goldMultiplier: 1,
-    autoUnlocked: false,
-    treePoints: 0,
-    treeInvestments: {
-      auto: 0,
-      damage: 0,
-      experience: 0,
-      lifesteal: 0,
-      goldBonus: 0,
-      stats: 0
-    }
-  });
   const [tutorialStep, setTutorialStep] = useState(0);
-  const [showTutorial, setShowTutorial] = useState(true);
-  const currentTutorialStep = TUTORIAL_STEPS[tutorialStep];
-  const isHighlightingFirstSlot = showTutorial && currentTutorialStep?.highlight?.type === 'inventory_slot';
-  const isHighlightingPotion = showTutorial && currentTutorialStep?.highlight?.type === 'potion';
-  const isHighlightingMonster = showTutorial && currentTutorialStep?.highlight?.type === 'monster_icon';
   const [showTutorialCompletion, setShowTutorialCompletion] = useState(false);
   const [autoMode, setAutoMode] = useState(false);
   const [showSetCompletion, setShowSetCompletion] = useState(false);
   const [hasShownSetNotification, setHasShownSetNotification] = useState(false);
   const [showCodex, setShowCodex] = useState(false);
-  const [completedAchievements, setCompletedAchievements] = useState([]);
   const [isTreeButtonHighlighted, setIsTreeButtonHighlighted] = useState(false);
   const [isAutoHighlighted, setIsAutoHighlighted] = useState(false);
+  const [scale, setScale] = useState(1);
+  const [alignToTop, setAlignToTop] = useState(false);
+  const [overrideMobile, setOverrideMobile] = useState(false);
+  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
+  const [currentLocation, setCurrentLocation] = useState('game');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [hoveredPet, setHoveredPet] = useState(null);
+  const [lastAttack, setLastAttack] = useState({ damage: null, id: null });
+
+  // Computed State
+  const isMonsterClickable = !isFighting && tickets >= monsterTypes[currentMonster].ticketCost;
+  const currentTutorialStep = TUTORIAL_STEPS[tutorialStep] || {};
+  const isHighlightingFirstSlot = showTutorial && currentTutorialStep?.highlight?.type === 'inventory';
+  const isHighlightingPotion = showTutorial && currentTutorialStep?.highlight?.type === 'potion';
+  const isHighlightingMonster = showTutorial && currentTutorialStep?.highlight?.type === 'monster';
+
+  // Refs
+  const isSoundEnabledRef = useRef(true);
+  const fightIntervalRef = useRef(null);
+  const isFightingRef = useRef(false);
+  const fireTimeoutRef = useRef(null);
+  
+  // Audio State
+  const [attack1Sound, attack2Sound, getPetSound, fireworksSound, deathSound] = [
+    useRef(new Audio('/coinflip/assets/sounds/attack1.ogg')),
+    useRef(new Audio('/coinflip/assets/sounds/attack2.mp3')),
+    useRef(new Audio('/coinflip/assets/sounds/getPet.ogg')),
+    useRef(new Audio('/coinflip/assets/sounds/fireworks.ogg')),
+    useRef(new Audio('/coinflip/assets/sounds/death.mp3'))
+  ];
+
+  // Local Storage
+  useEffect(() => {
+    const gameState = {
+      currentMonster,
+      scores,
+      level,
+      experience,
+      userDeaths,
+      playerStats,
+      pets,
+      killCount,
+      completedAchievements,
+      tutorialState: {
+        completed: !showTutorial,
+        skipped: !showTutorial && !showTutorialCompletion
+      }
+    };
+    saveGameState({ ...loadGameState(), ...gameState });
+  }, [currentMonster, scores, level, experience, userDeaths, playerStats, pets, killCount, completedAchievements, showTutorial, showTutorialCompletion]);
 
   const handleTutorialEquip = () => {
     if (showTutorial && tutorialStep === 2) {
@@ -134,12 +201,28 @@ const MiniRPG = () => {
   const handleTutorialComplete = () => {
     setShowTutorial(false);
     setShowTutorialCompletion(true);
+    const savedState = loadGameState() || {};
+    saveGameState({
+      ...savedState,
+      tutorialState: {
+        ...savedState.tutorialState,
+        completed: true
+      }
+    });
   };
   const handleCloseTutorialCompletion = () => {
     setShowTutorialCompletion(false);
   };
   const handleSkipTutorial = () => {
     setShowTutorial(false);
+    const savedState = loadGameState() || {};
+    saveGameState({
+      ...savedState,
+      tutorialState: {
+        ...savedState.tutorialState,
+        skipped: true
+      }
+    });
   };
 
   const handleSelectNode = (node) => {
@@ -330,14 +413,7 @@ const MiniRPG = () => {
       handleMonsterClick();
     }
   }, [fireTimer]);
-
-  const [pets, setPets] = useState(
-    Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, { count: 0, kc: [] }]))
-  );
-  const [killCount, setKillCount] = useState(
-    Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, 0]))
-  );
-
+  
   useEffect(() => { // Resize listener
     const handleResize = () => {
       setIsDesktop(window.innerWidth >= 800);
@@ -348,10 +424,6 @@ const MiniRPG = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const [scale, setScale] = useState(1);
-  const [alignToTop, setAlignToTop] = useState(false);
-  const [overrideMobile, setOverrideMobile] = useState(false);
 
   const handleOverrideMobileView = () => {
     setOverrideMobile(true);
@@ -475,14 +547,6 @@ const MiniRPG = () => {
       removeItem(item.name, item);
     }
   }, [removeItem]);
-
-  const [isSoundEnabled, setIsSoundEnabled] = useState(true);
-  const isSoundEnabledRef = useRef(true);
-  const attack1Sound = useRef(new Audio('/coinflip/assets/sounds/attack1.ogg'));
-  const attack2Sound = useRef(new Audio('/coinflip/assets/sounds/attack2.mp3'));
-  const getPetSound = useRef(new Audio('/coinflip/assets/sounds/getPet.ogg'));
-  const fireworksSound = useRef(new Audio('/coinflip/assets/sounds/fireworks.ogg'));
-  const deathSound = useRef(new Audio('/coinflip/assets/sounds/death.mp3'));
 
   useEffect(() => {
     isSoundEnabledRef.current = isSoundEnabled;
@@ -685,69 +749,6 @@ const MiniRPG = () => {
   useEffect(() => { // Potion timer reference
     potionTimerRef.current = potionTimer;
   }, [potionTimer]);
-
-  const [lastAttack, setLastAttack] = useState({ damage: null, id: null });
-
-  useEffect(() => { // Fight Monster effect
-    const performAttack = () => {
-      // Move stat calculation outside to avoid recalculations
-      const userStats = calcStats(equipment, playerStats);
-      const accuracy = calcAccuracy(userStats, monsterTypes[currentMonster]);
-      
-      // Player attacks first
-      if (Math.random() < accuracy) {
-        const damage = (Math.max(1, Math.floor(userStats / 3)) + (playerStats.damageBonus || 0)) * (potionTimer > 0 ? 2 : 1);
-        setMonsterHitpoints(prev => Math.max(0, prev - damage));
-        
-        // Apply lifesteal if the player has it
-        if (playerStats.lifestealPercent > 0) {
-          const healAmount = Math.floor((damage * playerStats.lifestealPercent) / 100);
-          setUserHitpoints(prev => Math.min(maxUserHitpoints, prev + healAmount));
-        }
-        
-        playAttackSound(true);
-        setLastAttack({
-          id: Date.now(),
-          damage: damage
-        });
-      } else {
-        playAttackSound(false);
-        setLastAttack({
-          id: Date.now(),
-          damage: 0
-        });
-      }
-
-      // Monster attacks after 600ms (half of ATTACK_SPEED)
-      setTimeout(() => {
-        if (!isFightingRef.current) return; // Check if still fighting
-        
-        if (Math.random() < calcMonsterAccuracy(monsterTypes[currentMonster], userStats)) {
-          const monsterDamage = monsterTypes[currentMonster].damage;
-          setUserHitpoints(prev => {
-            const newHp = Math.max(0, prev - monsterDamage);
-            if (newHp === 0) {
-              handleUserDied();
-            }
-            return newHp;
-          });
-          setDamageFlash(true);
-          setTimeout(() => setDamageFlash(false), 200);
-        }
-      }, MONSTER_ATTACK_OFFSET);
-    };
-
-    if (isFighting) {
-      performAttack();
-      fightIntervalRef.current = setInterval(performAttack, ATTACK_SPEED);
-    } else {
-      clearInterval(fightIntervalRef.current);
-    }
-
-    return () => clearInterval(fightIntervalRef.current);
-  }, [isFighting, currentMonster]);
-
-  const [hoveredPet, setHoveredPet] = useState(null);
 
   const navigateMonster = (direction) => {
     const currentOrder = monsterTypes[currentMonster].order;
@@ -1010,9 +1011,6 @@ const MiniRPG = () => {
     setIsSoundEnabled(prev => !prev);
   };
 
-  const [currentLocation, setCurrentLocation] = useState('game');
-  const [isTransitioning, setIsTransitioning] = useState(false);
-
   useEffect(() => {
     if (fire.isLit && monsterAnimationState === 'walking' && !isFighting && isMonsterClickable) {
       const timer = setTimeout(() => {
@@ -1254,7 +1252,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.14.2 - <a href='https://alan.computer'
+          v1.15.0 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
@@ -1263,13 +1261,7 @@ const MiniRPG = () => {
         </div>
       </div>
       
-      {showSettings && renderSettings(
-        inventoryBackground,
-        setInventoryBackground,
-        equipmentBackground,
-        setEquipmentBackground,
-        toggleSettings,
-      )}
+      {showSettings && <Settings onClose={() => setShowSettings(false)} />}
       {showSetCompletion && (
         <Toast
           message="Achievement: Full Common Set Equipped"

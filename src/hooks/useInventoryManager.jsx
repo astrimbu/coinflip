@@ -1,4 +1,5 @@
-import { useReducer, useCallback } from 'react';
+import { useReducer, useCallback, useEffect } from 'react';
+import { saveGameState, loadGameState } from '../utils/storage';
 
 // Constants
 const MAX_INVENTORY_SLOTS = 16;
@@ -243,6 +244,9 @@ const useInventoryManager = () => {
     inventoryFull: false,
     recentItems: [],
     bankItems: {}
+  }, (initialState) => {
+    const savedState = loadGameState();
+    return savedState?.inventory ? savedState : initialState;
   });
 
   const addItem = useCallback((category, item) => {
@@ -284,6 +288,10 @@ const useInventoryManager = () => {
   const depositAll = useCallback(() => {
     dispatch({ type: DEPOSIT_ALL });
   }, []);
+
+  useEffect(() => {
+    saveGameState(state);
+  }, [state]);
 
   return {
     inventory: state.inventory,
