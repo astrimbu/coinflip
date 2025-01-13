@@ -225,6 +225,67 @@ const MiniRPG = () => {
     });
   };
 
+  // Fight Monster effect
+  useEffect(() => {
+    const performAttack = () => {
+      // Move stat calculation outside to avoid recalculations
+      const userStats = calcStats(equipment, playerStats);
+      const accuracy = calcAccuracy(userStats, monsterTypes[currentMonster]);
+      
+      // Player attacks first
+      if (Math.random() < accuracy) {
+        const damage = (Math.max(1, Math.floor(userStats / 3)) + (playerStats.damageBonus || 0)) * (potionTimer > 0 ? 2 : 1);
+        setMonsterHitpoints(prev => Math.max(0, prev - damage));
+        
+        // Apply lifesteal if the player has it
+        if (playerStats.lifestealPercent > 0) {
+          const healAmount = Math.floor((damage * playerStats.lifestealPercent) / 100);
+          setUserHitpoints(prev => Math.min(maxUserHitpoints, prev + healAmount));
+        }
+        
+        playAttackSound(true);
+        setLastAttack({
+          id: Date.now(),
+          damage: damage
+        });
+      } else {
+        playAttackSound(false);
+        setLastAttack({
+          id: Date.now(),
+          damage: 0
+        });
+      }
+
+      // Monster attacks after 600ms (half of ATTACK_SPEED)
+      setTimeout(() => {
+        if (!isFightingRef.current) return; // Check if still fighting
+        
+        if (Math.random() < calcMonsterAccuracy(monsterTypes[currentMonster], userStats)) {
+          const monsterDamage = monsterTypes[currentMonster].damage;
+          setUserHitpoints(prev => {
+            const newHp = Math.max(0, prev - monsterDamage);
+            if (newHp === 0) {
+              handleUserDied();
+            }
+            return newHp;
+          });
+          setDamageFlash(true);
+          setTimeout(() => setDamageFlash(false), 200);
+        }
+      }, MONSTER_ATTACK_OFFSET);
+    };
+
+    if (isFighting) {
+      performAttack();
+      fightIntervalRef.current = setInterval(performAttack, ATTACK_SPEED);
+    } else {
+      clearInterval(fightIntervalRef.current);
+    }
+
+    return () => clearInterval(fightIntervalRef.current);
+  }, [isFighting, currentMonster, equipment, playerStats, potionTimer, maxUserHitpoints]);
+
+
   const handleSelectNode = (node) => {
     if (playerStats.treePoints <= 0) return;
 
@@ -1252,7 +1313,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.15.0 - <a href='https://alan.computer'
+          v1.15.1 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
