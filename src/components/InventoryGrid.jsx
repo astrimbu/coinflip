@@ -255,9 +255,6 @@ const InventoryGrid = ({
           </button>
         </div>
       )}
-      {flattenedItems.length >= 16 && (
-        <p style={{ margin: '5px 0 0 0', fontSize: '12px' }}>Inventory is full</p>
-      )}
     </div>
   );
 };

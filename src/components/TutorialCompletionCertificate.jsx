@@ -21,7 +21,7 @@ const TutorialCompletionCertificate = ({ onClose }) => {
       <ul style={{ textAlign: 'left', fontSize: '11px' }}>
         <li>Go to Town to escape fights</li>
         <li>Recycle dupes to upgrade equipment</li>
-        <li>Arrows navigate between monsters</li>
+        <li>You can right-click drop items</li>
       </ul>
       <button 
         onClick={onClose}

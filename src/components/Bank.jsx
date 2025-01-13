@@ -28,8 +28,7 @@ const Bank = ({ inventory, bankItems, onDeposit, onWithdraw, depositAll }) => {
         zIndex: 1,
         overflow: 'hidden', // Add this to prevent content from overflowing
       }}>
-        <div style={{ width: '30%', padding: '10px' }}>
-          <h3>Inventory</h3>
+        <div style={{ width: '30%', padding: '20px' }}>
           <InventoryGrid
             items={inventory}
             onDeposit={onDeposit}

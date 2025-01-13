@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { getColor } from '../utils';
 import { monsterTypes } from '../constants/gameData';
 
-const Codex = ({ onClose, completedAchievements }) => {
+const Codex = ({ onClose, completedAchievements, pets }) => {
   const [selectedCategory, setSelectedCategory] = useState('monsters');
   const [selectedMonster, setSelectedMonster] = useState(null);
 
@@ -21,22 +21,26 @@ const Codex = ({ onClose, completedAchievements }) => {
     Goblin: [
       { item: 'Weapon', rarity: 'Common' },
       { item: 'Body', rarity: 'Common' },
-      { item: 'Gold', rarity: null }
+      { item: 'Gold', rarity: null },
+      { item: 'Pet', rarity: 'Unique', dropRate: '0.1%' }
     ],
     Ogre: [
       { item: 'Weapon', rarity: 'Magic' },
       { item: 'Body', rarity: 'Magic' },
-      { item: 'Gold', rarity: null }
+      { item: 'Gold', rarity: null },
+      { item: 'Pet', rarity: 'Unique', dropRate: '0.1%' }
     ],
     Demon: [
       { item: 'Weapon', rarity: 'Rare' },
       { item: 'Body', rarity: 'Rare' },
-      { item: 'Gold', rarity: null }
+      { item: 'Gold', rarity: null },
+      { item: 'Pet', rarity: 'Unique', dropRate: '0.1%' }
     ],
     Dragon: [
       { item: 'Weapon', rarity: 'Unique' },
       { item: 'Body', rarity: 'Unique' },
-      { item: 'Gold', rarity: null }
+      { item: 'Gold', rarity: null },
+      { item: 'Pet', rarity: 'Unique', dropRate: '0.1%' }
     ]
   };
 
@@ -116,17 +120,23 @@ const Codex = ({ onClose, completedAchievements }) => {
                       >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <img 
-                            src={drop.rarity 
-                              ? `/coinflip/assets/items/${drop.item.toLowerCase()}-${drop.rarity.toLowerCase()}.png`
-                              : `/coinflip/assets/items/${drop.item.toLowerCase()}.png`
+                            src={drop.item === 'Pet' 
+                              ? `/coinflip/assets/monsters/${selectedMonster.toLowerCase()}.png`
+                              : drop.rarity 
+                                ? `/coinflip/assets/items/${drop.item.toLowerCase()}-${drop.rarity.toLowerCase()}.png`
+                                : `/coinflip/assets/items/${drop.item.toLowerCase()}.png`
                             }
                             alt={drop.item}
                             style={{ height: '24px' }}
                           />
-                          <span style={{ color: '#333' }}>{drop.item}</span>
+                          <span style={{ color: '#333' }}>
+                            {drop.item}
+                            {drop.item === 'Pet' && pets[selectedMonster] && ` (${pets[selectedMonster].count})`}
+                          </span>
                         </div>
                         <span style={{ color: getColor(drop.rarity) }}>
                           {drop.rarity}
+                          {drop.dropRate && ` - ${drop.dropRate}`}
                         </span>
                       </div>
                     ))}
