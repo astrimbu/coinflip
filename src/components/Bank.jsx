@@ -3,7 +3,7 @@ import InventoryGrid from './InventoryGrid';
 import { getItemUrl, getColor } from '../utils';
 import { MIN_HEIGHT_VIEW } from '../constants/gameData';
 
-const Bank = ({ inventory, bankItems, onDeposit, onWithdraw }) => {
+const Bank = ({ inventory, bankItems, onDeposit, onWithdraw, depositAll }) => {
   return (
     <div style={{
         display: 'flex',
@@ -35,6 +35,26 @@ const Bank = ({ inventory, bankItems, onDeposit, onWithdraw }) => {
             onDeposit={onDeposit}
             actionLabel="Deposit"
           />
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            marginTop: '10px' 
+          }}>
+            <button
+              onClick={depositAll}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              Deposit All
+            </button>
+          </div>
         </div>
 
         <div style={{ width: '70%', padding: '10px', display: 'flex', flexDirection: 'column' }}>

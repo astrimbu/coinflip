@@ -206,7 +206,7 @@ export const renderRecycler = (inventory, inventoryFull, scrap, handleRecycle, r
   </div>
 );
 
-export const renderBank = (inventory, bankItems, handleDeposit, handleWithdraw) => (
+export const renderBank = (inventory, bankItems, handleDeposit, handleWithdraw, depositAll) => (
   <Area monster="Bank">
     <div style={{
       display: 'flex',
@@ -220,6 +220,7 @@ export const renderBank = (inventory, bankItems, handleDeposit, handleWithdraw) 
         bankItems={bankItems}
         onDeposit={handleDeposit}
         onWithdraw={handleWithdraw}
+        depositAll={depositAll}
       />
     </div>
   </Area>

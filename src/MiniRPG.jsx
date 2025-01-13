@@ -58,6 +58,7 @@ const MiniRPG = () => {
     removeScrap,
     depositItem,
     withdrawItem,
+    depositAll,
   } = useInventoryManager();
 
   const [currentMonster, setCurrentMonster] = useState('Goblin');
@@ -1062,7 +1063,13 @@ const MiniRPG = () => {
         case 'shop':
           return renderShop(inventory, inventoryFull, purchaseItem, purchaseNotification);
         case 'bank':
-          return renderBank(inventory, bankItems, handleDeposit, handleWithdraw);
+          return renderBank(
+            inventory,
+            bankItems,
+            handleDeposit,
+            handleWithdraw,
+            depositAll
+          );
         case 'pond':
           return renderPond(showCapybara);
         case 'stats':
@@ -1119,39 +1126,43 @@ const MiniRPG = () => {
           >
             🏠
           </button>
-          <button
-            onClick={openTree}
-            style={{
-              padding: '10px',
-              fontSize: '24px',
-              backgroundColor: playerStats.treePoints > 0 ? '#c8b400' : '#C0C0C0',
-              border: 'none',
-              borderRadius: '10px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              animation: isTreeButtonHighlighted ? 'pulse 1s infinite' : 'none',
-            }}
-          >
-            🌳
-          </button>
-          <button
-            onClick={openCodex}
-            style={{
-              padding: '10px',
-              fontSize: '24px',
-              backgroundColor: '#8b4513',
-              border: 'none',
-              borderRadius: '10px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            📚
-          </button>
+          {(currentLocation === 'game' || currentLocation === 'town') && (
+            <>
+              <button
+                onClick={openTree}
+                style={{
+                  padding: '10px',
+                  fontSize: '24px',
+                  backgroundColor: playerStats.treePoints > 0 ? '#c8b400' : '#C0C0C0',
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  animation: isTreeButtonHighlighted ? 'pulse 1s infinite' : 'none',
+                }}
+              >
+                🌳
+              </button>
+              <button
+                onClick={openCodex}
+                style={{
+                  padding: '10px',
+                  fontSize: '24px',
+                  backgroundColor: '#8b4513',
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                📚
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -1243,7 +1254,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.14.1 - <a href='https://alan.computer'
+          v1.14.2 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

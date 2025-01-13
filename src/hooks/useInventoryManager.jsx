@@ -13,6 +13,7 @@ const RECYCLE_ITEMS = 'RECYCLE_ITEMS';
 const REMOVE_SCRAP = 'REMOVE_SCRAP';
 const DEPOSIT_ITEM = 'DEPOSIT_ITEM';
 const WITHDRAW_ITEM = 'WITHDRAW_ITEM';
+const DEPOSIT_ALL = 'DEPOSIT_ALL';
 
 // Utility functions
 const countInventoryItems = (inventory) => {
@@ -178,6 +179,32 @@ const inventoryReducer = (state, action) => {
         return state;
       }
     }
+    case DEPOSIT_ALL: {
+      const updatedInventory = { ...state.inventory };
+      const updatedBankItems = { ...state.bankItems };
+
+      // Get all items from inventory except currencies
+      Object.entries(updatedInventory).forEach(([category, items]) => {
+        if (Array.isArray(items)) {
+          items.forEach(item => {
+            const itemKey = `${item.name}_${item.rarity}`;
+            if (!updatedBankItems[itemKey]) {
+              updatedBankItems[itemKey] = [];
+            }
+            updatedBankItems[itemKey] = [...updatedBankItems[itemKey], item];
+          });
+          // Clear the category
+          updatedInventory[category] = [];
+        }
+      });
+
+      return {
+        ...state,
+        inventory: updatedInventory,
+        bankItems: updatedBankItems,
+        inventoryFull: false,
+      };
+    }
     default:
       return state;
   }
@@ -254,6 +281,10 @@ const useInventoryManager = () => {
     dispatch({ type: WITHDRAW_ITEM, payload: { category, itemKey } });
   }, []);
 
+  const depositAll = useCallback(() => {
+    dispatch({ type: DEPOSIT_ALL });
+  }, []);
+
   return {
     inventory: state.inventory,
     equipment: state.equipment,
@@ -270,6 +301,7 @@ const useInventoryManager = () => {
     removeScrap,
     depositItem,
     withdrawItem,
+    depositAll,
   };
 };
 
