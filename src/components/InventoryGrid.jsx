@@ -40,7 +40,7 @@ const InventoryGrid = ({
       onLightFire(item);
     } else {
       onEquip(item, item.name);
-      if (isHighlightingFirstSlot && index === 0 && onTutorialEquip) {
+      if (isHighlightingFirstSlot && onTutorialEquip) {
         onTutorialEquip();
       }
     }

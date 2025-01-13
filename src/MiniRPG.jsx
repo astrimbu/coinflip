@@ -90,7 +90,8 @@ const MiniRPG = () => {
       completedAchievements: savedState.completedAchievements || [],
       tutorialState: savedState.tutorialState || {
         completed: false,
-        skipped: false
+        skipped: false,
+        currentStep: 0
       }
     };
   };
@@ -134,7 +135,9 @@ const MiniRPG = () => {
   const [inventoryBackground, setInventoryBackground] = useState('i');
   const [equipmentBackground, setEquipmentBackground] = useState('e');
   const [showCapybara, setShowCapybara] = useState(false);
-  const [tutorialStep, setTutorialStep] = useState(0);
+  const [tutorialStep, setTutorialStep] = useState(
+    initialState.tutorialState.currentStep || 0
+  );
   const [showTutorialCompletion, setShowTutorialCompletion] = useState(false);
   const [autoMode, setAutoMode] = useState(false);
   const [showSetCompletion, setShowSetCompletion] = useState(false);
@@ -154,7 +157,7 @@ const MiniRPG = () => {
   // Computed State
   const isMonsterClickable = !isFighting && tickets >= monsterTypes[currentMonster].ticketCost;
   const currentTutorialStep = TUTORIAL_STEPS[tutorialStep] || {};
-  const isHighlightingFirstSlot = showTutorial && currentTutorialStep?.highlight?.type === 'inventory';
+  const isHighlightingFirstSlot = showTutorial && currentTutorialStep?.highlight?.type === 'inventory_slot';
   const isHighlightingPotion = showTutorial && currentTutorialStep?.highlight?.type === 'potion';
   const isHighlightingMonster = showTutorial && currentTutorialStep?.highlight?.type === 'monster';
 
@@ -195,7 +198,16 @@ const MiniRPG = () => {
 
   const handleTutorialEquip = () => {
     if (showTutorial && tutorialStep === 2) {
-      setTutorialStep(tutorialStep + 1);
+      setTutorialStep(prev => prev + 1);
+      
+      const savedState = loadGameState() || {};
+      saveGameState({
+        ...savedState,
+        tutorialState: {
+          ...savedState.tutorialState,
+          currentStep: tutorialStep + 1
+        }
+      });
     }
   };
   const handleTutorialComplete = () => {
@@ -1319,7 +1331,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.15.2 - <a href='https://alan.computer'
+          v1.15.3 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
