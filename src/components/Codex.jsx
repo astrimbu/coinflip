@@ -50,6 +50,18 @@ const Codex = ({ onClose, completedAchievements, pets }) => {
       title: 'Common Ground',
       description: 'Equip a full set of Common gear',
       icon: '👕'
+    },
+    {
+      id: 'unique_set',
+      title: 'Uniquely Equipped',
+      description: 'Equip a full set of Unique gear',
+      icon: '👑'
+    },
+    {
+      id: 'all_pets',
+      title: 'Pet Master',
+      description: 'Obtain all monster pets',
+      icon: '🐾'
     }
   ];
 
@@ -190,7 +202,9 @@ const Codex = ({ onClose, completedAchievements, pets }) => {
                 display: 'grid', 
                 gap: '10px', 
                 justifyContent: 'center', 
-                alignItems: 'center' 
+                alignItems: 'center',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                justifyItems: 'center'
               }}
             >
               {achievements.map(achievement => (
@@ -200,32 +214,38 @@ const Codex = ({ onClose, completedAchievements, pets }) => {
                     padding: '10px',
                     border: '1px solid #ccc',
                     borderRadius: '4px',
-                    width: '200px',
+                    width: '50px',
+                    height: '50px',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    gap: '5px',
+                    justifyContent: 'center',
                     backgroundColor: completedAchievements?.includes(achievement.id) 
                       ? '#e8f5e9'  // Light green background for completed
                       : '#fff',
                     opacity: completedAchievements?.includes(achievement.id) ? 1 : 0.7,
+                    position: 'relative',
+                    cursor: 'help',
                   }}
+                  title={`${achievement.title}: ${achievement.description}${completedAchievements?.includes(achievement.id) ? ' (Completed)' : ''}`}
                 >
-                  <div style={{ fontSize: '24px' }}>{achievement.icon}</div>
-                  <h4 style={{ margin: '5px 0' }}>
-                    {achievement.title}
-                    {completedAchievements?.includes(achievement.id) && 
-                      <span style={{ color: '#4CAF50', marginLeft: '5px' }}>✓</span>
-                    }
-                  </h4>
-                  <p style={{ 
-                    margin: '0', 
-                    fontSize: '0.9em', 
-                    color: completedAchievements?.includes(achievement.id) ? '#2e7d32' : '#666',
-                    textAlign: 'center'
+                  <div style={{ 
+                    fontSize: '32px',
+                    position: 'relative'
                   }}>
-                    {achievement.description}
-                  </p>
+                    {achievement.icon}
+                    {completedAchievements?.includes(achievement.id) && 
+                      <span style={{ 
+                        color: '#4CAF50',
+                        position: 'absolute',
+                        bottom: '-10px',
+                        right: '-10px',
+                        fontSize: '16px'
+                      }}>
+                        ✓
+                      </span>
+                    }
+                  </div>
                 </div>
               ))}
             </div>

@@ -1254,16 +1254,36 @@ const MiniRPG = () => {
     if (hasShownSetNotification) return;
     
     const requiredSlots = ['Hat', 'Cape', 'Amulet', 'Weapon', 'Body', 'Pants', 'Gloves', 'Boots', 'Ring'];
+    
+    // Check for Common set
     const hasFullCommonSet = requiredSlots.every(slot => 
       equipment[slot] && equipment[slot].rarity === 'Common'
     );
+
+    // Check for Unique set
+    const hasFullUniqueSet = requiredSlots.every(slot => 
+      equipment[slot] && equipment[slot].rarity === 'Unique'
+    );
+
+    // Check for all pets
+    const hasAllPets = Object.values(pets).every(pet => pet.count > 0);
 
     if (hasFullCommonSet) {
       setShowSetCompletion(true);
       setHasShownSetNotification(true);
       setCompletedAchievements(prev => [...prev, 'common_set']);
     }
-  }, [equipment, hasShownSetNotification]);
+
+    if (hasFullUniqueSet) {
+      setShowSetCompletion(true);
+      setCompletedAchievements(prev => [...prev, 'unique_set']);
+    }
+
+    if (hasAllPets) {
+      setShowSetCompletion(true);
+      setCompletedAchievements(prev => [...prev, 'all_pets']);
+    }
+  }, [equipment, hasShownSetNotification, pets]);
 
   useEffect(() => {
     checkFullCommonSet();
@@ -1331,7 +1351,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.15.3 - <a href='https://alan.computer'
+          v1.15.4 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
