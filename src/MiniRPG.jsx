@@ -155,7 +155,7 @@ const MiniRPG = () => {
   const [lastAttack, setLastAttack] = useState({ damage: null, id: null });
 
   // Computed State
-  const isMonsterClickable = !isFighting && tickets >= monsterTypes[currentMonster].ticketCost;
+  const isMonsterClickable = !isFighting;
   const currentTutorialStep = TUTORIAL_STEPS[tutorialStep] || {};
   const isHighlightingFirstSlot = showTutorial && currentTutorialStep?.highlight?.type === 'inventory_slot';
   const isHighlightingPotion = showTutorial && currentTutorialStep?.highlight?.type === 'potion';
@@ -709,11 +709,6 @@ const MiniRPG = () => {
   };
 
   const fightMonster = () => {
-    const ticketCost = monsterTypes[currentMonster].ticketCost;
-    if (tickets < ticketCost) {
-      return;
-    }
-    setTickets((prevTickets) => prevTickets - ticketCost);
     setIsFighting(true);
   };
 
@@ -766,7 +761,6 @@ const MiniRPG = () => {
     // Apply gold multiplier
     const baseGold = 1;
     const goldGained = Math.floor(baseGold * playerStats.goldMultiplier);
-    setTickets((prevTickets) => prevTickets + 10);
     updateCurrency('Gold', goldGained);
     
     setKillCount((prevKillCount) => ({
@@ -1351,7 +1345,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.15.4 - <a href='https://alan.computer'
+          v1.15.5 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
