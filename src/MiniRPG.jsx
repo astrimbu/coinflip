@@ -29,12 +29,9 @@ import {
   renderEquipment,
   renderRecycler,
   renderBank,
-  renderPond,
   renderMobileView,
   renderTown,
   renderDeathScreen,
-  renderStats,
-  renderGrid,
 } from './renderFunctions';
 import Tree from './components/Tree';
 import Toast from './components/Toast';
@@ -1139,12 +1136,6 @@ const MiniRPG = () => {
             handleWithdraw,
             depositAll
           );
-        case 'pond':
-          return renderPond(showCapybara);
-        case 'stats':
-          return renderStats(killCount, scores, pets, userDeaths);
-        case 'grid':
-          return renderGrid();
         default:
           return renderGame();
       }
@@ -1366,7 +1357,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.15.7 - <a href='https://alan.computer'
+          v1.15.8 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

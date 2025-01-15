@@ -7,7 +7,6 @@ import Bank from './components/Bank';
 import Shop from './components/Shop';
 import WornEquipment from './components/WornEquipment';
 import Recycler from './components/Recycler';
-import Grid from './components/Grid';
 import { MIN_HEIGHT_VIEW } from './constants/gameData';
 import AutoToggle from './components/AutoToggle';
 import Tree from './components/Tree';
@@ -226,42 +225,6 @@ export const renderBank = (inventory, bankItems, handleDeposit, handleWithdraw, 
   </Area>
 );
 
-export const renderPond = (showCapybara) => {
-  return (
-    <Area monster="Pond">
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: MIN_HEIGHT_VIEW,
-        position: 'relative',
-      }}>
-        <div style={{ fontSize: '48px', marginBottom: '20px' }}>
-        🎣🐟🌊🚣
-        </div>
-        <h2 style={{ color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Pond</h2>
-        <p style={{ fontSize: '24px', fontStyle: 'italic', color: 'white', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>Coming soon™️</p>
-        {showCapybara && (
-          <img
-            key={Date.now()}
-            src="/coinflip/assets/backgrounds/capybara.gif"
-            alt="Capybara"
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              maxWidth: '200px',
-              maxHeight: '200px',
-            }}
-          />
-        )}
-      </div>
-    </Area>
-  );
-};
-
 export const renderMobileView = (props) => {
   const {
     currentMonster,
@@ -362,69 +325,3 @@ export const renderDeathScreen = (handleContinue) => (
     </div>
   </div>
 );
-
-export const renderStats = (killCount, scores, pets, userDeaths) => {
-  return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', borderRadius: '10px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '30px' }}>
-        <div style={{ flexBasis: '30%', minWidth: '200px' }}>
-          <h3 style={{ color: '#444', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>Monster Kills</h3>
-          <ul style={{ listStyleType: 'none', padding: 0 }}>
-            {Object.entries(killCount).map(([monster, count]) => (
-              <li key={monster} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}>
-                <span>{monster}:</span> <span style={{ fontWeight: 'bold' }}>{count}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div style={{ flexBasis: '30%', minWidth: '200px' }}>
-          <h3 style={{ color: '#444', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>Fight Scores</h3>
-          <ul style={{ listStyleType: 'none', padding: 0 }}>
-            {Object.entries(scores).map(([monster, { fights, wins }]) => (
-              <li key={monster} style={{ padding: '3px 0' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>{monster}:</span>
-                  <span style={{ fontWeight: 'bold' }}>{wins}/{fights}</span>
-                </div>
-                <div style={{ fontSize: '0.8em', color: '#666', textAlign: 'right' }}>
-                  ({fights > 0 ? ((wins / fights) * 100).toFixed(1) : 0}% win)
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div style={{ flexBasis: '30%', minWidth: '200px' }}>
-          <h3 style={{ color: '#444', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>Pets Collected</h3>
-          <ul style={{ listStyleType: 'none', padding: 0 }}>
-            {Object.entries(pets).map(([monster, { count, kc }]) => (
-              <li key={monster} style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0' }}>
-                <span>{monster}:</span>
-                <span style={{ fontWeight: 'bold' }}>
-                  {count} {count > 0 && <span style={{ fontSize: '0.8em', color: '#666' }}>({kc.join(', ')})</span>}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-      <div style={{ marginTop: '20px', textAlign: 'center', color: '#666' }}>
-        Total Deaths: <span style={{ fontWeight: 'bold' }}>{userDeaths}</span>
-      </div>
-    </div>
-  );
-};
-
-export const renderGrid = () => {
-  return (
-    <div style={{
-      minHeight: MIN_HEIGHT_VIEW,
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-    }}>
-      <Grid />
-    </div>
-  );
-};
