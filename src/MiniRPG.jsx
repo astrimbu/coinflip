@@ -85,6 +85,8 @@ const MiniRPG = () => {
           stats: 0
         }
       },
+      maxUserHitpoints: savedState.maxUserHitpoints || 10,
+      userHitpoints: savedState.userHitpoints || 10,
       pets: savedState.pets || Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, { count: 0, kc: [] }])),
       killCount: savedState.killCount || Object.fromEntries(Object.keys(monsterTypes).map(monster => [monster, 0])),
       completedAchievements: savedState.completedAchievements || [],
@@ -109,6 +111,11 @@ const MiniRPG = () => {
   const [killCount, setKillCount] = useState(initialState.killCount);
   const [completedAchievements, setCompletedAchievements] = useState(initialState.completedAchievements);
   const [showTutorial, setShowTutorial] = useState(!initialState.tutorialState.completed && !initialState.tutorialState.skipped);
+  const [userHitpoints, setUserHitpoints] = useState(initialState.userHitpoints);
+  const [maxUserHitpoints, setMaxUserHitpoints] = useState(initialState.maxUserHitpoints);
+  const [tutorialStep, setTutorialStep] = useState(
+    initialState.tutorialState.currentStep || 0
+  );
   
   // Regular State
   const [checkSeed, setCheckSeed] = useState(Math.random());
@@ -123,8 +130,6 @@ const MiniRPG = () => {
   const [recycleMode, setRecycleMode] = useState(false);
   const [treeAvailable, setTreeAvailable] = useState(false);
   const [showTree, setShowTree] = useState(false);
-  const [userHitpoints, setUserHitpoints] = useState(10);
-  const [maxUserHitpoints, setMaxUserHitpoints] = useState(10);
   const [damageFlash, setDamageFlash] = useState(false);
   const [isLowHP, setIsLowHP] = useState(false);
   const [userIsDead, setUserIsDead] = useState(false);
@@ -135,9 +140,6 @@ const MiniRPG = () => {
   const [inventoryBackground, setInventoryBackground] = useState('i');
   const [equipmentBackground, setEquipmentBackground] = useState('e');
   const [showCapybara, setShowCapybara] = useState(false);
-  const [tutorialStep, setTutorialStep] = useState(
-    initialState.tutorialState.currentStep || 0
-  );
   const [showTutorialCompletion, setShowTutorialCompletion] = useState(false);
   const [autoMode, setAutoMode] = useState(false);
   const [showSetCompletion, setShowSetCompletion] = useState(false);
@@ -166,6 +168,10 @@ const MiniRPG = () => {
   const fightIntervalRef = useRef(null);
   const isFightingRef = useRef(false);
   const fireTimeoutRef = useRef(null);
+  const potionTimerRef = useRef(potionTimer);
+  const equipmentRef = useRef(equipment);
+  const playerStatsRef = useRef(playerStats);
+  const currentMonsterRef = useRef(currentMonster);
   
   // Audio State
   const [attack1Sound, attack2Sound, getPetSound, fireworksSound, deathSound] = [
@@ -188,13 +194,15 @@ const MiniRPG = () => {
       pets,
       killCount,
       completedAchievements,
+      userHitpoints,
+      maxUserHitpoints,
       tutorialState: {
         completed: !showTutorial,
         skipped: !showTutorial && !showTutorialCompletion
       }
     };
     saveGameState({ ...loadGameState(), ...gameState });
-  }, [currentMonster, scores, level, experience, userDeaths, playerStats, pets, killCount, completedAchievements, showTutorial, showTutorialCompletion]);
+  }, [currentMonster, scores, level, experience, userDeaths, playerStats, pets, killCount, completedAchievements, showTutorial, showTutorialCompletion, userHitpoints, maxUserHitpoints]);
 
   const handleTutorialEquip = () => {
     if (showTutorial && tutorialStep === 2) {
@@ -240,18 +248,20 @@ const MiniRPG = () => {
   // Fight Monster effect
   useEffect(() => {
     const performAttack = () => {
-      // Move stat calculation outside to avoid recalculations
-      const userStats = calcStats(equipment, playerStats);
-      const accuracy = calcAccuracy(userStats, monsterTypes[currentMonster]);
+      // Use .current values from refs
+      const userStats = calcStats(equipmentRef.current, playerStatsRef.current);
+      const accuracy = calcAccuracy(userStats, monsterTypes[currentMonsterRef.current]);
       
       // Player attacks first
       if (Math.random() < accuracy) {
-        const damage = (Math.max(1, Math.floor(userStats / 3)) + (playerStats.damageBonus || 0)) * (potionTimer > 0 ? 2 : 1);
+        const baseDamage = Math.max(1, Math.floor(userStats / 3)) + 
+          (playerStatsRef.current.damageBonus || 0);
+        const damage = potionTimerRef.current > 0 ? baseDamage * 2 : baseDamage;
+        
         setMonsterHitpoints(prev => Math.max(0, prev - damage));
         
-        // Apply lifesteal if the player has it
-        if (playerStats.lifestealPercent > 0) {
-          const healAmount = Math.floor((damage * playerStats.lifestealPercent) / 100);
+        if (playerStatsRef.current.lifestealPercent > 0) {
+          const healAmount = Math.floor((damage * playerStatsRef.current.lifestealPercent) / 100);
           setUserHitpoints(prev => Math.min(maxUserHitpoints, prev + healAmount));
         }
         
@@ -268,12 +278,12 @@ const MiniRPG = () => {
         });
       }
 
-      // Monster attacks after 600ms (half of ATTACK_SPEED)
+      // Monster attacks after MONSTER_ATTACK_OFFSET ms
       setTimeout(() => {
-        if (!isFightingRef.current) return; // Check if still fighting
+        if (!isFightingRef.current) return;
         
-        if (Math.random() < calcMonsterAccuracy(monsterTypes[currentMonster], userStats)) {
-          const monsterDamage = monsterTypes[currentMonster].damage;
+        if (Math.random() < calcMonsterAccuracy(monsterTypes[currentMonsterRef.current], userStats)) {
+          const monsterDamage = monsterTypes[currentMonsterRef.current].damage;
           setUserHitpoints(prev => {
             const newHp = Math.max(0, prev - monsterDamage);
             if (newHp === 0) {
@@ -295,7 +305,7 @@ const MiniRPG = () => {
     }
 
     return () => clearInterval(fightIntervalRef.current);
-  }, [isFighting, currentMonster, equipment, playerStats, potionTimer, maxUserHitpoints]);
+  }, [isFighting, maxUserHitpoints]); // Minimal dependencies
 
 
   const handleSelectNode = (node) => {
@@ -811,12 +821,6 @@ const MiniRPG = () => {
     setUserHitpoints(maxUserHitpoints);
   };
 
-  const potionTimerRef = useRef(potionTimer);
-
-  useEffect(() => { // Potion timer reference
-    potionTimerRef.current = potionTimer;
-  }, [potionTimer]);
-
   const navigateMonster = (direction) => {
     const currentOrder = monsterTypes[currentMonster].order;
     const monsterCount = Object.keys(monsterTypes).length;
@@ -1283,6 +1287,22 @@ const MiniRPG = () => {
     checkFullCommonSet();
   }, [equipment, checkFullCommonSet]);
 
+  useEffect(() => { // update potion timer ref
+    potionTimerRef.current = potionTimer;
+  }, [potionTimer]);
+
+  useEffect(() => { // update equipment ref
+    equipmentRef.current = equipment;
+  }, [equipment]);
+
+  useEffect(() => { // update player stats ref
+    playerStatsRef.current = playerStats;
+  }, [playerStats]);
+
+  useEffect(() => { // update current monster ref
+    currentMonsterRef.current = currentMonster;
+  }, [currentMonster]);
+
   return (
     <div style={{
       width: '100%',
@@ -1345,7 +1365,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.15.5 - <a href='https://alan.computer'
+          v1.15.6 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
