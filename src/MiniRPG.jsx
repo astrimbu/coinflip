@@ -1325,6 +1325,7 @@ const MiniRPG = () => {
             onClose={closeCodex} 
             completedAchievements={completedAchievements}
             pets={pets}
+            killCount={killCount}
           />
         )}
         {((isDesktop || overrideMobile) && showTutorial) && (
@@ -1365,7 +1366,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.15.6 - <a href='https://alan.computer'
+          v1.15.7 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',

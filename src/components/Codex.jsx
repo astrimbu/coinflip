@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { getColor } from '../utils';
 import { monsterTypes } from '../constants/gameData';
 
-const Codex = ({ onClose, completedAchievements, pets }) => {
+const Codex = ({ onClose, completedAchievements, pets, killCount }) => {
   const [selectedCategory, setSelectedCategory] = useState('monsters');
-  const [selectedMonster, setSelectedMonster] = useState(null);
+  const [selectedMonster, setSelectedMonster] = useState('Goblin');
+  const [selectedAchievement, setSelectedAchievement] = useState(null);
 
   const categories = {
     monsters: {
@@ -21,25 +22,21 @@ const Codex = ({ onClose, completedAchievements, pets }) => {
     Goblin: [
       { item: 'Weapon', rarity: 'Common' },
       { item: 'Body', rarity: 'Common' },
-      { item: 'Gold', rarity: null },
       { item: 'Pet', rarity: 'Unique', dropRate: '0.1%' }
     ],
     Ogre: [
       { item: 'Weapon', rarity: 'Magic' },
       { item: 'Body', rarity: 'Magic' },
-      { item: 'Gold', rarity: null },
       { item: 'Pet', rarity: 'Unique', dropRate: '0.1%' }
     ],
     Demon: [
       { item: 'Weapon', rarity: 'Rare' },
       { item: 'Body', rarity: 'Rare' },
-      { item: 'Gold', rarity: null },
       { item: 'Pet', rarity: 'Unique', dropRate: '0.1%' }
     ],
     Dragon: [
       { item: 'Weapon', rarity: 'Unique' },
       { item: 'Body', rarity: 'Unique' },
-      { item: 'Gold', rarity: null },
       { item: 'Pet', rarity: 'Unique', dropRate: '0.1%' }
     ]
   };
@@ -80,136 +77,182 @@ const Codex = ({ onClose, completedAchievements, pets }) => {
     switch (selectedCategory) {
       case 'monsters':
         return (
-          <div style={{ padding: '10px', position: 'relative', display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-            {selectedMonster ? (
-              <>
-                <button 
-                  onClick={() => setSelectedMonster(null)}
+          <div style={{ 
+            padding: '10px', 
+            display: 'flex', 
+            flexDirection: 'row', 
+            height: 'auto'
+          }}>
+            {/* Left sidebar monster list */}
+            <div style={{
+              width: '120px',
+              borderRight: '1px solid #ccc',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              padding: '10px',
+              overflowY: 'auto'
+            }}>
+              {Object.keys(monsterDrops).map(monster => (
+                <button
+                  key={monster}
+                  onClick={() => setSelectedMonster(monster)}
                   style={{
-                    position: 'absolute',
-                    top: '10px',
-                    left: '10px',
-                    padding: '5px',
+                    padding: '2px',
                     cursor: 'pointer',
-                    backgroundColor: '#e0e0e0',
-                    border: 'none',
+                    textAlign: 'center',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '8px',
+                    backgroundColor: selectedMonster === monster ? '#eee' : 'transparent',
+                    border: '1px solid #ccc',
                     borderRadius: '4px',
-                    color: '#333'
+                    width: '100%'
                   }}
                 >
-                  ← Back
+                  <img 
+                    src={`/coinflip/assets/monsters/${monster.toLowerCase()}.png`}
+                    alt={monster}
+                    style={{ height: '24px' }}
+                  />
+                  <span style={{ 
+                    color: '#333',
+                    fontSize: '0.9em',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis'
+                  }}>
+                    {monster}
+                  </span>
                 </button>
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ color: '#333', margin: '0' }}>
-                    <img 
-                      src={`/coinflip/assets/monsters/${selectedMonster.toLowerCase()}.png`}
-                      alt={selectedMonster}
-                      style={{ height: '24px', marginRight: '8px', verticalAlign: 'middle' }}
-                    />
-                    {selectedMonster}
-                  </h3>
-                  <div style={{ color: '#666', fontSize: '0.9em', marginTop: '10px' }}>
-                    <div title="Health">❤️: {monsterTypes[selectedMonster].maxHP}</div>
-                    <div title="Damage">💥: {monsterTypes[selectedMonster].damage}</div>
-                    <div title="Stats">💪: {monsterTypes[selectedMonster].stats}</div>
+              ))}
+            </div>
+
+            {/* Right side monster details */}
+            <div style={{ flex: 1, padding: '10px' }}>
+              {selectedMonster && (
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+                  <div style={{ flex: 1, alignSelf: 'flex-start' }}>
+                    <h3 style={{ color: '#333', margin: '0' }}>
+                      <img 
+                        src={`/coinflip/assets/monsters/${selectedMonster.toLowerCase()}.png`}
+                        alt={selectedMonster}
+                        style={{ height: '24px', marginRight: '8px', verticalAlign: 'middle' }}
+                      />
+                      {selectedMonster}
+                    </h3>
+                    <div style={{ color: '#666', fontSize: '0.9em', marginTop: '10px' }}>
+                      <div title="Health">❤️: {monsterTypes[selectedMonster].maxHP}</div>
+                      <div title="Damage">💥: {monsterTypes[selectedMonster].damage}</div>
+                      <div title="Stats">💪: {monsterTypes[selectedMonster].stats}</div>
+                    </div>
+                    <div style={{ color: '#666', fontSize: '0.9em', marginTop: '10px', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+                      Kills: {killCount[selectedMonster] || 0}
+                    </div>
                   </div>
-                </div>
-                <div style={{ flex: 1, padding: '10px', overflowY: 'auto' }}>
-                  <div style={{ display: 'grid', gap: '5px' }}>
+                  <div style={{ flex: 1, display: 'grid', gap: '10px', gridTemplateColumns: 'repeat(auto-fit, 40px)', justifyContent: 'center' }}>
                     {monsterDrops[selectedMonster].map((drop, index) => (
                       <div 
                         key={index}
                         style={{
-                          padding: '5px',
-                          border: '1px solid #ccc',
-                          borderRadius: '4px',
-                          width: '150px',
+                          width: '40px',
+                          height: '40px',
                           display: 'flex',
-                          justifyContent: 'space-between',
+                          justifyContent: 'center',
                           alignItems: 'center',
-                          backgroundColor: '#fff'
+                          backgroundColor: '#fff',
+                          borderRadius: '4px',
+                          position: 'relative'
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <img 
-                            src={drop.item === 'Pet' 
-                              ? `/coinflip/assets/monsters/${selectedMonster.toLowerCase()}.png`
-                              : drop.rarity 
-                                ? `/coinflip/assets/items/${drop.item.toLowerCase()}-${drop.rarity.toLowerCase()}.png`
-                                : `/coinflip/assets/items/${drop.item.toLowerCase()}.png`
-                            }
-                            alt={drop.item}
-                            style={{ height: '24px' }}
-                          />
-                          <span style={{ color: '#333' }}>
-                            {drop.item}
-                            {drop.item === 'Pet' && pets[selectedMonster] && ` (${pets[selectedMonster].count})`}
-                          </span>
-                        </div>
-                        <span style={{ color: getColor(drop.rarity) }}>
-                          {drop.rarity}
-                          {drop.dropRate && ` - ${drop.dropRate}`}
-                        </span>
+                        <img 
+                          src={drop.item === 'Pet' 
+                            ? `/coinflip/assets/monsters/${selectedMonster.toLowerCase()}.png`
+                            : drop.rarity 
+                              ? `/coinflip/assets/items/${drop.item.toLowerCase()}-${drop.rarity.toLowerCase()}.png`
+                              : `/coinflip/assets/items/${drop.item.toLowerCase()}.png`
+                          }
+                          alt={drop.item}
+                          style={{ height: '32px' }}
+                        />
+                        {drop.item === 'Pet' && pets[selectedMonster]?.count > 0 && (
+                          <div style={{
+                            position: 'absolute',
+                            bottom: '-5px',
+                            right: '-5px',
+                            backgroundColor: '#4CAF50',
+                            color: 'white',
+                            borderRadius: '50%',
+                            width: '20px',
+                            height: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '12px',
+                            fontWeight: 'bold'
+                          }}>
+                            {pets[selectedMonster].count}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
-              </>
-            ) : (
-              <div style={{ 
-                display: 'flex', 
-                flexDirection: 'row', 
-                flexWrap: 'wrap', 
-                gap: '10px', 
-                padding: '10px',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}>
-                {Object.keys(monsterDrops).map(monster => (
-                  <button
-                    key={monster}
-                    onClick={() => setSelectedMonster(monster)}
-                    style={{
-                      padding: '10px',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '10px',
-                      backgroundColor: '#e0e0e0',
-                      border: 'none',
-                      borderRadius: '4px',
-                      flex: '0 1 auto'
-                    }}
-                  >
-                    <img 
-                      src={`/coinflip/assets/monsters/${monster.toLowerCase()}.png`}
-                      alt={monster}
-                      style={{ height: '32px' }}
-                    />
-                    <span style={{ color: '#333' }}>{monster}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         );
       case 'achievements':
         return (
-          <div style={{ padding: '10px' }}>
-            <div 
-              style={{
-                display: 'grid', 
-                gap: '10px', 
-                justifyContent: 'center', 
-                alignItems: 'center',
-                gridTemplateColumns: 'repeat(3, 1fr)',
-                justifyItems: 'center'
-              }}
-            >
+          <div style={{ 
+            padding: '10px',
+            display: 'flex',
+            gap: '10px'
+          }}>
+            <div style={{
+              width: '200px',
+              borderRight: '1px solid #ccc',
+              padding: '10px',
+              fontSize: '0.9em'
+            }}>
+              {selectedAchievement ? (
+                <>
+                  <h3 style={{ margin: '0 0 10px 0' }}>
+                    <span style={{ marginRight: '8px' }}>{selectedAchievement.icon}</span>
+                    {selectedAchievement.title}
+                  </h3>
+                  <p style={{ color: '#666', margin: '0' }}>{selectedAchievement.description}</p>
+                  {completedAchievements?.includes(selectedAchievement.id) && (
+                    <div style={{ 
+                      marginTop: '10px',
+                      color: '#4CAF50',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}>
+                      <span>✓</span> Completed
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{ color: '#666' }}>
+                  Select an achievement to view details
+                </div>
+              )}
+            </div>
+
+            <div style={{
+              flex: 1,
+              display: 'grid',
+              gap: '10px',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              justifyItems: 'center'
+            }}>
               {achievements.map(achievement => (
                 <div
                   key={achievement.id}
+                  onClick={() => setSelectedAchievement(achievement)}
                   style={{
                     padding: '10px',
                     border: '1px solid #ccc',
@@ -221,13 +264,13 @@ const Codex = ({ onClose, completedAchievements, pets }) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                     backgroundColor: completedAchievements?.includes(achievement.id) 
-                      ? '#e8f5e9'  // Light green background for completed
+                      ? '#e8f5e9'
                       : '#fff',
                     opacity: completedAchievements?.includes(achievement.id) ? 1 : 0.7,
-                    position: 'relative',
-                    cursor: 'help',
+                    cursor: 'pointer',
+                    transition: 'transform 0.1s',
+                    transform: selectedAchievement?.id === achievement.id ? 'scale(1.05)' : 'scale(1)'
                   }}
-                  title={`${achievement.title}: ${achievement.description}${completedAchievements?.includes(achievement.id) ? ' (Completed)' : ''}`}
                 >
                   <div style={{ 
                     fontSize: '32px',
@@ -325,7 +368,6 @@ const Codex = ({ onClose, completedAchievements, pets }) => {
               key={key}
               onClick={() => {
                 setSelectedCategory(key);
-                setSelectedMonster(null);
               }}
               style={{
                 flex: 1,
