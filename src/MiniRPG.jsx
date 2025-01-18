@@ -1239,7 +1239,7 @@ const MiniRPG = () => {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [showTree]);
 
-  const checkFullCommonSet = useCallback(() => {
+  const checkFullSet = useCallback(() => {
     if (hasShownSetNotification) return;
     
     const requiredSlots = ['Hat', 'Cape', 'Amulet', 'Weapon', 'Body', 'Pants', 'Gloves', 'Boots', 'Ring'];
@@ -1275,8 +1275,8 @@ const MiniRPG = () => {
   }, [equipment, hasShownSetNotification, pets]);
 
   useEffect(() => {
-    checkFullCommonSet();
-  }, [equipment, checkFullCommonSet]);
+    checkFullSet();
+  }, [equipment, checkFullSet]);
 
   useEffect(() => { // update potion timer ref
     potionTimerRef.current = potionTimer;
@@ -1357,7 +1357,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.15.8 - <a href='https://alan.computer'
+          v1.16.0 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
