@@ -1257,22 +1257,22 @@ const MiniRPG = () => {
     // Check for all pets
     const hasAllPets = Object.values(pets).every(pet => pet.count > 0);
 
-    if (hasFullCommonSet) {
+    if (hasFullCommonSet && !completedAchievements.includes('common_set')) {
       setShowSetCompletion(true);
       setHasShownSetNotification(true);
       setCompletedAchievements(prev => [...prev, 'common_set']);
     }
 
-    if (hasFullUniqueSet) {
+    if (hasFullUniqueSet && !completedAchievements.includes('unique_set')) {
       setShowSetCompletion(true);
       setCompletedAchievements(prev => [...prev, 'unique_set']);
     }
 
-    if (hasAllPets) {
+    if (hasAllPets && !completedAchievements.includes('all_pets')) {
       setShowSetCompletion(true);
       setCompletedAchievements(prev => [...prev, 'all_pets']);
     }
-  }, [equipment, hasShownSetNotification, pets]);
+  }, [equipment, hasShownSetNotification, pets, completedAchievements]);
 
   useEffect(() => {
     checkFullSet();
@@ -1357,7 +1357,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.16.0 - <a href='https://alan.computer'
+          v1.16.1 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
