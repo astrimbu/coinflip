@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { clearGameState } from '../utils/storage';
+import React, { useState, useRef } from 'react';
+import { clearGameState, exportGameState, importGameState } from '../utils/storage';
 
 const Settings = ({ onClose }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [importError, setImportError] = useState(null);
+  const fileInputRef = useRef(null);
 
   const handleReset = () => {
     setShowConfirmation(true);
@@ -11,6 +13,38 @@ const Settings = ({ onClose }) => {
   const confirmReset = () => {
     clearGameState();
     window.location.reload();
+  };
+
+  const handleExport = () => {
+    exportGameState();
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImportChange = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      await importGameState(file);
+      window.location.reload();
+    } catch (error) {
+      setImportError('Failed to import save file. Please ensure it is valid.');
+      setTimeout(() => setImportError(null), 3000);
+    }
+  };
+
+  const buttonStyle = {
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    border: 'none',
+    padding: '10px 20px',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    margin: '5px',
+    width: '150px',
   };
 
   return (
@@ -54,20 +88,40 @@ const Settings = ({ onClose }) => {
 
         <h2 style={{ marginTop: 0 }}>Settings</h2>
 
-        <div style={{ marginTop: '20px' }}>
+        <div style={{ 
+          marginTop: '20px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          <button onClick={handleExport} style={buttonStyle}>
+            💾 Save
+          </button>
+          
+          <button onClick={handleImportClick} style={buttonStyle}>
+            📂 Load
+          </button>
+          <input 
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImportChange}
+            accept=".json"
+            style={{ display: 'none' }}
+          />
+          
           <button
             onClick={handleReset}
-            style={{
-              backgroundColor: '#ff4444',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '5px',
-              cursor: 'pointer',
-            }}
+            style={{...buttonStyle, backgroundColor: '#ff4444'}}
           >
-            Reset Game
+            🚮 Reset
           </button>
+
+          {importError && (
+            <div style={{ color: 'red', marginTop: '10px' }}>
+              {importError}
+            </div>
+          )}
         </div>
 
         {showConfirmation && (

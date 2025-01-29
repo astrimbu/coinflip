@@ -609,22 +609,10 @@ const MiniRPG = () => {
       const upgradedItem = { 
         ...currentItem, 
         rarity: newRarity, 
-        stat: getRarityStat(newRarity) 
+        stat: getRarityStat(newRarity),
+        id: new Date().toISOString()
       };
       equipItem(upgradedItem, slotName);
-      
-      // Check for set completion after upgrade
-      const requiredSlots = ['Hat', 'Cape', 'Amulet', 'Weapon', 'Body', 'Pants', 'Gloves', 'Boots', 'Ring'];
-      
-      // Check for Unique set
-      const hasFullUniqueSet = requiredSlots.every(slot => 
-        equipment[slot] && equipment[slot].rarity === 'Unique'
-      );
-
-      if (hasFullUniqueSet && !completedAchievements.includes('unique_set')) {
-        setShowSetCompletion(true);
-        setCompletedAchievements(prev => [...prev, 'unique_set']);
-      }
     }
   };
 
@@ -1255,8 +1243,6 @@ const MiniRPG = () => {
   }, [showTree]);
 
   const checkEquipmentAchievements = useCallback(() => {
-    if (hasShownSetNotification) return;
-    
     const requiredSlots = ['Hat', 'Cape', 'Amulet', 'Weapon', 'Body', 'Pants', 'Gloves', 'Boots', 'Ring'];
     
     // Check for Common set
@@ -1276,7 +1262,7 @@ const MiniRPG = () => {
     if (hasFullUniqueSet && !completedAchievements.includes('unique_set')) {
       unlockAchievement('unique_set');
     }
-  }, [equipment, hasShownSetNotification, completedAchievements]);
+  }, [equipment, completedAchievements]);
 
   const checkPetAchievements = useCallback(() => {
     const hasAllPets = Object.values(pets).every(pet => pet.count > 0);
@@ -1288,7 +1274,6 @@ const MiniRPG = () => {
 
   const unlockAchievement = (achievementId) => {
     setShowSetCompletion(true);
-    setHasShownSetNotification(true);
     setCompletedAchievements(prev => [...prev, achievementId]);
     setLastUnlockedAchievement(achievementId);
   };
@@ -1380,7 +1365,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.16.3 - <a href='https://alan.computer'
+          v1.17.0 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
