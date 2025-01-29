@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { getColor } from '../utils';
 import { monsterTypes } from '../constants/gameData';
+import { achievements } from '../constants/achievements';
 
 const Codex = ({ onClose, completedAchievements, pets, killCount }) => {
   const [selectedCategory, setSelectedCategory] = useState('monsters');
@@ -40,27 +41,6 @@ const Codex = ({ onClose, completedAchievements, pets, killCount }) => {
       { item: 'Pet', rarity: 'Unique', dropRate: '0.1%' }
     ]
   };
-
-  const achievements = [
-    {
-      id: 'common_set',
-      title: 'Common Ground',
-      description: 'Equip a full set of Common gear',
-      icon: '👕'
-    },
-    {
-      id: 'unique_set',
-      title: 'Uniquely Equipped',
-      description: 'Equip a full set of Unique gear',
-      icon: '👑'
-    },
-    {
-      id: 'all_pets',
-      title: 'Pet Master',
-      description: 'Obtain all monster pets',
-      icon: '🐾'
-    }
-  ];
 
   useEffect(() => {
     const handleEscape = (e) => {

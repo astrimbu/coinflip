@@ -38,6 +38,7 @@ import Toast from './components/Toast';
 import HealthBar from './components/HealthBar';
 import { saveGameState, loadGameState } from './utils/storage';
 import Settings from './components/Settings';
+import { achievements } from './constants/achievements';
 
 
 const MiniRPG = () => {
@@ -152,6 +153,7 @@ const MiniRPG = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [hoveredPet, setHoveredPet] = useState(null);
   const [lastAttack, setLastAttack] = useState({ damage: null, id: null });
+  const [lastUnlockedAchievement, setLastUnlockedAchievement] = useState(null);
 
   // Computed State
   const isMonsterClickable = !isFighting;
@@ -1252,7 +1254,7 @@ const MiniRPG = () => {
     return () => window.removeEventListener('keydown', handleEscape);
   }, [showTree]);
 
-  const checkFullSet = useCallback(() => {
+  const checkEquipmentAchievements = useCallback(() => {
     if (hasShownSetNotification) return;
     
     const requiredSlots = ['Hat', 'Cape', 'Amulet', 'Weapon', 'Body', 'Pants', 'Gloves', 'Boots', 'Ring'];
@@ -1267,29 +1269,37 @@ const MiniRPG = () => {
       equipment[slot] && equipment[slot].rarity === 'Unique'
     );
 
-    // Check for all pets
-    const hasAllPets = Object.values(pets).every(pet => pet.count > 0);
-
     if (hasFullCommonSet && !completedAchievements.includes('common_set')) {
-      setShowSetCompletion(true);
-      setHasShownSetNotification(true);
-      setCompletedAchievements(prev => [...prev, 'common_set']);
+      unlockAchievement('common_set');
     }
 
     if (hasFullUniqueSet && !completedAchievements.includes('unique_set')) {
-      setShowSetCompletion(true);
-      setCompletedAchievements(prev => [...prev, 'unique_set']);
+      unlockAchievement('unique_set');
     }
+  }, [equipment, hasShownSetNotification, completedAchievements]);
 
+  const checkPetAchievements = useCallback(() => {
+    const hasAllPets = Object.values(pets).every(pet => pet.count > 0);
+    
     if (hasAllPets && !completedAchievements.includes('all_pets')) {
-      setShowSetCompletion(true);
-      setCompletedAchievements(prev => [...prev, 'all_pets']);
+      unlockAchievement('all_pets');
     }
-  }, [equipment, hasShownSetNotification, pets, completedAchievements]);
+  }, [pets, completedAchievements]);
+
+  const unlockAchievement = (achievementId) => {
+    setShowSetCompletion(true);
+    setHasShownSetNotification(true);
+    setCompletedAchievements(prev => [...prev, achievementId]);
+    setLastUnlockedAchievement(achievementId);
+  };
 
   useEffect(() => {
-    checkFullSet();
-  }, [equipment, checkFullSet]);
+    checkEquipmentAchievements();
+  }, [equipment, checkEquipmentAchievements]);
+  
+  useEffect(() => {
+    checkPetAchievements();
+  }, [pets, checkPetAchievements]);
 
   useEffect(() => { // update potion timer ref
     potionTimerRef.current = potionTimer;
@@ -1370,7 +1380,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.16.2 - <a href='https://alan.computer'
+          v1.16.3 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
@@ -1380,15 +1390,13 @@ const MiniRPG = () => {
       </div>
       
       {showSettings && <Settings onClose={() => setShowSettings(false)} />}
-      {showSetCompletion && (
+      {showSetCompletion && lastUnlockedAchievement && (
         <Toast
-          message={
-            completedAchievements.includes('unique_set') && 
-            !completedAchievements.includes('common_set')
-              ? "Achievement: Full Unique Set Equipped"
-              : "Achievement: Full Common Set Equipped"
-          }
-          onClose={() => setShowSetCompletion(false)}
+          message={`Achievement: ${achievements.find(a => a.id === lastUnlockedAchievement)?.title || 'Unknown'}`}
+          onClose={() => {
+            setShowSetCompletion(false);
+            setLastUnlockedAchievement(null);
+          }}
         />
       )}
     </div>
