@@ -610,6 +610,19 @@ const MiniRPG = () => {
         stat: getRarityStat(newRarity) 
       };
       equipItem(upgradedItem, slotName);
+      
+      // Check for set completion after upgrade
+      const requiredSlots = ['Hat', 'Cape', 'Amulet', 'Weapon', 'Body', 'Pants', 'Gloves', 'Boots', 'Ring'];
+      
+      // Check for Unique set
+      const hasFullUniqueSet = requiredSlots.every(slot => 
+        equipment[slot] && equipment[slot].rarity === 'Unique'
+      );
+
+      if (hasFullUniqueSet && !completedAchievements.includes('unique_set')) {
+        setShowSetCompletion(true);
+        setCompletedAchievements(prev => [...prev, 'unique_set']);
+      }
     }
   };
 
@@ -1319,7 +1332,7 @@ const MiniRPG = () => {
             killCount={killCount}
           />
         )}
-        {((isDesktop || overrideMobile) && showTutorial) && (
+        {(isDesktop || overrideMobile) && showTutorial && (
           <Tutorial
             step={tutorialStep}
             onComplete={handleTutorialComplete}
@@ -1357,7 +1370,7 @@ const MiniRPG = () => {
           >
             ⚙️ -
           </span>
-          v1.16.1 - <a href='https://alan.computer'
+          v1.16.2 - <a href='https://alan.computer'
             style={{
               color: '#b0b0b0',
               textDecoration: 'none',
@@ -1369,7 +1382,12 @@ const MiniRPG = () => {
       {showSettings && <Settings onClose={() => setShowSettings(false)} />}
       {showSetCompletion && (
         <Toast
-          message="Achievement: Full Common Set Equipped"
+          message={
+            completedAchievements.includes('unique_set') && 
+            !completedAchievements.includes('common_set')
+              ? "Achievement: Full Unique Set Equipped"
+              : "Achievement: Full Common Set Equipped"
+          }
           onClose={() => setShowSetCompletion(false)}
         />
       )}
